@@ -164,6 +164,7 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
             <Button
               onClick={handleShowAnswer}
               className="bg-yellow-500 text-black hover:bg-yellow-400 text-xl px-8 py-4 font-bold"
+              style={{backgroundColor: '#fa1e4e'}}
             >
               Reveal Answer
             </Button>
