@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Button } from './ui/button';
-import { Settings, Save, History, Edit, Calculator, Trash2 } from 'lucide-react';
+import { Settings, Save, History, Edit, Calculator, Users } from 'lucide-react';
 import PlayerManager from './PlayerManager';
 import { Player } from '../types/game';
 
@@ -25,12 +25,14 @@ const GameControls: React.FC<GameControlsProps> = ({
   isLoading = false
 }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [showPlayerManager, setShowPlayerManager] = useState(false);
 
   const menuItems = [
     { icon: Save, label: 'Save Game', action: onSaveGame, disabled: isLoading },
     { icon: History, label: 'Game History', action: onShowGameHistory },
     { icon: Edit, label: 'Edit Game', action: onShowGameEditor },
     { icon: Calculator, label: 'Manage Scores', action: onShowScoreManager },
+    { icon: Users, label: 'Manage Players', action: () => setShowPlayerManager(true) },
   ];
 
   return (
@@ -66,10 +68,12 @@ const GameControls: React.FC<GameControlsProps> = ({
         )}
       </div>
 
-      {/* Player Manager Component */}
+      {/* Player Manager Modal */}
       <PlayerManager 
         players={players}
         onPlayersUpdate={onPlayersUpdate}
+        isVisible={showPlayerManager}
+        onClose={() => setShowPlayerManager(false)}
       />
     </>
   );
