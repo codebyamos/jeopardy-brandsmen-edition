@@ -62,7 +62,7 @@ const PlayerManager: React.FC<PlayerManagerProps> = ({ players, onPlayersUpdate 
           <div className="bg-gray-900 border border-gray-700 rounded-lg max-w-4xl w-full max-h-[80vh] overflow-auto shadow-2xl">
             <div className="p-6">
               <div className="flex justify-between items-center mb-6">
-                <h3 className="text-2xl font-bold text-yellow-400">Manage Players</h3>
+                <h3 className="text-2xl font-bold text-yellow-400" style={{color: '#fa1e4e'}}>Manage Players</h3>
                 <div className="flex gap-2">
                   <Button 
                     onClick={addPlayer}
