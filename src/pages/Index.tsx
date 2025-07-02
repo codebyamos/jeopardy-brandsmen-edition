@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import GameBoard from '../components/GameBoard';
 import QuestionModal from '../components/QuestionModal';
@@ -45,8 +46,8 @@ const Index = () => {
   const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(null);
   const [answeredQuestions, setAnsweredQuestions] = useState<Set<number>>(new Set());
   const [players, setPlayers] = useState<Player[]>([
-    { id: 1, name: 'Player 1', score: 0 },
-    { id: 2, name: 'Player 2', score: 0 }
+    { id: 1, name: 'Team 1', score: 0 },
+    { id: 2, name: 'Team 2', score: 0 }
   ]);
 
   const categories = Array.from(new Set(sampleQuestions.map(q => q.category)));
@@ -76,18 +77,17 @@ const Index = () => {
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900">
       <div className="container mx-auto px-4 py-8">
         <div className="text-center mb-8">
-          <h1 className="text-6xl font-bold text-yellow-400 mb-4 tracking-wider" style={{ fontFamily: 'serif', textShadow: '2px 2px 4px rgba(0,0,0,0.8)' }}>
-            JEOPARDY
+          <h1 className="text-5xl font-bold text-yellow-400 mb-2 tracking-wider inline" style={{ fontFamily: 'serif', textShadow: '2px 2px 4px rgba(0,0,0,0.8)' }}>
+            JEOPARDY: BRANDSMEN EDITION
           </h1>
-          <h2 className="text-3xl font-semibold text-yellow-300">
-            Brandsmen Edition
-          </h2>
         </div>
         
-        <PlayerManager 
-          players={players}
-          onPlayersUpdate={setPlayers}
-        />
+        <div className="mb-6">
+          <PlayerManager 
+            players={players}
+            onPlayersUpdate={setPlayers}
+          />
+        </div>
         
         <GameBoard
           categories={categories}
@@ -96,6 +96,20 @@ const Index = () => {
           answeredQuestions={answeredQuestions}
           onQuestionSelect={handleQuestionSelect}
         />
+        
+        {/* Bottom Player Scores */}
+        <div className="mt-8 flex justify-center">
+          <div className="flex gap-8">
+            {players.map((player) => (
+              <div key={player.id} className="bg-yellow-400 text-black rounded-lg px-6 py-4 min-w-[120px] text-center">
+                <div className="font-bold text-lg mb-2">{player.name}</div>
+                <div className="bg-blue-800 text-white rounded px-4 py-2 text-xl font-bold">
+                  {player.score}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
         
         {selectedQuestion && (
           <QuestionModal

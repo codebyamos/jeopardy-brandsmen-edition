@@ -2,8 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Question, Player } from '../types/game';
 import { Button } from '../components/ui/button';
-import { Volume2 } from 'lucide-react';
-import ScoreSelector from './ScoreSelector';
+import { Volume2, X } from 'lucide-react';
 
 interface QuestionModalProps {
   question: Question;
@@ -26,8 +25,20 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
       setIsSpeaking(true);
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.rate = 0.8;
-      utterance.pitch = 1;
+      utterance.pitch = 1.2;
       utterance.volume = 1;
+      
+      // Set to female voice
+      const voices = window.speechSynthesis.getVoices();
+      const femaleVoice = voices.find(voice => 
+        voice.name.toLowerCase().includes('female') || 
+        voice.name.toLowerCase().includes('zira') ||
+        voice.name.toLowerCase().includes('eva') ||
+        voice.name.toLowerCase().includes('samantha')
+      );
+      if (femaleVoice) {
+        utterance.voice = femaleVoice;
+      }
       
       utterance.onend = () => {
         setIsSpeaking(false);
@@ -49,6 +60,8 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
   const handleShowAnswer = () => {
     setShowAnswer(true);
     speakText(question.answer);
+    // Auto-award points to first player (you can modify this logic)
+    onScorePlayer(players[0]?.id, question.points);
   };
 
   const stopSpeaking = () => {
@@ -58,100 +71,100 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
     }
   };
 
+  if (showAnswer) {
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-4">
+        <div className="bg-gradient-to-b from-gray-900 to-black border-2 border-gray-700 rounded-lg max-w-4xl w-full max-h-[90vh] overflow-auto shadow-2xl">
+          <div className="p-8 relative">
+            {/* Close X button */}
+            <Button
+              onClick={onClose}
+              variant="ghost"
+              size="sm"
+              className="absolute top-4 right-4 text-white hover:text-red-400 p-2"
+            >
+              <X className="w-6 h-6" />
+            </Button>
+            
+            {/* Header */}
+            <div className="text-center mb-8">
+              <div className="text-yellow-400 text-2xl font-semibold mb-2">
+                {question.category.toUpperCase()}
+              </div>
+              <div className="text-yellow-400 text-4xl font-bold">
+                ${question.points}
+              </div>
+            </div>
+            
+            {/* Answer */}
+            <div className="text-center mb-8">
+              <div className="flex items-center justify-center mb-6">
+                <Button
+                  onClick={() => speakText(question.answer)}
+                  disabled={isSpeaking}
+                  variant="ghost"
+                  size="sm"
+                  className="text-yellow-400 hover:text-yellow-300 p-2"
+                >
+                  <Volume2 className="w-8 h-8" />
+                </Button>
+              </div>
+              <p className="text-white text-6xl font-bold leading-relaxed">
+                {question.answer}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-4">
       <div className="bg-gradient-to-b from-gray-900 to-black border-2 border-gray-700 rounded-lg max-w-4xl w-full max-h-[90vh] overflow-auto shadow-2xl">
-        <div className="p-8">
+        <div className="p-8 relative">
+          {/* Close X button */}
+          <Button
+            onClick={onClose}
+            variant="ghost"
+            size="sm"
+            className="absolute top-4 right-4 text-white hover:text-red-400 p-2"
+          >
+            <X className="w-6 h-6" />
+          </Button>
+          
           {/* Header */}
-          <div className="text-center mb-6">
-            <div className="text-yellow-400 text-xl font-semibold mb-2">
+          <div className="text-center mb-8">
+            <div className="text-yellow-400 text-2xl font-semibold mb-2">
               {question.category.toUpperCase()}
             </div>
-            <div className="text-yellow-400 text-3xl font-bold">
+            <div className="text-yellow-400 text-4xl font-bold">
               ${question.points}
             </div>
           </div>
           
           {/* Question */}
-          <div className="bg-gray-800 border border-gray-600 rounded-lg p-6 mb-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-yellow-400 text-lg font-semibold">QUESTION:</h3>
-              <div className="flex gap-2">
-                <Button
-                  onClick={() => speakText(question.question)}
-                  disabled={isSpeaking}
-                  variant="outline"
-                  size="sm"
-                  className="bg-yellow-500 text-black hover:bg-yellow-400 border-yellow-500"
-                >
-                  <Volume2 className="w-4 h-4 mr-1" />
-                  Read Question
-                </Button>
-                {isSpeaking && (
-                  <Button
-                    onClick={stopSpeaking}
-                    variant="destructive"
-                    size="sm"
-                    className="bg-red-600 hover:bg-red-700"
-                  >
-                    Stop
-                  </Button>
-                )}
-              </div>
-            </div>
-            <p className="text-white text-xl leading-relaxed">
-              {question.question}
-            </p>
-          </div>
-          
-          {/* Answer section */}
-          {showAnswer ? (
-            <>
-              <div className="bg-green-900 border border-green-700 rounded-lg p-6 mb-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-yellow-400 text-lg font-semibold">ANSWER:</h3>
-                  <Button
-                    onClick={() => speakText(question.answer)}
-                    disabled={isSpeaking}
-                    variant="outline"
-                    size="sm"
-                    className="bg-yellow-500 text-black hover:bg-yellow-400 border-yellow-500"
-                  >
-                    <Volume2 className="w-4 h-4 mr-1" />
-                    Read Answer
-                  </Button>
-                </div>
-                <p className="text-white text-xl font-semibold">
-                  {question.answer}
-                </p>
-              </div>
-              
-              {/* Score Selector */}
-              <ScoreSelector
-                players={players}
-                questionPoints={question.points}
-                onScorePlayer={onScorePlayer}
-              />
-            </>
-          ) : (
-            <div className="text-center mb-6">
+          <div className="text-center mb-8">
+            <div className="flex items-center justify-center mb-6">
               <Button
-                onClick={handleShowAnswer}
-                className="bg-yellow-500 text-black hover:bg-yellow-400 text-lg px-8 py-3 font-bold"
+                onClick={() => speakText(question.question)}
+                disabled={isSpeaking}
+                variant="ghost"
+                size="sm"
+                className="text-yellow-400 hover:text-yellow-300 p-2"
               >
-                Reveal Answer
+                <Volume2 className="w-8 h-8" />
               </Button>
             </div>
-          )}
-          
-          {/* Close button */}
-          <div className="text-center">
+            <p className="text-white text-4xl font-bold leading-relaxed mb-8">
+              {question.question}
+            </p>
+            
             <Button
-              onClick={onClose}
-              variant="outline"
-              className="bg-red-700 text-white hover:bg-red-600 border-red-600 text-lg px-8 py-3"
+              onClick={handleShowAnswer}
+              className="bg-yellow-500 text-black hover:bg-yellow-400 text-xl px-8 py-4 font-bold"
             >
-              Close Question
+              Reveal Answer
             </Button>
           </div>
         </div>
