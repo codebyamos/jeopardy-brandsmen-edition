@@ -81,14 +81,14 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
   if (showAnswer) {
     return (
       <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-2 sm:p-4">
-        <div className="bg-gradient-to-b from-gray-900 to-black border-2 border-gray-700 rounded-lg w-full max-w-6xl max-h-[95vh] overflow-auto shadow-2xl">
+        <div className="modal-content bg-gradient-to-b from-gray-900 to-black border-2 border-gray-700 rounded-lg w-full max-w-6xl shadow-2xl">
           <div className="p-4 sm:p-6 lg:p-8 relative">
             {/* Close X button */}
             <Button
               onClick={onClose}
               variant="ghost"
               size="sm"
-              className="absolute top-2 right-2 sm:top-4 sm:right-4 text-white hover:text-red-400 p-2"
+              className="absolute top-2 right-2 sm:top-4 sm:right-4 text-white hover:text-red-400 p-2 z-10"
             >
               <X className="w-5 h-5 sm:w-6 sm:h-6" />
             </Button>
@@ -104,7 +104,7 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
             </div>
             
             {/* Answer */}
-            <div className="text-center mb-4 sm:mb-6 lg:mb-8">
+            <div className="text-center">
               <div className="flex items-center justify-center mb-4 sm:mb-6">
                 <Button
                   onClick={() => speakText(question.answer)}
@@ -128,9 +128,11 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
                   </Button>
                 )}
               </div>
-              <p className="text-white text-4xl sm:text-6xl lg:text-8xl font-bold leading-relaxed mb-4 sm:mb-6 lg:mb-8 px-2">
-                {question.answer}
-              </p>
+              <div className="modal-text-container">
+                <p className="modal-answer-text text-white font-bold px-2">
+                  {question.answer}
+                </p>
+              </div>
             </div>
           </div>
         </div>
@@ -140,14 +142,14 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-2 sm:p-4">
-      <div className="bg-gradient-to-b from-gray-900 to-black border-2 border-gray-700 rounded-lg w-full max-w-6xl max-h-[95vh] overflow-auto shadow-2xl">
+      <div className="modal-content bg-gradient-to-b from-gray-900 to-black border-2 border-gray-700 rounded-lg w-full max-w-6xl shadow-2xl">
         <div className="p-4 sm:p-6 lg:p-8 relative">
           {/* Close X button */}
           <Button
             onClick={onClose}
             variant="ghost"
             size="sm"
-            className="absolute top-2 right-2 sm:top-4 sm:right-4 text-white hover:text-red-400 p-2"
+            className="absolute top-2 right-2 sm:top-4 sm:right-4 text-white hover:text-red-400 p-2 z-10"
             style={{backgroundColor: '#fa1e4e', color: 'white'}}
           >
             <X className="w-5 h-5 sm:w-6 sm:h-6" />
@@ -164,7 +166,7 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
           </div>
           
           {/* Question */}
-          <div className="text-center mb-4 sm:mb-6 lg:mb-8">
+          <div className="text-center">
             <div className="flex items-center justify-center mb-4 sm:mb-6">
               <Button
                 onClick={() => speakText(question.question)}
@@ -188,17 +190,21 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
                 </Button>
               )}
             </div>
-            <p className="text-white text-4xl sm:text-6xl lg:text-8xl font-bold leading-relaxed mb-4 sm:mb-6 lg:mb-8 px-2">
-              {question.question}
-            </p>
+            <div className="modal-text-container">
+              <p className="modal-question-text text-white font-bold px-2">
+                {question.question}
+              </p>
+            </div>
             
-            <Button
-              onClick={handleShowAnswer}
-              className="bg-yellow-500 text-black hover:bg-yellow-400 text-lg sm:text-xl px-6 sm:px-8 py-3 sm:py-4 font-bold"
-              style={{backgroundColor: '#fa1e4e'}}
-            >
-              Reveal Answer
-            </Button>
+            <div className="mt-4 sm:mt-6">
+              <Button
+                onClick={handleShowAnswer}
+                className="bg-yellow-500 text-black hover:bg-yellow-400 text-lg sm:text-xl px-6 sm:px-8 py-3 sm:py-4 font-bold"
+                style={{backgroundColor: '#fa1e4e'}}
+              >
+                Reveal Answer
+              </Button>
+            </div>
           </div>
         </div>
       </div>

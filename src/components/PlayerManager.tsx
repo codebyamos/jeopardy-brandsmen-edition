@@ -1,12 +1,13 @@
 
 import React, { useState } from 'react';
 import { Button } from './ui/button';
-import { Plus, Edit2, Trash2, Settings, X, Check } from 'lucide-react';
+import { Plus, Edit2, Trash2, Settings, X, Check, Upload } from 'lucide-react';
 
 interface Player {
   id: number;
   name: string;
   score: number;
+  avatar?: string;
 }
 
 interface PlayerManagerProps {
@@ -61,6 +62,20 @@ const PlayerManager: React.FC<PlayerManagerProps> = ({ players, onPlayersUpdate 
     setEditScore('');
   };
 
+  const handleAvatarUpload = (playerId: number, event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const avatarUrl = e.target?.result as string;
+        onPlayersUpdate(players.map(p => 
+          p.id === playerId ? { ...p, avatar: avatarUrl } : p
+        ));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   return (
     <>
       {/* Settings Icon - Bottom Right Corner */}
@@ -103,6 +118,32 @@ const PlayerManager: React.FC<PlayerManagerProps> = ({ players, onPlayersUpdate 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {players.map((player) => (
                   <div key={player.id} className="bg-gray-800 border border-gray-600 rounded-lg p-4">
+                    {/* Avatar Section */}
+                    <div className="flex justify-center mb-3">
+                      <div className="relative">
+                        {player.avatar ? (
+                          <img 
+                            src={player.avatar} 
+                            alt={`${player.name} avatar`}
+                            className="w-16 h-16 rounded-full object-cover border-2 border-gray-600"
+                          />
+                        ) : (
+                          <div className="w-16 h-16 rounded-full bg-gray-600 flex items-center justify-center border-2 border-gray-500">
+                            <span className="text-gray-300 text-xs">No Image</span>
+                          </div>
+                        )}
+                        <label className="absolute bottom-0 right-0 bg-blue-600 hover:bg-blue-700 rounded-full p-1 cursor-pointer">
+                          <Upload className="w-3 h-3 text-white" />
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => handleAvatarUpload(player.id, e)}
+                            className="hidden"
+                          />
+                        </label>
+                      </div>
+                    </div>
+
                     <div className="flex items-center justify-between mb-2">
                       {editingId === player.id ? (
                         <div className="flex-1 mr-2">
@@ -125,8 +166,8 @@ const PlayerManager: React.FC<PlayerManagerProps> = ({ players, onPlayersUpdate 
                       ) : (
                         <>
                           <div className="flex-1">
-                            <h4 style={{color: '#fa1e4e'}} className="text-yellow-300 font-semibold mb-1">{player.name}</h4>
-                            <div className="flex items-center gap-2">
+                            <h4 style={{color: '#fa1e4e'}} className="text-yellow-300 font-semibold mb-1 text-center">{player.name}</h4>
+                            <div className="flex items-center justify-center gap-2">
                               <span className="text-gray-400 text-sm">Score:</span>
                               {editingScoreId === player.id ? (
                                 <div className="flex items-center gap-1">
@@ -159,26 +200,28 @@ const PlayerManager: React.FC<PlayerManagerProps> = ({ players, onPlayersUpdate 
                               )}
                             </div>
                           </div>
-                          <div className="flex gap-1">
-                            <Button
-                              onClick={() => startEdit(player)}
-                              size="sm"
-                              variant="ghost"
-                              className="text-gray-400 hover:text-white p-1"
-                            >
-                              <Edit2 className="w-3 h-3" />
-                            </Button>
-                            <Button
-                              onClick={() => removePlayer(player.id)}
-                              size="sm"
-                              variant="ghost"
-                              className="text-red-400 hover:text-red-300 p-1"
-                            >
-                              <Trash2 className="w-3 h-3" />
-                            </Button>
-                          </div>
                         </>
                       )}
+                    </div>
+                    
+                    {/* Action Buttons */}
+                    <div className="flex gap-1 justify-center mt-2">
+                      <Button
+                        onClick={() => startEdit(player)}
+                        size="sm"
+                        variant="ghost"
+                        className="text-gray-400 hover:text-white p-1"
+                      >
+                        <Edit2 className="w-3 h-3" />
+                      </Button>
+                      <Button
+                        onClick={() => removePlayer(player.id)}
+                        size="sm"
+                        variant="ghost"
+                        className="text-red-400 hover:text-red-300 p-1"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </Button>
                     </div>
                   </div>
                 ))}

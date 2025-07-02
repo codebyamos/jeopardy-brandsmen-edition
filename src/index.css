@@ -139,6 +139,9 @@ All colors MUST be HSL.
     font-weight: 500 !important;
     color: white !important;
     font-size: 12px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
 }
 
 @media (min-width: 640px) {
@@ -178,27 +181,32 @@ All colors MUST be HSL.
   border-radius: 5px;
 }
 
-/* Responsive text sizing for modals */
-@media (max-width: 640px) {
-  .modal-question-text {
-    font-size: 2rem !important;
-    line-height: 1.2 !important;
-  }
-  
-  .modal-answer-text {
-    font-size: 2.5rem !important;
-    line-height: 1.2 !important;
-  }
+/* Responsive modal text sizing - adaptive to viewport */
+.modal-question-text {
+  font-size: clamp(1.5rem, 4vw, 4rem) !important;
+  line-height: 1.2 !important;
+  max-height: 50vh !important;
+  overflow-y: auto !important;
 }
 
-@media (min-width: 641px) and (max-width: 1024px) {
-  .modal-question-text {
-    font-size: 3rem !important;
-    line-height: 1.3 !important;
-  }
-  
-  .modal-answer-text {
-    font-size: 4rem !important;
-    line-height: 1.3 !important;
-  }
+.modal-answer-text {
+  font-size: clamp(2rem, 5vw, 5rem) !important;
+  line-height: 1.2 !important;
+  max-height: 50vh !important;
+  overflow-y: auto !important;
+}
+
+/* Ensure modal content fits viewport */
+.modal-content {
+  max-height: 95vh !important;
+  overflow-y: auto !important;
+}
+
+.modal-text-container {
+  max-height: 60vh !important;
+  overflow-y: auto !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 1rem !important;
 }
