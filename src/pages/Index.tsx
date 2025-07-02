@@ -1,4 +1,6 @@
+
 import React, { useState } from 'react';
+import { Button } from '../components/ui/button';
 import GameBoard from '../components/GameBoard';
 import QuestionModal from '../components/QuestionModal';
 import GameControls from '../components/GameControls';
