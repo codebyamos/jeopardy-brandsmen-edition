@@ -108,7 +108,7 @@ const PlayerManager: React.FC<PlayerManagerProps> = ({ players, onPlayersUpdate 
                       ) : (
                         <>
                           <div>
-                            <h4 className="text-yellow-300 font-semibold">{player.name}</h4>
+                            <h4 style={{color: '#fa1e4e'}} className="text-yellow-300 font-semibold">{player.name}</h4>
                             <p className="text-gray-400 text-sm">Score: {player.score}</p>
                           </div>
                           <div className="flex gap-1">
