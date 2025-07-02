@@ -110,34 +110,6 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
               <p className="text-white text-8xl font-bold leading-relaxed mb-8">
                 {question.answer}
               </p>
-              
-              {/* Score Assignment */}
-              <div className="bg-gray-800 border border-gray-600 rounded-lg p-6 max-w-2xl mx-auto">
-                <h4 className="text-yellow-300 font-semibold mb-4 text-2xl text-center">Award Points</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {players.map((player) => (
-                    <div key={player.id} className="flex justify-between items-center bg-gray-700 rounded-lg p-4">
-                      <span className="text-white text-xl font-medium">{player.name}</span>
-                      <div className="flex gap-2">
-                        <Button
-                          onClick={() => onScorePlayer(player.id, question.points)}
-                          size="sm"
-                          className="bg-green-600 hover:bg-green-700 text-white text-lg px-4 py-2"
-                        >
-                          +${question.points}
-                        </Button>
-                        <Button
-                          onClick={() => onScorePlayer(player.id, -question.points)}
-                          size="sm"
-                          className="bg-red-600 hover:bg-red-700 text-white text-lg px-4 py-2"
-                        >
-                          -${question.points}
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
             </div>
           </div>
         </div>

@@ -3,6 +3,7 @@ import GameBoard from '../components/GameBoard';
 import QuestionModal from '../components/QuestionModal';
 import PlayerManager from '../components/PlayerManager';
 import { Question, Player } from '../types/game';
+import { Button } from '../components/ui/button';
 
 const sampleQuestions: Question[] = [
   // Category 1: Company History
@@ -44,6 +45,7 @@ const sampleQuestions: Question[] = [
 const Index = () => {
   const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(null);
   const [answeredQuestions, setAnsweredQuestions] = useState<Set<number>>(new Set());
+  const [showScoring, setShowScoring] = useState(false);
   const [players, setPlayers] = useState<Player[]>([
     { id: 1, name: 'Team 1', score: 0 },
     { id: 2, name: 'Team 2', score: 0 }
@@ -62,6 +64,7 @@ const Index = () => {
   const handleQuestionClose = () => {
     if (selectedQuestion) {
       setAnsweredQuestions(prev => new Set([...prev, selectedQuestion.id]));
+      setShowScoring(true);
     }
     setSelectedQuestion(null);
   };
@@ -70,13 +73,14 @@ const Index = () => {
     setPlayers(prev => prev.map(p => 
       p.id === playerId ? { ...p, score: p.score + points } : p
     ));
+    setShowScoring(false);
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900">
       <div className="container mx-auto px-4 py-8">
         <div className="text-center mb-8">
-          <h1 className="text-5xl font-bold text-yellow-400 mb-2 tracking-wider inline" style={{ fontFamily: 'serif', textShadow: '2px 2px 4px rgba(0,0,0,0.8)' }}>
+          <h1 className="text-5xl font-bold text-yellow-400 mb-2 tracking-wider" style={{ fontFamily: 'serif', textShadow: '2px 2px 4px rgba(0,0,0,0.8)' }}>
             JEOPARDY: BRANDSMEN EDITION
           </h1>
         </div>
@@ -116,6 +120,53 @@ const Index = () => {
             onClose={handleQuestionClose}
             onScorePlayer={handleScorePlayer}
           />
+        )}
+
+        {/* Score Assignment Overlay */}
+        {showScoring && (
+          <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-4">
+            <div className="bg-gray-900 border border-gray-700 rounded-lg max-w-2xl w-full p-6">
+              <h3 className="text-yellow-400 text-2xl font-bold mb-6 text-center">Award Points</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {players.map((player) => (
+                  <div key={player.id} className="flex justify-between items-center bg-gray-800 rounded-lg p-4">
+                    <span className="text-white text-xl font-medium">{player.name}</span>
+                    <div className="flex gap-2">
+                      <Button
+                        onClick={() => handleScorePlayer(player.id, answeredQuestions.size > 0 ? 
+                          Array.from(answeredQuestions).slice(-1).map(id => 
+                            sampleQuestions.find(q => q.id === id)?.points || 0
+                          )[0] : 0)}
+                        size="sm"
+                        className="bg-green-600 hover:bg-green-700 text-white text-lg px-4 py-2"
+                      >
+                        +Points
+                      </Button>
+                      <Button
+                        onClick={() => handleScorePlayer(player.id, -(answeredQuestions.size > 0 ? 
+                          Array.from(answeredQuestions).slice(-1).map(id => 
+                            sampleQuestions.find(q => q.id === id)?.points || 0
+                          )[0] : 0))}
+                        size="sm"
+                        className="bg-red-600 hover:bg-red-700 text-white text-lg px-4 py-2"
+                      >
+                        -Points
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="flex justify-center mt-6">
+                <Button
+                  onClick={() => setShowScoring(false)}
+                  variant="outline"
+                  className="text-white border-gray-600 hover:bg-gray-800"
+                >
+                  Skip Scoring
+                </Button>
+              </div>
+            </div>
+          </div>
         )}
       </div>
     </div>
