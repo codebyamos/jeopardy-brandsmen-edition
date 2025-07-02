@@ -80,7 +80,7 @@ const Index = () => {
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900">
       <div className="container mx-auto px-4 py-8">
         <div className="text-center mb-8">
-          <h1 className="text-5xl font-bold text-yellow-400 mb-2 tracking-wider" style={{ fontFamily: 'serif', textShadow: '2px 2px 4px rgba(0,0,0,0.8)' }}>
+          <h1 className="text-5xl font-bold text-yellow-400 mb-2 tracking-wider" style={{ fontFamily: 'arial', textShadow: '2px 2px 4px rgba(0,0,0,0.8)' }}>
             JEOPARDY: BRANDSMEN EDITION
           </h1>
         </div>
