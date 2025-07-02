@@ -126,7 +126,7 @@ const Index = () => {
         {showScoring && (
           <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-4">
             <div className="bg-gray-900 border border-gray-700 rounded-lg max-w-2xl w-full p-6">
-              <h3 className="text-yellow-400 text-2xl font-bold mb-6 text-center">Award Points</h3>
+              <h3 className="text-yellow-400 text-2xl font-bold mb-6 text-center" style={{color: '#fa1e4e'}}>Award Points</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {players.map((player) => (
                   <div key={player.id} className="flex justify-between items-center bg-gray-800 rounded-lg p-4">
