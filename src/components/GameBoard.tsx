@@ -33,9 +33,11 @@ const GameBoard: React.FC<GameBoardProps> = ({
         {categories.map((category, index) => (
           <div
             key={index}
-            className="category-header bg-gradient-to-b from-gray-800 to-gray-900 text-yellow-400 p-4 text-center font-bold text-lg border-b border-gray-700"
+            className="category-header bg-gradient-to-b from-gray-800 to-gray-900 text-yellow-400 p-2 sm:p-3 lg:p-4 text-center font-bold text-xs sm:text-sm lg:text-lg border-b border-gray-700"
           >
-            {category.toUpperCase()}
+            <div className="break-words">
+              {category.toUpperCase()}
+            </div>
           </div>
         ))}
       </div>
@@ -51,7 +53,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
                 onClick={() => onQuestionSelect(category, points)}
                 disabled={answered}
                 className={`
-                  questions-item h-20 text-2xl font-bold transition-all duration-200 border-r border-gray-700 last:border-r-0
+                  questions-item h-12 sm:h-16 lg:h-20 text-base sm:text-xl lg:text-2xl font-bold transition-all duration-200 border-r border-gray-700 last:border-r-0
                   ${answered 
                     ? 'bg-gray-800 text-gray-600 cursor-not-allowed' 
                     : 'bg-gradient-to-b from-blue-800 to-blue-900 text-yellow-400 hover:from-blue-700 hover:to-blue-800 hover:scale-105 cursor-pointer shadow-lg'

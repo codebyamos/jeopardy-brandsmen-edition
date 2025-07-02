@@ -22,20 +22,29 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
 
   const speakText = (text: string) => {
     if ('speechSynthesis' in window) {
+      // Stop any current speech
+      window.speechSynthesis.cancel();
+      
       setIsSpeaking(true);
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.rate = 0.8;
-      utterance.pitch = 1.2;
+      utterance.pitch = 1.1;
       utterance.volume = 1;
       
-      // Set to female voice
+      // Ensure female voice with better selection
       const voices = window.speechSynthesis.getVoices();
       const femaleVoice = voices.find(voice => 
-        voice.name.toLowerCase().includes('female') || 
+        voice.name.toLowerCase().includes('samantha') ||
+        voice.name.toLowerCase().includes('karen') ||
+        voice.name.toLowerCase().includes('susan') ||
+        voice.name.toLowerCase().includes('allison') ||
+        voice.name.toLowerCase().includes('ava') ||
+        voice.name.toLowerCase().includes('serena') ||
         voice.name.toLowerCase().includes('zira') ||
-        voice.name.toLowerCase().includes('eva') ||
-        voice.name.toLowerCase().includes('samantha')
-      );
+        (voice.name.toLowerCase().includes('female') && voice.lang.startsWith('en')) ||
+        (voice.gender && voice.gender === 'female')
+      ) || voices.find(voice => voice.lang.startsWith('en') && voice.name.includes('Google'));
+      
       if (femaleVoice) {
         utterance.voice = femaleVoice;
       }
@@ -71,32 +80,32 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
 
   if (showAnswer) {
     return (
-      <div style={{color: '#fa1e4e'}} className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-4">
-        <div style={{color: '#fa1e4e'}} className="bg-gradient-to-b from-gray-900 to-black border-2 border-gray-700 rounded-lg max-w-6xl w-full max-h-[90vh] overflow-auto shadow-2xl">
-          <div className="p-8 relative">
+      <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-2 sm:p-4">
+        <div className="bg-gradient-to-b from-gray-900 to-black border-2 border-gray-700 rounded-lg w-full max-w-6xl max-h-[95vh] overflow-auto shadow-2xl">
+          <div className="p-4 sm:p-6 lg:p-8 relative">
             {/* Close X button */}
             <Button
               onClick={onClose}
               variant="ghost"
               size="sm"
-              className="absolute top-4 right-4 text-white hover:text-red-400 p-2"
+              className="absolute top-2 right-2 sm:top-4 sm:right-4 text-white hover:text-red-400 p-2"
             >
-              <X className="w-6 h-6" />
+              <X className="w-5 h-5 sm:w-6 sm:h-6" />
             </Button>
             
             {/* Header */}
-            <div className="text-center mb-8">
-              <div className="text-yellow-400 text-2xl font-semibold mb-2" style={{color: '#fa1e4e'}}>
+            <div className="text-center mb-4 sm:mb-6 lg:mb-8">
+              <div className="text-2xl sm:text-3xl lg:text-4xl font-semibold mb-2" style={{color: '#fa1e4e'}}>
                 {question.category.toUpperCase()}
               </div>
-              <div className="text-yellow-400 text-4xl font-bold" style={{color: '#fa1e4e'}}>
+              <div className="text-3xl sm:text-4xl lg:text-5xl font-bold" style={{color: '#fa1e4e'}}>
                 ${question.points}
               </div>
             </div>
             
             {/* Answer */}
-            <div className="text-center mb-8">
-              <div className="flex items-center justify-center mb-6">
+            <div className="text-center mb-4 sm:mb-6 lg:mb-8">
+              <div className="flex items-center justify-center mb-4 sm:mb-6">
                 <Button
                   onClick={() => speakText(question.answer)}
                   disabled={isSpeaking}
@@ -105,10 +114,21 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
                   className="text-yellow-400 hover:text-yellow-300 p-2"
                   style={{backgroundColor: '#fa1e4e', color:'white'}}
                 >
-                  <Volume2 className="w-8 h-8" />
+                  <Volume2 className="w-6 h-6 sm:w-8 sm:h-8" />
                 </Button>
+                {isSpeaking && (
+                  <Button
+                    onClick={stopSpeaking}
+                    variant="ghost"
+                    size="sm"
+                    className="ml-2 text-red-400 hover:text-red-300 p-2"
+                    style={{backgroundColor: '#666'}}
+                  >
+                    Stop
+                  </Button>
+                )}
               </div>
-              <p className="text-white text-6xl font-bold leading-relaxed mb-8">
+              <p className="text-white text-4xl sm:text-6xl lg:text-8xl font-bold leading-relaxed mb-4 sm:mb-6 lg:mb-8 px-2">
                 {question.answer}
               </p>
             </div>
@@ -119,33 +139,33 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
   }
 
   return (
-    <div style={{color: '#fa1e4e'}} className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-4">
-      <div style={{color: '#fa1e4e'}} className="bg-gradient-to-b from-gray-900 to-black border-2 border-gray-700 rounded-lg max-w-6xl w-full max-h-[90vh] overflow-auto shadow-2xl">
-        <div className="p-8 relative">
+    <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-2 sm:p-4">
+      <div className="bg-gradient-to-b from-gray-900 to-black border-2 border-gray-700 rounded-lg w-full max-w-6xl max-h-[95vh] overflow-auto shadow-2xl">
+        <div className="p-4 sm:p-6 lg:p-8 relative">
           {/* Close X button */}
           <Button
             onClick={onClose}
             variant="ghost"
             size="sm"
-            className="absolute top-4 right-4 text-white hover:text-red-400 p-2"
+            className="absolute top-2 right-2 sm:top-4 sm:right-4 text-white hover:text-red-400 p-2"
             style={{backgroundColor: '#fa1e4e', color: 'white'}}
           >
-            <X className="w-6 h-6" />
+            <X className="w-5 h-5 sm:w-6 sm:h-6" />
           </Button>
           
           {/* Header */}
-          <div style={{color: '#fa1e4e'}} className="text-center mb-8">
-            <div style={{color: '#fa1e4e'}} className="text-yellow-400 text-2xl font-semibold mb-2">
+          <div className="text-center mb-4 sm:mb-6 lg:mb-8">
+            <div className="text-2xl sm:text-3xl lg:text-4xl font-semibold mb-2" style={{color: '#fa1e4e'}}>
               {question.category.toUpperCase()}
             </div>
-            <div style={{color: '#fa1e4e'}} className="text-yellow-400 text-4xl font-bold">
+            <div className="text-3xl sm:text-4xl lg:text-5xl font-bold" style={{color: '#fa1e4e'}}>
               ${question.points}
             </div>
           </div>
           
           {/* Question */}
-          <div className="text-center mb-8">
-            <div className="flex items-center justify-center mb-6">
+          <div className="text-center mb-4 sm:mb-6 lg:mb-8">
+            <div className="flex items-center justify-center mb-4 sm:mb-6">
               <Button
                 onClick={() => speakText(question.question)}
                 disabled={isSpeaking}
@@ -154,16 +174,27 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
                 className="text-yellow-400 hover:text-yellow-300 p-2"
                 style={{backgroundColor: '#fa1e4e', color: 'white'}}
               >
-                <Volume2 className="w-8 h-8" />
+                <Volume2 className="w-6 h-6 sm:w-8 sm:h-8" />
               </Button>
+              {isSpeaking && (
+                <Button
+                  onClick={stopSpeaking}
+                  variant="ghost"
+                  size="sm"
+                  className="ml-2 text-red-400 hover:text-red-300 p-2"
+                  style={{backgroundColor: '#666'}}
+                >
+                  Stop
+                </Button>
+              )}
             </div>
-            <p className="text-white text-6xl font-bold leading-relaxed mb-8">
+            <p className="text-white text-4xl sm:text-6xl lg:text-8xl font-bold leading-relaxed mb-4 sm:mb-6 lg:mb-8 px-2">
               {question.question}
             </p>
             
             <Button
               onClick={handleShowAnswer}
-              className="bg-yellow-500 text-black hover:bg-yellow-400 text-xl px-8 py-4 font-bold"
+              className="bg-yellow-500 text-black hover:bg-yellow-400 text-lg sm:text-xl px-6 sm:px-8 py-3 sm:py-4 font-bold"
               style={{backgroundColor: '#fa1e4e'}}
             >
               Reveal Answer
