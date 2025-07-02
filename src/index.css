@@ -136,4 +136,5 @@ All colors MUST be HSL.
 
 .questions-item:hover {
   background: #4b0917 !important;
+  border-radius: 5px;
 }
