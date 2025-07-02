@@ -97,8 +97,8 @@ const Index = () => {
         <div className="mt-8 flex justify-center">
           <div className="flex gap-8">
             {players.map((player) => (
-              <div key={player.id} className="bg-yellow-400 text-black rounded-lg px-6 py-4 min-w-[120px] text-center">
-                <div className="font-bold text-lg mb-2">{player.name}</div>
+              <div key={player.id} className="bg-yellow-400 text-black rounded-lg px-6 py-4 min-w-[120px] text-center" style={{ backgroundColor: '#fa1e4e' }}>
+                <div className="font-bold text-lg mb-2" style={{fontWeight: '400'}}>{player.name}</div>
                 <div className="bg-blue-800 text-white rounded px-4 py-2 text-xl font-bold">
                   {player.score}
                 </div>
