@@ -29,7 +29,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
   return (
     <div className="bg-gray-900 border-2 border-gray-700 rounded-lg overflow-hidden shadow-2xl">
       {/* Header row with categories */}
-      <div className="grid grid-cols-5 gap-px bg-gray-800" style={{ background: 'transparent' }}>
+      <div className="grid grid-cols-5 gap-px bg-gray-800" style={{ background: 'fa1e4e' }}>
         {categories.map((category, index) => (
           <div
             key={index}
