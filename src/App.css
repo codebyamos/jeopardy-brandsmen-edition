@@ -20,9 +20,9 @@
 
 .main-title {
   font-size: 30px !important;
-  background-color: #fa1e4e;
-  color: white;
-  border-radius: 5px;
+  background-color: #fa1e4e !important;
+  color: white !important;
+  border-radius: 5px !important;
 }
 
 @keyframes logo-spin {
