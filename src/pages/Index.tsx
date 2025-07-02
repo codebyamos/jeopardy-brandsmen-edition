@@ -1,13 +1,14 @@
-
 import React, { useState } from 'react';
 import GameBoard from '../components/GameBoard';
 import QuestionModal from '../components/QuestionModal';
 import PlayerManager from '../components/PlayerManager';
 import GameEditor from '../components/GameEditor';
 import ScoreManager from '../components/ScoreManager';
+import GameHistory from '../components/GameHistory';
 import { Question, Player } from '../types/game';
 import { Button } from '../components/ui/button';
-import { Edit, Calculator } from 'lucide-react';
+import { Edit, Calculator, Save, History } from 'lucide-react';
+import { useGameData } from '../hooks/useGameData';
 
 const sampleQuestions: Question[] = [
   // Category 1: Company History
@@ -45,10 +46,13 @@ const Index = () => {
   const [showScoring, setShowScoring] = useState(false);
   const [showGameEditor, setShowGameEditor] = useState(false);
   const [showScoreManager, setShowScoreManager] = useState(false);
+  const [showGameHistory, setShowGameHistory] = useState(false);
   const [players, setPlayers] = useState<Player[]>([
     { id: 1, name: 'Team 1', score: 0 },
     { id: 2, name: 'Team 2', score: 0 }
   ]);
+
+  const { saveGame, isLoading } = useGameData();
 
   const categories = Array.from(new Set(questions.map(q => q.category)));
   const pointValues = [100, 200, 300, 400, 500];
@@ -73,6 +77,14 @@ const Index = () => {
       p.id === playerId ? { ...p, score: p.score + points } : p
     ));
     setShowScoring(false);
+  };
+
+  const handleSaveGame = async () => {
+    try {
+      await saveGame(players);
+    } catch (error) {
+      console.error('Failed to save game:', error);
+    }
   };
 
   return (
@@ -121,6 +133,23 @@ const Index = () => {
         {/* Control Buttons - Bottom Right */}
         <div className="fixed bottom-4 right-4 flex flex-col gap-2 z-40">
           <Button 
+            onClick={handleSaveGame}
+            disabled={isLoading}
+            className="bg-green-600 hover:bg-green-700 text-white rounded-full w-12 h-12 p-0 shadow-lg"
+            title="Save Game"
+          >
+            <Save className="w-5 h-5" />
+          </Button>
+          
+          <Button 
+            onClick={() => setShowGameHistory(true)}
+            className="bg-orange-600 hover:bg-orange-700 text-white rounded-full w-12 h-12 p-0 shadow-lg"
+            title="Game History"
+          >
+            <History className="w-5 h-5" />
+          </Button>
+          
+          <Button 
             onClick={() => setShowGameEditor(true)}
             className="bg-purple-600 hover:bg-purple-700 text-white rounded-full w-12 h-12 p-0 shadow-lg"
             title="Edit Game"
@@ -164,6 +193,11 @@ const Index = () => {
           onPlayersUpdate={setPlayers}
           isVisible={showScoreManager}
           onClose={() => setShowScoreManager(false)}
+        />
+
+        <GameHistory
+          isVisible={showGameHistory}
+          onClose={() => setShowGameHistory(false)}
         />
 
         {/* Score Assignment Overlay */}
