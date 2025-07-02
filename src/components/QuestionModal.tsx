@@ -108,7 +108,7 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
                   <Volume2 className="w-8 h-8" />
                 </Button>
               </div>
-              <p className="text-white text-4xl font-bold leading-relaxed mb-8">
+              <p className="text-white text-6xl font-bold leading-relaxed mb-8">
                 {question.answer}
               </p>
             </div>
