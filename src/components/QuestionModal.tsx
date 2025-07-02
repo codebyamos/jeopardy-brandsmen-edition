@@ -41,9 +41,9 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
         voice.name.toLowerCase().includes('ava') ||
         voice.name.toLowerCase().includes('serena') ||
         voice.name.toLowerCase().includes('zira') ||
-        (voice.name.toLowerCase().includes('female') && voice.lang.startsWith('en')) ||
-        (voice.gender && voice.gender === 'female')
-      ) || voices.find(voice => voice.lang.startsWith('en') && voice.name.includes('Google'));
+        voice.name.toLowerCase().includes('female') ||
+        voice.name.toLowerCase().includes('google')
+      ) || voices.find(voice => voice.lang.startsWith('en'));
       
       if (femaleVoice) {
         utterance.voice = femaleVoice;

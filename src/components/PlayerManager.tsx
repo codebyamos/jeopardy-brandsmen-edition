@@ -1,6 +1,7 @@
+
 import React, { useState } from 'react';
 import { Button } from './ui/button';
-import { Plus, Edit2, Trash2, Settings, X } from 'lucide-react';
+import { Plus, Edit2, Trash2, Settings, X, Check } from 'lucide-react';
 
 interface Player {
   id: number;
@@ -16,6 +17,8 @@ interface PlayerManagerProps {
 const PlayerManager: React.FC<PlayerManagerProps> = ({ players, onPlayersUpdate }) => {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editName, setEditName] = useState('');
+  const [editingScoreId, setEditingScoreId] = useState<number | null>(null);
+  const [editScore, setEditScore] = useState('');
   const [isVisible, setIsVisible] = useState(false);
 
   const addPlayer = () => {
@@ -42,6 +45,20 @@ const PlayerManager: React.FC<PlayerManagerProps> = ({ players, onPlayersUpdate 
     ));
     setEditingId(null);
     setEditName('');
+  };
+
+  const startScoreEdit = (player: Player) => {
+    setEditingScoreId(player.id);
+    setEditScore(player.score.toString());
+  };
+
+  const saveScoreEdit = () => {
+    const newScore = parseInt(editScore) || 0;
+    onPlayersUpdate(players.map(p => 
+      p.id === editingScoreId ? { ...p, score: newScore } : p
+    ));
+    setEditingScoreId(null);
+    setEditScore('');
   };
 
   return (
@@ -107,9 +124,40 @@ const PlayerManager: React.FC<PlayerManagerProps> = ({ players, onPlayersUpdate 
                         </div>
                       ) : (
                         <>
-                          <div>
-                            <h4 style={{color: '#fa1e4e'}} className="text-yellow-300 font-semibold">{player.name}</h4>
-                            <p className="text-gray-400 text-sm">Score: {player.score}</p>
+                          <div className="flex-1">
+                            <h4 style={{color: '#fa1e4e'}} className="text-yellow-300 font-semibold mb-1">{player.name}</h4>
+                            <div className="flex items-center gap-2">
+                              <span className="text-gray-400 text-sm">Score:</span>
+                              {editingScoreId === player.id ? (
+                                <div className="flex items-center gap-1">
+                                  <input
+                                    type="number"
+                                    value={editScore}
+                                    onChange={(e) => setEditScore(e.target.value)}
+                                    className="w-20 bg-gray-700 text-white px-2 py-1 rounded text-sm"
+                                    onKeyDown={(e) => e.key === 'Enter' && saveScoreEdit()}
+                                  />
+                                  <Button onClick={saveScoreEdit} size="sm" variant="ghost" className="text-green-400 hover:text-green-300 p-1">
+                                    <Check className="w-3 h-3" />
+                                  </Button>
+                                  <Button onClick={() => setEditingScoreId(null)} size="sm" variant="ghost" className="text-red-400 hover:text-red-300 p-1">
+                                    <X className="w-3 h-3" />
+                                  </Button>
+                                </div>
+                              ) : (
+                                <div className="flex items-center gap-1">
+                                  <span className="text-white font-medium">{player.score}</span>
+                                  <Button
+                                    onClick={() => startScoreEdit(player)}
+                                    size="sm"
+                                    variant="ghost"
+                                    className="text-gray-400 hover:text-white p-1"
+                                  >
+                                    <Edit2 className="w-3 h-3" />
+                                  </Button>
+                                </div>
+                              )}
+                            </div>
                           </div>
                           <div className="flex gap-1">
                             <Button
