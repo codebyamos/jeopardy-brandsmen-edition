@@ -1,13 +1,11 @@
 import React, { useState } from 'react';
 import GameBoard from '../components/GameBoard';
 import QuestionModal from '../components/QuestionModal';
-import PlayerManager from '../components/PlayerManager';
+import GameControls from '../components/GameControls';
 import GameEditor from '../components/GameEditor';
 import ScoreManager from '../components/ScoreManager';
 import GameHistory from '../components/GameHistory';
 import { Question, Player } from '../types/game';
-import { Button } from '../components/ui/button';
-import { Edit, Calculator, Save, History } from 'lucide-react';
 import { useGameData } from '../hooks/useGameData';
 
 const sampleQuestions: Question[] = [
@@ -130,46 +128,16 @@ const Index = () => {
           </div>
         </div>
 
-        {/* Control Buttons - Bottom Right */}
-        <div className="fixed bottom-4 right-4 flex flex-col gap-2 z-40">
-          <Button 
-            onClick={handleSaveGame}
-            disabled={isLoading}
-            className="bg-green-600 hover:bg-green-700 text-white rounded-full w-12 h-12 p-0 shadow-lg"
-            title="Save Game"
-          >
-            <Save className="w-5 h-5" />
-          </Button>
-          
-          <Button 
-            onClick={() => setShowGameHistory(true)}
-            className="bg-orange-600 hover:bg-orange-700 text-white rounded-full w-12 h-12 p-0 shadow-lg"
-            title="Game History"
-          >
-            <History className="w-5 h-5" />
-          </Button>
-          
-          <Button 
-            onClick={() => setShowGameEditor(true)}
-            className="bg-purple-600 hover:bg-purple-700 text-white rounded-full w-12 h-12 p-0 shadow-lg"
-            title="Edit Game"
-          >
-            <Edit className="w-5 h-5" />
-          </Button>
-          
-          <Button 
-            onClick={() => setShowScoreManager(true)}
-            className="bg-blue-600 hover:bg-blue-700 text-white rounded-full w-12 h-12 p-0 shadow-lg"
-            title="Manage Scores"
-          >
-            <Calculator className="w-5 h-5" />
-          </Button>
-          
-          <PlayerManager 
-            players={players}
-            onPlayersUpdate={setPlayers}
-          />
-        </div>
+        {/* Consolidated Game Controls */}
+        <GameControls
+          players={players}
+          onPlayersUpdate={setPlayers}
+          onSaveGame={handleSaveGame}
+          onShowGameHistory={() => setShowGameHistory(true)}
+          onShowGameEditor={() => setShowGameEditor(true)}
+          onShowScoreManager={() => setShowScoreManager(true)}
+          isLoading={isLoading}
+        />
         
         {/* Modals */}
         {selectedQuestion && (

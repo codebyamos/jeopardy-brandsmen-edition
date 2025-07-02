@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Button } from './ui/button';
-import { X, Calendar, Trophy, User } from 'lucide-react';
+import { X, Calendar, Trophy, User, Trash2 } from 'lucide-react';
 import { useGameData } from '../hooks/useGameData';
 
 interface GameHistoryProps {
@@ -23,7 +23,7 @@ interface SavedGame {
 
 const GameHistory: React.FC<GameHistoryProps> = ({ isVisible, onClose }) => {
   const [games, setGames] = useState<SavedGame[]>([]);
-  const { loadRecentGames, isLoading } = useGameData();
+  const { loadRecentGames, deleteGame, isLoading } = useGameData();
 
   useEffect(() => {
     if (isVisible) {
@@ -37,6 +37,17 @@ const GameHistory: React.FC<GameHistoryProps> = ({ isVisible, onClose }) => {
       setGames(recentGames);
     } catch (error) {
       console.error('Failed to load games:', error);
+    }
+  };
+
+  const handleDeleteGame = async (gameId: string) => {
+    if (window.confirm('Are you sure you want to delete this game?')) {
+      try {
+        await deleteGame(gameId);
+        await loadGames(); // Reload the games list
+      } catch (error) {
+        console.error('Failed to delete game:', error);
+      }
     }
   };
 
@@ -96,14 +107,24 @@ const GameHistory: React.FC<GameHistoryProps> = ({ isVisible, onClose }) => {
                           {formatDate(game.game_date)}
                         </span>
                       </div>
-                      {winner && (
-                        <div className="flex items-center gap-2">
-                          <Trophy className="w-4 h-4 text-yellow-400" />
-                          <span className="text-yellow-400 font-medium">
-                            Winner: {winner.player_name} ({winner.player_score} pts)
-                          </span>
-                        </div>
-                      )}
+                      <div className="flex items-center gap-4">
+                        {winner && (
+                          <div className="flex items-center gap-2">
+                            <Trophy className="w-4 h-4 text-yellow-400" />
+                            <span className="text-yellow-400 font-medium">
+                              Winner: {winner.player_name} ({winner.player_score} pts)
+                            </span>
+                          </div>
+                        )}
+                        <Button
+                          onClick={() => handleDeleteGame(game.id)}
+                          size="sm"
+                          variant="ghost"
+                          className="text-red-400 hover:text-red-300 hover:bg-red-900/20"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">

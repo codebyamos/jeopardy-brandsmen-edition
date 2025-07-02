@@ -6,25 +6,51 @@ import { useToast } from '@/hooks/use-toast';
 
 export const useGameData = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const [currentGameId, setCurrentGameId] = useState<string | null>(null);
   const { toast } = useToast();
 
   const saveGame = async (players: Player[], gameDate?: string) => {
     setIsLoading(true);
     try {
-      // Create a new game record
-      const { data: gameData, error: gameError } = await supabase
-        .from('games')
-        .insert([{ 
-          game_date: gameDate || new Date().toISOString().split('T')[0] 
-        }])
-        .select()
-        .single();
+      const today = gameDate || new Date().toISOString().split('T')[0];
+      let gameId = currentGameId;
 
-      if (gameError) throw gameError;
+      // Check if there's already a game for today
+      if (!gameId) {
+        const { data: existingGame } = await supabase
+          .from('games')
+          .select('id')
+          .eq('game_date', today)
+          .single();
+
+        if (existingGame) {
+          gameId = existingGame.id;
+          setCurrentGameId(gameId);
+        }
+      }
+
+      // Create a new game if none exists for today
+      if (!gameId) {
+        const { data: gameData, error: gameError } = await supabase
+          .from('games')
+          .insert([{ game_date: today }])
+          .select()
+          .single();
+
+        if (gameError) throw gameError;
+        gameId = gameData.id;
+        setCurrentGameId(gameId);
+      }
+
+      // Delete existing players for this game
+      await supabase
+        .from('game_players')
+        .delete()
+        .eq('game_id', gameId);
 
       // Save all players for this game
       const gamePlayersData = players.map(player => ({
-        game_id: gameData.id,
+        game_id: gameId,
         player_name: player.name,
         player_score: player.score,
         avatar_url: player.avatar || null
@@ -41,12 +67,53 @@ export const useGameData = () => {
         description: "Your game has been successfully saved to the database.",
       });
 
-      return gameData.id;
+      return gameId;
     } catch (error) {
       console.error('Error saving game:', error);
       toast({
         title: "Error",
         description: "Failed to save the game. Please try again.",
+        variant: "destructive",
+      });
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const deleteGame = async (gameId: string) => {
+    setIsLoading(true);
+    try {
+      // Delete game players first (due to foreign key constraint)
+      const { error: playersError } = await supabase
+        .from('game_players')
+        .delete()
+        .eq('game_id', gameId);
+
+      if (playersError) throw playersError;
+
+      // Delete the game
+      const { error: gameError } = await supabase
+        .from('games')
+        .delete()
+        .eq('id', gameId);
+
+      if (gameError) throw gameError;
+
+      // Reset current game ID if it was the deleted game
+      if (currentGameId === gameId) {
+        setCurrentGameId(null);
+      }
+
+      toast({
+        title: "Game Deleted!",
+        description: "The game has been successfully deleted.",
+      });
+    } catch (error) {
+      console.error('Error deleting game:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete the game. Please try again.",
         variant: "destructive",
       });
       throw error;
@@ -90,9 +157,16 @@ export const useGameData = () => {
     }
   };
 
+  const resetCurrentGame = () => {
+    setCurrentGameId(null);
+  };
+
   return {
     saveGame,
+    deleteGame,
     loadRecentGames,
+    resetCurrentGame,
+    currentGameId,
     isLoading
   };
 };

@@ -187,6 +187,27 @@ All colors MUST be HSL.
   line-height: 1.2 !important;
   max-height: 50vh !important;
   overflow-y: auto !important;
+  /* Hide scrollbar unless needed */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+
+.modal-question-text::-webkit-scrollbar {
+  display: none; /* Chrome/Safari/Opera */
+}
+
+.modal-question-text:hover {
+  scrollbar-width: thin; /* Show scrollbar on hover */
+}
+
+.modal-question-text:hover::-webkit-scrollbar {
+  display: block;
+  width: 8px;
+}
+
+.modal-question-text:hover::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
 }
 
 .modal-answer-text {
@@ -194,6 +215,27 @@ All colors MUST be HSL.
   line-height: 1.2 !important;
   max-height: 50vh !important;
   overflow-y: auto !important;
+  /* Hide scrollbar unless needed */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+
+.modal-answer-text::-webkit-scrollbar {
+  display: none; /* Chrome/Safari/Opera */
+}
+
+.modal-answer-text:hover {
+  scrollbar-width: thin; /* Show scrollbar on hover */
+}
+
+.modal-answer-text:hover::-webkit-scrollbar {
+  display: block;
+  width: 8px;
+}
+
+.modal-answer-text:hover::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
 }
 
 /* Ensure modal content fits viewport */
