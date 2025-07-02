@@ -86,10 +86,10 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
             
             {/* Header */}
             <div className="text-center mb-8">
-              <div className="text-yellow-400 text-2xl font-semibold mb-2">
+              <div className="text-yellow-400 text-2xl font-semibold mb-2" style={{color: '#fa1e4e'}}>
                 {question.category.toUpperCase()}
               </div>
-              <div className="text-yellow-400 text-4xl font-bold">
+              <div className="text-yellow-400 text-4xl font-bold" style={{color: '#fa1e4e'}}>
                 ${question.points}
               </div>
             </div>
@@ -103,11 +103,12 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
                   variant="ghost"
                   size="sm"
                   className="text-yellow-400 hover:text-yellow-300 p-2"
+                  style={{backgroundColor: '#fa1e4e'}}
                 >
                   <Volume2 className="w-8 h-8" />
                 </Button>
               </div>
-              <p className="text-white text-8xl font-bold leading-relaxed mb-8">
+              <p className="text-white text-4xl font-bold leading-relaxed mb-8">
                 {question.answer}
               </p>
             </div>
