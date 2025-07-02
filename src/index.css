@@ -133,3 +133,7 @@ All colors MUST be HSL.
     font-size: 22px !important;
   border: #ffffff7a !important;
 }
+
+.questions-item:hover {
+  background: #4b0917 !important;
+}
