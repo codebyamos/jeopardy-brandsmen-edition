@@ -55,13 +55,13 @@ const Index = () => {
 
   const handleQuestionSelect = (category: string, points: number) => {
     const question = questions.find(q => q.category === category && q.points === points);
-    if (question && !answeredQuestions.has(question.id)) {
+    if (question) {
       setSelectedQuestion(question);
     }
   };
 
   const handleQuestionClose = () => {
-    if (selectedQuestion) {
+    if (selectedQuestion && !answeredQuestions.has(selectedQuestion.id)) {
       setAnsweredQuestions(prev => new Set([...prev, selectedQuestion.id]));
       setShowScoring(true);
     }
