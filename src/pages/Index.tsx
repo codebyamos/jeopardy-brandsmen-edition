@@ -99,7 +99,7 @@ const Index = () => {
             {players.map((player) => (
               <div key={player.id} className="bg-yellow-400 text-black rounded-lg px-6 py-4 min-w-[120px] text-center" style={{ backgroundColor: '#fa1e4e' }}>
                 <div className="font-bold text-lg mb-2" style={{fontWeight: '400'}}>{player.name}</div>
-                <div className="bg-blue-800 text-white rounded px-4 py-2 text-xl font-bold">
+                <div className="bg-blue-800 text-white rounded px-4 py-2 text-xl font-bold" style={{backgroundColor: '#1c1726', fontWeight:'400', fontSize: '18px'}}>
                   {player.score}
                 </div>
               </div>
