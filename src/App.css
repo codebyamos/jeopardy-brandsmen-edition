@@ -18,13 +18,6 @@
   filter: drop-shadow(0 0 2em #61dafbaa);
 }
 
-.main-title {
-  font-size: 30px !important;
-  background-color: #fa1e4e !important;
-  color: white !important;
-  border-radius: 5px !important;
-}
-
 @keyframes logo-spin {
   from {
     transform: rotate(0deg);

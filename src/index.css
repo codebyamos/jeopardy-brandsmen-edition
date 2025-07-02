@@ -103,3 +103,12 @@ All colors MUST be HSL.
     @apply bg-background text-foreground;
   }
 }
+
+/* Custom Styles */
+
+.main-title {
+  font-size: 30px !important;
+  background-color: #fa1e4e !important;
+  color: white !important;
+  border-radius: 5px !important;
+}
