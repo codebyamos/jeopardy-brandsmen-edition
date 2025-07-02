@@ -1,8 +1,8 @@
-
 import React, { useState } from 'react';
 import GameBoard from '../components/GameBoard';
 import QuestionModal from '../components/QuestionModal';
-import { Question } from '../types/game';
+import PlayerManager from '../components/PlayerManager';
+import { Question, Player } from '../types/game';
 
 const sampleQuestions: Question[] = [
   // Category 1: Company History
@@ -44,6 +44,10 @@ const sampleQuestions: Question[] = [
 const Index = () => {
   const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(null);
   const [answeredQuestions, setAnsweredQuestions] = useState<Set<number>>(new Set());
+  const [players, setPlayers] = useState<Player[]>([
+    { id: 1, name: 'Player 1', score: 0 },
+    { id: 2, name: 'Player 2', score: 0 }
+  ]);
 
   const categories = Array.from(new Set(sampleQuestions.map(q => q.category)));
   const pointValues = [100, 200, 300, 400, 500];
@@ -62,17 +66,28 @@ const Index = () => {
     setSelectedQuestion(null);
   };
 
+  const handleScorePlayer = (playerId: number, points: number) => {
+    setPlayers(prev => prev.map(p => 
+      p.id === playerId ? { ...p, score: p.score + points } : p
+    ));
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900">
       <div className="container mx-auto px-4 py-8">
         <div className="text-center mb-8">
-          <h1 className="text-6xl font-bold text-yellow-400 mb-4" style={{ fontFamily: 'serif' }}>
+          <h1 className="text-6xl font-bold text-yellow-400 mb-4 tracking-wider" style={{ fontFamily: 'serif', textShadow: '2px 2px 4px rgba(0,0,0,0.8)' }}>
             JEOPARDY
           </h1>
           <h2 className="text-3xl font-semibold text-yellow-300">
             Brandsmen Edition
           </h2>
         </div>
+        
+        <PlayerManager 
+          players={players}
+          onPlayersUpdate={setPlayers}
+        />
         
         <GameBoard
           categories={categories}
@@ -85,7 +100,9 @@ const Index = () => {
         {selectedQuestion && (
           <QuestionModal
             question={selectedQuestion}
+            players={players}
             onClose={handleQuestionClose}
+            onScorePlayer={handleScorePlayer}
           />
         )}
       </div>

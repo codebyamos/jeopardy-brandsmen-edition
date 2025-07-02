@@ -1,15 +1,23 @@
 
 import React, { useState, useEffect } from 'react';
-import { Question } from '../types/game';
+import { Question, Player } from '../types/game';
 import { Button } from '../components/ui/button';
 import { Volume2 } from 'lucide-react';
+import ScoreSelector from './ScoreSelector';
 
 interface QuestionModalProps {
   question: Question;
+  players: Player[];
   onClose: () => void;
+  onScorePlayer: (playerId: number, points: number) => void;
 }
 
-const QuestionModal: React.FC<QuestionModalProps> = ({ question, onClose }) => {
+const QuestionModal: React.FC<QuestionModalProps> = ({ 
+  question, 
+  players, 
+  onClose, 
+  onScorePlayer 
+}) => {
   const [showAnswer, setShowAnswer] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
 
@@ -51,12 +59,12 @@ const QuestionModal: React.FC<QuestionModalProps> = ({ question, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
-      <div className="bg-gradient-to-b from-blue-800 to-blue-900 border-4 border-yellow-400 rounded-lg max-w-4xl w-full max-h-[80vh] overflow-auto">
+    <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-4">
+      <div className="bg-gradient-to-b from-gray-900 to-black border-2 border-gray-700 rounded-lg max-w-4xl w-full max-h-[90vh] overflow-auto shadow-2xl">
         <div className="p-8">
           {/* Header */}
           <div className="text-center mb-6">
-            <div className="text-yellow-300 text-xl font-semibold mb-2">
+            <div className="text-yellow-400 text-xl font-semibold mb-2">
               {question.category.toUpperCase()}
             </div>
             <div className="text-yellow-400 text-3xl font-bold">
@@ -65,16 +73,16 @@ const QuestionModal: React.FC<QuestionModalProps> = ({ question, onClose }) => {
           </div>
           
           {/* Question */}
-          <div className="bg-black border-2 border-yellow-400 rounded-lg p-6 mb-6">
+          <div className="bg-gray-800 border border-gray-600 rounded-lg p-6 mb-6">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-yellow-300 text-lg font-semibold">QUESTION:</h3>
+              <h3 className="text-yellow-400 text-lg font-semibold">QUESTION:</h3>
               <div className="flex gap-2">
                 <Button
                   onClick={() => speakText(question.question)}
                   disabled={isSpeaking}
                   variant="outline"
                   size="sm"
-                  className="bg-yellow-400 text-black hover:bg-yellow-300"
+                  className="bg-yellow-500 text-black hover:bg-yellow-400 border-yellow-500"
                 >
                   <Volume2 className="w-4 h-4 mr-1" />
                   Read Question
@@ -84,6 +92,7 @@ const QuestionModal: React.FC<QuestionModalProps> = ({ question, onClose }) => {
                     onClick={stopSpeaking}
                     variant="destructive"
                     size="sm"
+                    className="bg-red-600 hover:bg-red-700"
                   >
                     Stop
                   </Button>
@@ -97,29 +106,38 @@ const QuestionModal: React.FC<QuestionModalProps> = ({ question, onClose }) => {
           
           {/* Answer section */}
           {showAnswer ? (
-            <div className="bg-green-800 border-2 border-yellow-400 rounded-lg p-6 mb-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-yellow-300 text-lg font-semibold">ANSWER:</h3>
-                <Button
-                  onClick={() => speakText(question.answer)}
-                  disabled={isSpeaking}
-                  variant="outline"
-                  size="sm"
-                  className="bg-yellow-400 text-black hover:bg-yellow-300"
-                >
-                  <Volume2 className="w-4 h-4 mr-1" />
-                  Read Answer
-                </Button>
+            <>
+              <div className="bg-green-900 border border-green-700 rounded-lg p-6 mb-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-yellow-400 text-lg font-semibold">ANSWER:</h3>
+                  <Button
+                    onClick={() => speakText(question.answer)}
+                    disabled={isSpeaking}
+                    variant="outline"
+                    size="sm"
+                    className="bg-yellow-500 text-black hover:bg-yellow-400 border-yellow-500"
+                  >
+                    <Volume2 className="w-4 h-4 mr-1" />
+                    Read Answer
+                  </Button>
+                </div>
+                <p className="text-white text-xl font-semibold">
+                  {question.answer}
+                </p>
               </div>
-              <p className="text-white text-xl font-semibold">
-                {question.answer}
-              </p>
-            </div>
+              
+              {/* Score Selector */}
+              <ScoreSelector
+                players={players}
+                questionPoints={question.points}
+                onScorePlayer={onScorePlayer}
+              />
+            </>
           ) : (
             <div className="text-center mb-6">
               <Button
                 onClick={handleShowAnswer}
-                className="bg-yellow-400 text-black hover:bg-yellow-300 text-lg px-8 py-3"
+                className="bg-yellow-500 text-black hover:bg-yellow-400 text-lg px-8 py-3 font-bold"
               >
                 Reveal Answer
               </Button>
@@ -131,7 +149,7 @@ const QuestionModal: React.FC<QuestionModalProps> = ({ question, onClose }) => {
             <Button
               onClick={onClose}
               variant="outline"
-              className="bg-red-600 text-white hover:bg-red-700 border-red-500 text-lg px-8 py-3"
+              className="bg-red-700 text-white hover:bg-red-600 border-red-600 text-lg px-8 py-3"
             >
               Close Question
             </Button>

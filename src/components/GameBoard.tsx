@@ -27,13 +27,13 @@ const GameBoard: React.FC<GameBoardProps> = ({
   };
 
   return (
-    <div className="bg-black border-4 border-yellow-400 rounded-lg overflow-hidden shadow-2xl">
+    <div className="bg-gray-900 border-2 border-gray-700 rounded-lg overflow-hidden shadow-2xl">
       {/* Header row with categories */}
-      <div className="grid grid-cols-5 gap-1 bg-blue-800">
+      <div className="grid grid-cols-5 gap-px bg-gray-800">
         {categories.map((category, index) => (
           <div
             key={index}
-            className="bg-gradient-to-b from-blue-600 to-blue-800 text-yellow-300 p-4 text-center font-bold text-lg border border-yellow-400"
+            className="bg-gradient-to-b from-gray-800 to-gray-900 text-yellow-400 p-4 text-center font-bold text-lg border-b border-gray-700"
           >
             {category.toUpperCase()}
           </div>
@@ -42,7 +42,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
       
       {/* Question grid */}
       {pointValues.map((points, rowIndex) => (
-        <div key={rowIndex} className="grid grid-cols-5 gap-1">
+        <div key={rowIndex} className="grid grid-cols-5 gap-px bg-gray-800">
           {categories.map((category, colIndex) => {
             const answered = isAnswered(category, points);
             return (
@@ -51,10 +51,10 @@ const GameBoard: React.FC<GameBoardProps> = ({
                 onClick={() => onQuestionSelect(category, points)}
                 disabled={answered}
                 className={`
-                  h-20 text-2xl font-bold border border-yellow-400 transition-all duration-200
+                  h-20 text-2xl font-bold transition-all duration-200 border-r border-gray-700 last:border-r-0
                   ${answered 
-                    ? 'bg-gray-800 text-gray-500 cursor-not-allowed' 
-                    : 'bg-gradient-to-b from-blue-700 to-blue-900 text-yellow-300 hover:from-blue-600 hover:to-blue-800 hover:scale-105 cursor-pointer'
+                    ? 'bg-gray-800 text-gray-600 cursor-not-allowed' 
+                    : 'bg-gradient-to-b from-blue-800 to-blue-900 text-yellow-400 hover:from-blue-700 hover:to-blue-800 hover:scale-105 cursor-pointer shadow-lg'
                   }
                 `}
               >
