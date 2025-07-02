@@ -15,7 +15,22 @@ export const useGameData = () => {
       const today = gameDate || new Date().toISOString().split('T')[0];
       let gameId = currentGameId;
 
-      // Check if there's already a game for today
+      // If currentGameId is set, check if it still exists in the database
+      if (gameId) {
+        const { data: existingGame } = await supabase
+          .from('games')
+          .select('id')
+          .eq('id', gameId)
+          .single();
+
+        // If the game doesn't exist, reset the currentGameId
+        if (!existingGame) {
+          gameId = null;
+          setCurrentGameId(null);
+        }
+      }
+
+      // Check if there's already a game for today (if we don't have a valid gameId)
       if (!gameId) {
         const { data: existingGame } = await supabase
           .from('games')
