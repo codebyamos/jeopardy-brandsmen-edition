@@ -71,8 +71,8 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
 
   if (showAnswer) {
     return (
-      <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-4">
-        <div className="bg-gradient-to-b from-gray-900 to-black border-2 border-gray-700 rounded-lg max-w-6xl w-full max-h-[90vh] overflow-auto shadow-2xl">
+      <div style={{color: '#fa1e4e'}} className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-4">
+        <div style={{color: '#fa1e4e'}} className="bg-gradient-to-b from-gray-900 to-black border-2 border-gray-700 rounded-lg max-w-6xl w-full max-h-[90vh] overflow-auto shadow-2xl">
           <div className="p-8 relative">
             {/* Close X button */}
             <Button
@@ -86,10 +86,10 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
             
             {/* Header */}
             <div className="text-center mb-8">
-              <div className="text-yellow-400 text-2xl font-semibold mb-2">
+              <div className="text-yellow-400 text-2xl font-semibold mb-2" style={{color: '#fa1e4e'}}>
                 {question.category.toUpperCase()}
               </div>
-              <div className="text-yellow-400 text-4xl font-bold">
+              <div className="text-yellow-400 text-4xl font-bold" style={{color: '#fa1e4e'}}>
                 ${question.points}
               </div>
             </div>
@@ -103,7 +103,7 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
                   variant="ghost"
                   size="sm"
                   className="text-yellow-400 hover:text-yellow-300 p-2"
-                  style={{backgroundColor: '#fa1e4e, color:'white'}}
+                  style={{backgroundColor: '#fa1e4e', color:'white'}}
                 >
                   <Volume2 className="w-8 h-8" />
                 </Button>
