@@ -107,8 +107,14 @@ All colors MUST be HSL.
 /* Custom Styles */
 
 .main-title {
-  font-size: 30px !important;
-  background-color: #fa1e4e !important;
-  color: white !important;
-  border-radius: 5px !important;
+    font-size: 25px !important;
+    background-color: #fa1e4e !important;
+    color: white !important;
+    border-radius: 5px !important;
+    text-shadow: none !important;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    font-weight: normal;
+    padding: 6px 25px;
 }
