@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import GameBoard from '../components/GameBoard';
 import QuestionModal from '../components/QuestionModal';
@@ -82,13 +81,6 @@ const Index = () => {
           </h1>
         </div>
         
-        <div className="mb-6">
-          <PlayerManager 
-            players={players}
-            onPlayersUpdate={setPlayers}
-          />
-        </div>
-        
         <GameBoard
           categories={categories}
           pointValues={pointValues}
@@ -110,6 +102,12 @@ const Index = () => {
             ))}
           </div>
         </div>
+        
+        {/* Player Manager - Now a floating icon */}
+        <PlayerManager 
+          players={players}
+          onPlayersUpdate={setPlayers}
+        />
         
         {selectedQuestion && (
           <QuestionModal

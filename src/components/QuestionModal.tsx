@@ -60,8 +60,6 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
   const handleShowAnswer = () => {
     setShowAnswer(true);
     speakText(question.answer);
-    // Auto-award points to first player (you can modify this logic)
-    onScorePlayer(players[0]?.id, question.points);
   };
 
   const stopSpeaking = () => {
@@ -74,7 +72,7 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
   if (showAnswer) {
     return (
       <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-4">
-        <div className="bg-gradient-to-b from-gray-900 to-black border-2 border-gray-700 rounded-lg max-w-4xl w-full max-h-[90vh] overflow-auto shadow-2xl">
+        <div className="bg-gradient-to-b from-gray-900 to-black border-2 border-gray-700 rounded-lg max-w-6xl w-full max-h-[90vh] overflow-auto shadow-2xl">
           <div className="p-8 relative">
             {/* Close X button */}
             <Button
@@ -109,9 +107,37 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
                   <Volume2 className="w-8 h-8" />
                 </Button>
               </div>
-              <p className="text-white text-6xl font-bold leading-relaxed">
+              <p className="text-white text-8xl font-bold leading-relaxed mb-8">
                 {question.answer}
               </p>
+              
+              {/* Score Assignment */}
+              <div className="bg-gray-800 border border-gray-600 rounded-lg p-6 max-w-2xl mx-auto">
+                <h4 className="text-yellow-300 font-semibold mb-4 text-2xl text-center">Award Points</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {players.map((player) => (
+                    <div key={player.id} className="flex justify-between items-center bg-gray-700 rounded-lg p-4">
+                      <span className="text-white text-xl font-medium">{player.name}</span>
+                      <div className="flex gap-2">
+                        <Button
+                          onClick={() => onScorePlayer(player.id, question.points)}
+                          size="sm"
+                          className="bg-green-600 hover:bg-green-700 text-white text-lg px-4 py-2"
+                        >
+                          +${question.points}
+                        </Button>
+                        <Button
+                          onClick={() => onScorePlayer(player.id, -question.points)}
+                          size="sm"
+                          className="bg-red-600 hover:bg-red-700 text-white text-lg px-4 py-2"
+                        >
+                          -${question.points}
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -121,7 +147,7 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-4">
-      <div className="bg-gradient-to-b from-gray-900 to-black border-2 border-gray-700 rounded-lg max-w-4xl w-full max-h-[90vh] overflow-auto shadow-2xl">
+      <div className="bg-gradient-to-b from-gray-900 to-black border-2 border-gray-700 rounded-lg max-w-6xl w-full max-h-[90vh] overflow-auto shadow-2xl">
         <div className="p-8 relative">
           {/* Close X button */}
           <Button
@@ -156,7 +182,7 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
                 <Volume2 className="w-8 h-8" />
               </Button>
             </div>
-            <p className="text-white text-4xl font-bold leading-relaxed mb-8">
+            <p className="text-white text-6xl font-bold leading-relaxed mb-8">
               {question.question}
             </p>
             
