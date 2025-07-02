@@ -86,10 +86,10 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
             
             {/* Header */}
             <div className="text-center mb-8">
-              <div className="text-yellow-400 text-2xl font-semibold mb-2" style={{color: '#fa1e4e'}}>
+              <div className="text-yellow-400 text-2xl font-semibold mb-2">
                 {question.category.toUpperCase()}
               </div>
-              <div className="text-yellow-400 text-4xl font-bold" style={{color: '#fa1e4e'}}>
+              <div className="text-yellow-400 text-4xl font-bold">
                 ${question.points}
               </div>
             </div>
