@@ -1,15 +1,11 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Question, Player } from '../types/game';
-import { Button } from '../components/ui/button';
 import { speakWithElevenLabs, stopCurrentSpeech, initializeSpeechSystem, preloadAudio } from '../utils/textToSpeech';
 import { useVoiceSettings } from '../hooks/useVoiceSettings';
 import { useTimerSettings } from '../hooks/useTimerSettings';
-import ModalHeader from './ModalHeader';
-import QuestionContent from './QuestionContent';
-import AnswerContent from './AnswerContent';
-import QuestionTimer from './QuestionTimer';
-import { Timer } from 'lucide-react';
+import QuestionModalHeader from './QuestionModalHeader';
+import QuestionView from './QuestionView';
+import AnswerView from './AnswerView';
 
 interface QuestionModalProps {
   question: Question;
@@ -133,79 +129,41 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
 
   const handleTimeUp = () => {
     console.log('Time is up!');
-    // You could add additional logic here like automatically showing the answer
   };
 
-  if (showAnswer) {
-    return (
-      <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-2 sm:p-4">
-        <div className="modal-content bg-gradient-to-b from-gray-900 to-black border-2 border-gray-700 rounded-lg w-full max-w-6xl shadow-2xl">
-          <div className="p-4 sm:p-6 lg:p-8 relative">
-            <ModalHeader 
-              category={question.category}
-              points={question.points}
-              onClose={handleClose}
-            />
-            <AnswerContent
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-2 sm:p-4">
+      <div className="modal-content bg-gradient-to-b from-gray-900 to-black border-2 border-gray-700 rounded-lg w-full max-w-6xl shadow-2xl">
+        <div className="p-4 sm:p-6 lg:p-8 relative">
+          <QuestionModalHeader 
+            category={question.category}
+            points={question.points}
+            isTimerEnabled={isTimerEnabled}
+            onClose={handleClose}
+            onTimerToggle={() => setIsTimerEnabled(!isTimerEnabled)}
+          />
+          
+          {showAnswer ? (
+            <AnswerView
               question={question}
               isSpeaking={isSpeaking}
               currentSpeech={currentSpeech}
               onSpeak={speakText}
               onStop={stopSpeaking}
             />
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-2 sm:p-4">
-      <div className="modal-content bg-gradient-to-b from-gray-900 to-black border-2 border-gray-700 rounded-lg w-full max-w-6xl shadow-2xl">
-        <div className="p-4 sm:p-6 lg:p-8 relative">
-          <ModalHeader 
-            category={question.category}
-            points={question.points}
-            onClose={handleClose}
-          />
-          
-          {/* Timer Toggle and Timer */}
-          <div className="mb-6 flex justify-center items-center gap-4">
-            <Button
-              onClick={() => setIsTimerEnabled(!isTimerEnabled)}
-              variant="ghost"
-              size="sm"
-              className={`flex items-center gap-2 ${isTimerEnabled ? 'text-blue-400' : 'text-gray-400'}`}
-            >
-              <Timer className="w-4 h-4" />
-              Timer {isTimerEnabled ? 'ON' : 'OFF'}
-            </Button>
-            
-            {isTimerEnabled && (
-              <QuestionTimer 
-                duration={timerSettings.timerDuration}
-                onTimeUp={handleTimeUp}
-              />
-            )}
-          </div>
-          
-          <QuestionContent
-            question={question}
-            isSpeaking={isSpeaking}
-            currentSpeech={currentSpeech}
-            onSpeak={speakText}
-            onStop={stopSpeaking}
-          />
-          
-          <div className="mt-4 sm:mt-6 text-center">
-            <Button
-              onClick={handleShowAnswer}
-              className="bg-yellow-500 text-black hover:bg-yellow-400 text-lg sm:text-xl px-6 sm:px-8 py-3 sm:py-4 font-bold"
-              style={{backgroundColor: '#fa1e4e'}}
-            >
-              Reveal Answer
-            </Button>
-          </div>
+          ) : (
+            <QuestionView
+              question={question}
+              isSpeaking={isSpeaking}
+              currentSpeech={currentSpeech}
+              isTimerEnabled={isTimerEnabled}
+              timerDuration={timerSettings.timerDuration}
+              onSpeak={speakText}
+              onStop={stopSpeaking}
+              onShowAnswer={handleShowAnswer}
+              onTimeUp={handleTimeUp}
+            />
+          )}
         </div>
       </div>
     </div>
