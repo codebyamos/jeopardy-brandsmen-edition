@@ -62,6 +62,30 @@ export type Database = {
         }
         Relationships: []
       }
+      voice_settings: {
+        Row: {
+          api_key: string | null
+          created_at: string
+          id: number
+          selected_voice: string | null
+          updated_at: string
+        }
+        Insert: {
+          api_key?: string | null
+          created_at?: string
+          id?: number
+          selected_voice?: string | null
+          updated_at?: string
+        }
+        Update: {
+          api_key?: string | null
+          created_at?: string
+          id?: number
+          selected_voice?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
