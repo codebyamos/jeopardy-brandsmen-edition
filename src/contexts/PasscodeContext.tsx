@@ -20,6 +20,7 @@ export const PasscodeProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     const authStatus = localStorage.getItem('game_authenticated');
     
     if (savedPasscode) {
+      // Use the saved passcode from localStorage
       setPasscodeState(savedPasscode);
     } else {
       // Only set default if no passcode exists at all

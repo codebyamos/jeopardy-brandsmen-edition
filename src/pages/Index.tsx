@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import GameBoard from '../components/GameBoard';
 import QuestionModal from '../components/QuestionModal';
@@ -131,7 +132,7 @@ const Index = () => {
     <div 
       className="min-h-screen bg-cover bg-top bg-no-repeat"
       style={{ 
-        backgroundImage: 'url(/lovable-uploads/f13c6811-ed03-4cb1-85d3-69c6605c47c8.png)'
+        backgroundImage: 'url(/lovable-uploads/d1647a56-db6d-4277-aeb4-395f4275273b.png)'
       }}
     >
       <div className="container mx-auto p-2 sm:p-4 lg:p-8">
