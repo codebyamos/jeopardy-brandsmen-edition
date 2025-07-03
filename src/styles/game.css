@@ -39,7 +39,19 @@
 
 .questions-item:hover {
   background: var(--theme-question-item-hover) !important;
+  color: var(--theme-button-text) !important;
   border-radius: 6px;
   transform: translateY(-1px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Ensure answered questions remain visible */
+.questions-item.answered {
+  background: var(--theme-secondary) !important;
+  color: var(--theme-button-text) !important;
+}
+
+.questions-item.answered:hover {
+  background: var(--theme-muted) !important;
+  color: var(--theme-button-text) !important;
 }

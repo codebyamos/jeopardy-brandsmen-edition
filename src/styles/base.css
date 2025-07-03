@@ -34,18 +34,18 @@
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
 
-    /* Brandsmen Theme - Teal and Natural Colors */
-    --theme-primary: #0d9488;
-    --theme-secondary: #374151;
-    --theme-background: linear-gradient(135deg, #f0fdfa, #e6fffa);
-    --theme-board-background: linear-gradient(135deg, #ffffff, #f7fafc);
-    --theme-category-header: #134e4a;
-    --theme-question-item: #0d9488;
-    --theme-question-item-hover: #0f766e;
-    --theme-text: #1f2937;
+    /* Brandsmen Theme - Dark Red/Burgundy Colors */
+    --theme-primary: #8B0000;
+    --theme-secondary: #2C1810;
+    --theme-background: linear-gradient(135deg, #1a0000, #2d0000);
+    --theme-board-background: linear-gradient(135deg, #330000, #4d0000);
+    --theme-category-header: #660000;
+    --theme-question-item: #8B0000;
+    --theme-question-item-hover: #A50000;
+    --theme-text: #ffffff;
     --theme-button-text: #ffffff;
-    --theme-accent: #14b8a6;
-    --theme-muted: #6b7280;
+    --theme-accent: #CD5C5C;
+    --theme-muted: #8B4513;
   }
 
   .dark {
@@ -78,16 +78,16 @@
     --sidebar-ring: 217.2 91.2% 59.8%;
 
     /* Dark mode theme adjustments */
-    --theme-primary: #14b8a6;
-    --theme-secondary: #1f2937;
-    --theme-background: linear-gradient(135deg, #0f172a, #1e293b);
-    --theme-board-background: linear-gradient(135deg, #1e293b, #334155);
-    --theme-category-header: #0f766e;
-    --theme-question-item: #14b8a6;
-    --theme-question-item-hover: #0d9488;
+    --theme-primary: #A50000;
+    --theme-secondary: #1f1414;
+    --theme-background: linear-gradient(135deg, #0f0505, #1e0808);
+    --theme-board-background: linear-gradient(135deg, #1e0808, #330a0a);
+    --theme-category-header: #800000;
+    --theme-question-item: #A50000;
+    --theme-question-item-hover: #CC0000;
     --theme-text: #f1f5f9;
     --theme-button-text: #ffffff;
-    --theme-accent: #5eead4;
+    --theme-accent: #FF6B6B;
     --theme-muted: #64748b;
   }
 
@@ -118,38 +118,64 @@
     z-index: -1;
   }
 
-  /* Apply theme colors to yellow elements */
-  .text-yellow-400, .text-yellow-500 {
-    color: var(--theme-accent) !important;
-  }
-
-  .bg-yellow-400, .bg-yellow-500 {
-    background: var(--theme-accent) !important;
-  }
-
-  .border-yellow-400, .border-yellow-500 {
-    border-color: var(--theme-accent) !important;
-  }
-
-  .hover\:bg-yellow-400:hover, .hover\:bg-yellow-500:hover {
-    background: var(--theme-primary) !important;
-  }
-
-  /* Fix button visibility issues */
-  .bg-gray-700, .bg-gray-800 {
+  /* Fix button text visibility */
+  .bg-gray-700, .bg-gray-800, .bg-gray-600 {
     background: var(--theme-secondary) !important;
     color: var(--theme-button-text) !important;
   }
 
-  .hover\:bg-gray-600:hover, .hover\:bg-gray-700:hover {
+  .hover\:bg-gray-600:hover, .hover\:bg-gray-700:hover, .hover\:bg-gray-800:hover {
     background: var(--theme-question-item-hover) !important;
+    color: var(--theme-button-text) !important;
   }
 
-  .text-gray-300 {
+  .text-gray-300, .text-gray-400 {
     color: var(--theme-button-text) !important;
   }
 
   .border-gray-600, .border-gray-700 {
     border-color: var(--theme-muted) !important;
+  }
+
+  /* Ensure all buttons have proper contrast */
+  button {
+    color: var(--theme-button-text) !important;
+  }
+
+  button:hover {
+    color: var(--theme-button-text) !important;
+  }
+
+  /* Fix specific button variants */
+  .bg-green-600 {
+    background-color: #16a34a !important;
+    color: white !important;
+  }
+
+  .bg-red-600 {
+    background-color: #dc2626 !important;
+    color: white !important;
+  }
+
+  .hover\:bg-green-700:hover {
+    background-color: #15803d !important;
+    color: white !important;
+  }
+
+  .hover\:bg-red-700:hover {
+    background-color: #b91c1c !important;
+    color: white !important;
+  }
+
+  /* Settings menu buttons */
+  .bg-teal-600, .bg-teal-700 {
+    background-color: var(--theme-primary) !important;
+    color: var(--theme-button-text) !important;
+    border-color: var(--theme-accent) !important;
+  }
+
+  .hover\:bg-teal-700:hover, .hover\:bg-teal-800:hover {
+    background-color: var(--theme-question-item-hover) !important;
+    color: var(--theme-button-text) !important;
   }
 }
