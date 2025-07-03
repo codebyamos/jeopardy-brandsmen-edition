@@ -8,6 +8,7 @@ import TimerSettings from './TimerSettings';
 import NewGameSettings from './NewGameSettings';
 import PasscodeManager from './PasscodeManager';
 import { Player } from '../types/game';
+import { usePasscode } from '../contexts/PasscodeContext';
 
 interface GameControlsProps {
   players: Player[];
@@ -30,6 +31,7 @@ const GameControls: React.FC<GameControlsProps> = ({
   onStartNewGame,
   isLoading = false
 }) => {
+  const { setPasscode } = usePasscode();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showPlayerManager, setShowPlayerManager] = useState(false);
   const [showVoiceSettings, setShowVoiceSettings] = useState(false);
@@ -50,6 +52,9 @@ const GameControls: React.FC<GameControlsProps> = ({
   ];
 
   const handleStartNewGame = (newPasscode: string) => {
+    // Update the passcode first
+    setPasscode(newPasscode);
+    // Then start the new game
     onStartNewGame();
   };
 
