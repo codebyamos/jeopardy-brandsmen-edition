@@ -1,8 +1,9 @@
 
 import React, { useState } from 'react';
 import { Button } from './ui/button';
-import { Settings, Save, History, Edit, Calculator, Users } from 'lucide-react';
+import { Settings, Save, History, Edit, Calculator, Users, Volume2 } from 'lucide-react';
 import PlayerManager from './PlayerManager';
+import VoiceSettings from './VoiceSettings';
 import { Player } from '../types/game';
 
 interface GameControlsProps {
@@ -26,6 +27,7 @@ const GameControls: React.FC<GameControlsProps> = ({
 }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showPlayerManager, setShowPlayerManager] = useState(false);
+  const [showVoiceSettings, setShowVoiceSettings] = useState(false);
 
   const menuItems = [
     { icon: Save, label: 'Save Game', action: onSaveGame, disabled: isLoading },
@@ -33,6 +35,7 @@ const GameControls: React.FC<GameControlsProps> = ({
     { icon: Edit, label: 'Edit Game', action: onShowGameEditor },
     { icon: Calculator, label: 'Manage Scores', action: onShowScoreManager },
     { icon: Users, label: 'Manage Players', action: () => setShowPlayerManager(true) },
+    { icon: Volume2, label: 'Voice Settings', action: () => setShowVoiceSettings(true) },
   ];
 
   return (
@@ -74,6 +77,12 @@ const GameControls: React.FC<GameControlsProps> = ({
         onPlayersUpdate={onPlayersUpdate}
         isVisible={showPlayerManager}
         onClose={() => setShowPlayerManager(false)}
+      />
+
+      {/* Voice Settings Modal */}
+      <VoiceSettings
+        isVisible={showVoiceSettings}
+        onClose={() => setShowVoiceSettings(false)}
       />
     </>
   );

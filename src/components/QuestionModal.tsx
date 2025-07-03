@@ -1,7 +1,9 @@
+
 import React, { useState, useEffect } from 'react';
 import { Question, Player } from '../types/game';
 import { Button } from '../components/ui/button';
 import { Volume2, X } from 'lucide-react';
+import { speakWithElevenLabs } from '../utils/textToSpeech';
 
 interface QuestionModalProps {
   question: Question;
@@ -19,98 +21,23 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
   const [showAnswer, setShowAnswer] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
 
-  const speakText = (text: string) => {
-    if ('speechSynthesis' in window) {
-      // Stop any current speech
-      window.speechSynthesis.cancel();
-      
-      setIsSpeaking(true);
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.rate = 0.9;
-      utterance.pitch = 1.0;
-      utterance.volume = 1;
-      
-      // Enhanced voice selection for more natural-sounding female voices
-      const voices = window.speechSynthesis.getVoices();
-      
-      // Priority order: high-quality natural voices first
-      const preferredVoices = [
-        // Premium/Natural voices (usually sound most human)
-        'Microsoft Aria Online (Natural) - English (United States)',
-        'Microsoft Jenny Online (Natural) - English (United States)',
-        'Google US English Female',
-        'Microsoft Zira - English (United States)',
-        'Microsoft Hazel - English (Great Britain)',
-        'Alex (Enhanced)', // macOS enhanced voice
-        'Samantha (Enhanced)', // macOS enhanced voice
-        // Fallback to any available female voice
-        'samantha',
-        'karen',
-        'susan',
-        'allison',
-        'ava',
-        'serena',
-        'zira',
-        'aria',
-        'jenny',
-        'hazel'
-      ];
-      
-      let selectedVoice = null;
-      
-      // First, try to find preferred high-quality voices by exact name match
-      for (const preferredName of preferredVoices) {
-        selectedVoice = voices.find(voice => 
-          voice.name.toLowerCase() === preferredName.toLowerCase()
-        );
-        if (selectedVoice) break;
+  const speakText = async (text: string) => {
+    if (isSpeaking) {
+      // Stop current speech
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
       }
-      
-      // If no exact match, try partial matching with quality indicators
-      if (!selectedVoice) {
-        selectedVoice = voices.find(voice => 
-          (voice.name.toLowerCase().includes('natural') || 
-           voice.name.toLowerCase().includes('enhanced') ||
-           voice.name.toLowerCase().includes('premium')) &&
-          (voice.name.toLowerCase().includes('female') ||
-           voice.name.toLowerCase().includes('aria') ||
-           voice.name.toLowerCase().includes('jenny') ||
-           voice.name.toLowerCase().includes('zira'))
-        );
-      }
-      
-      // Fallback to any female-sounding voice
-      if (!selectedVoice) {
-        for (const preferredName of preferredVoices.slice(8)) { // Skip the exact matches we already tried
-          selectedVoice = voices.find(voice => 
-            voice.name.toLowerCase().includes(preferredName)
-          );
-          if (selectedVoice) break;
-        }
-      }
-      
-      // Final fallback to any English voice
-      if (!selectedVoice) {
-        selectedVoice = voices.find(voice => 
-          voice.lang.startsWith('en') && 
-          !voice.name.toLowerCase().includes('male')
-        );
-      }
-      
-      if (selectedVoice) {
-        utterance.voice = selectedVoice;
-        console.log('Using voice:', selectedVoice.name); // For debugging
-      }
-      
-      utterance.onend = () => {
-        setIsSpeaking(false);
-      };
-      
-      utterance.onerror = () => {
-        setIsSpeaking(false);
-      };
-      
-      window.speechSynthesis.speak(utterance);
+      setIsSpeaking(false);
+      return;
+    }
+
+    setIsSpeaking(true);
+    try {
+      await speakWithElevenLabs(text);
+    } catch (error) {
+      console.error('Speech error:', error);
+    } finally {
+      setIsSpeaking(false);
     }
   };
 
@@ -161,7 +88,6 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
               <div className="flex items-center justify-center mb-4 sm:mb-6">
                 <Button
                   onClick={() => speakText(question.answer)}
-                  disabled={isSpeaking}
                   variant="ghost"
                   size="sm"
                   className="text-yellow-400 hover:text-yellow-300 p-2"
@@ -223,7 +149,6 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
             <div className="flex items-center justify-center mb-4 sm:mb-6">
               <Button
                 onClick={() => speakText(question.question)}
-                disabled={isSpeaking}
                 variant="ghost"
                 size="sm"
                 className="text-yellow-400 hover:text-yellow-300 p-2"
