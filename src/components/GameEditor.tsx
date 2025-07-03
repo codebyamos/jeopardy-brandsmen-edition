@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from './ui/button';
 import { Edit2, Plus, Trash2, Save, X, FolderPlus } from 'lucide-react';
@@ -33,12 +32,40 @@ const GameEditor: React.FC<GameEditorProps> = ({
     setShowAddCategory(false);
   };
 
+  const addQuestion = (category: string, points: number) => {
+    // Always create a new question when + is clicked, regardless of existing questions
+    const newId = Date.now() + Math.floor(Math.random() * 1000);
+    const newQuestion: Question = {
+      id: newId,
+      category,
+      points,
+      question: '',
+      answer: ''
+    };
+    
+    // Set up the editing state for the new question
+    setEditingQuestion(newQuestion);
+    setTempQuestion({ ...newQuestion });
+    setEditingCategory(null);
+    setShowAddCategory(false);
+  };
+
   const saveEdit = () => {
     if (editingQuestion && tempQuestion.category && tempQuestion.question && tempQuestion.answer && tempQuestion.points) {
-      const updatedQuestions = questions.map(q => 
-        q.id === editingQuestion.id ? { ...q, ...tempQuestion } as Question : q
-      );
-      onQuestionsUpdate(updatedQuestions);
+      // Check if this is a new question (not in the questions array yet)
+      const existingQuestionIndex = questions.findIndex(q => q.id === editingQuestion.id);
+      
+      if (existingQuestionIndex === -1) {
+        // This is a new question, add it to the array
+        onQuestionsUpdate([...questions, { ...tempQuestion } as Question]);
+      } else {
+        // This is an existing question, update it
+        const updatedQuestions = questions.map(q => 
+          q.id === editingQuestion.id ? { ...q, ...tempQuestion } as Question : q
+        );
+        onQuestionsUpdate(updatedQuestions);
+      }
+      
       setEditingQuestion(null);
       setTempQuestion({});
     }
@@ -51,25 +78,6 @@ const GameEditor: React.FC<GameEditorProps> = ({
     setTempCategoryName('');
     setShowAddCategory(false);
     setNewCategoryName('');
-  };
-
-  const addQuestion = (category: string, points: number) => {
-    const existingQuestion = questions.find(q => q.category === category && q.points === points);
-    if (existingQuestion) {
-      startEdit(existingQuestion);
-      return;
-    }
-
-    const newId = Date.now() + Math.floor(Math.random() * 1000);
-    const newQuestion: Question = {
-      id: newId,
-      category,
-      points,
-      question: 'New Question - Click edit to modify',
-      answer: 'What is the answer?'
-    };
-    
-    onQuestionsUpdate([...questions, newQuestion]);
   };
 
   const deleteQuestion = (id: number) => {
