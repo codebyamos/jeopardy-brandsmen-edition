@@ -51,13 +51,15 @@ const GameBoard: React.FC<GameBoardProps> = ({
               <button
                 key={`${rowIndex}-${colIndex}`}
                 onClick={() => onQuestionSelect(category, points)}
-                className={`
-                  questions-item h-12 sm:h-16 lg:h-20 text-base sm:text-xl lg:text-2xl font-bold transition-all duration-200 border-r border-gray-700 last:border-r-0
-                  ${answered 
-                    ? 'bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-gray-300 cursor-pointer' 
-                    : 'bg-gradient-to-b from-blue-800 to-blue-900 text-yellow-400 hover:from-blue-700 hover:to-blue-800 hover:scale-105 cursor-pointer shadow-lg'
-                  }
-                `}
+                className="questions-item h-12 sm:h-16 lg:h-20 text-base sm:text-xl lg:text-2xl font-bold transition-all duration-200 border-r border-gray-700 last:border-r-0"
+                style={{
+                  background: answered 
+                    ? 'var(--theme-secondary)' 
+                    : 'var(--theme-question-item)',
+                  color: answered 
+                    ? 'var(--theme-button-text)' 
+                    : 'var(--theme-text)'
+                }}
               >
                 {answered ? '✓' : `$${points}`}
               </button>

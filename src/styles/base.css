@@ -47,6 +47,7 @@
     --theme-accent: #6badbe;
     --theme-muted: #244955;
     --theme-background-image: none;
+    --theme-background-opacity: 0.8;
   }
 
   .dark {
@@ -90,7 +91,7 @@
     position: relative;
   }
 
-  /* Background image overlay - now configurable with full transparency support */
+  /* Background image overlay - with variable opacity */
   body::before {
     content: '';
     position: fixed;
@@ -103,11 +104,11 @@
     background-position: center top;
     background-repeat: no-repeat;
     background-attachment: fixed;
-    opacity: 0.15;
+    opacity: var(--theme-background-opacity, 0.15);
     z-index: -1;
-    display: block;
   }
 
+  /* Hide background when no image is set */
   body[data-no-background]::before {
     display: none;
   }
@@ -119,6 +120,15 @@
 
   button:hover {
     color: var(--theme-button-text) !important;
+  }
+
+  /* White button special handling for text contrast */
+  .bg-white button, button.bg-white {
+    color: #2C5F6F !important;
+  }
+
+  .bg-white:hover button, button.bg-white:hover {
+    color: #2C5F6F !important;
   }
 
   /* Gray button variants */
@@ -229,5 +239,29 @@
   .bg-gray-800 {
     background-color: var(--theme-muted) !important;
     color: var(--theme-text) !important;
+  }
+
+  /* Special handling for white buttons in Brandsmen theme */
+  .bg-white {
+    background-color: white !important;
+    color: #2C5F6F !important;
+  }
+
+  .bg-white:hover {
+    background-color: #f8f9fa !important;
+    color: #2C5F6F !important;
+  }
+
+  /* Ensure proper contrast for all button states */
+  button[style*="background-color: white"], 
+  button[style*="background: white"],
+  .questions-item[style*="background: #ffffff"] {
+    color: #2C5F6F !important;
+  }
+
+  button[style*="background-color: white"]:hover, 
+  button[style*="background: white"]:hover,
+  .questions-item[style*="background: #ffffff"]:hover {
+    color: #2C5F6F !important;
   }
 }

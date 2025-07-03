@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 
 export interface ThemeColors {
@@ -23,7 +22,7 @@ const brandsmenTheme: ThemeColors = {
   secondaryColor: '#2C5F6F', // Dark teal for headers
   gradientStart: '#87CEEB',
   gradientEnd: '#4A90A4',
-  opacity: 0.9
+  opacity: 0.0 // 100% transparent background
 };
 
 // Auto-generate theme variations from primary colors
@@ -119,11 +118,19 @@ export const useTheme = () => {
     root.style.setProperty('--theme-button-text', variations.buttonText);
     root.style.setProperty('--theme-accent', variations.accent);
     root.style.setProperty('--theme-muted', variations.muted);
+    root.style.setProperty('--theme-background-opacity', themeColors.opacity.toString());
   };
 
   const applyBackgroundImage = (imageUrl: string) => {
     const root = document.documentElement;
     root.style.setProperty('--theme-background-image', imageUrl ? `url(${imageUrl})` : 'none');
+    
+    // Toggle body attribute based on background presence
+    if (imageUrl) {
+      document.body.removeAttribute('data-no-background');
+    } else {
+      document.body.setAttribute('data-no-background', 'true');
+    }
   };
 
   const updateTheme = (newTheme: ThemeColors) => {
