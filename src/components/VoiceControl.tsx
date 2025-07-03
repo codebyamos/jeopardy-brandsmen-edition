@@ -41,21 +41,7 @@ const VoiceControl: React.FC<VoiceControlProps> = ({
 
   return (
     <div className="flex items-center justify-center gap-2 mb-4 sm:mb-6">
-      {isThisVoicePlaying ? (
-        // Show STOP button when THIS voice is playing
-        <Button
-          onClick={() => {
-            console.log(`STOP clicked for ${type}`);
-            onStop();
-          }}
-          variant="ghost"
-          size="sm"
-          className="text-white p-2"
-          style={{backgroundColor: '#666'}}
-        >
-          <VolumeX className="w-6 h-6 sm:w-8 sm:h-8" />
-        </Button>
-      ) : (
+      {!isThisVoicePlaying ? (
         // Show PLAY button when THIS voice is NOT playing
         <Button
           onClick={() => {
@@ -69,6 +55,20 @@ const VoiceControl: React.FC<VoiceControlProps> = ({
           disabled={isSpeaking && currentSpeech !== type} // Disable if another voice is playing
         >
           <Volume2 className="w-6 h-6 sm:w-8 sm:h-8" />
+        </Button>
+      ) : (
+        // Show STOP button when THIS voice is playing
+        <Button
+          onClick={() => {
+            console.log(`STOP clicked for ${type}`);
+            onStop();
+          }}
+          variant="ghost"
+          size="sm"
+          className="text-white p-2"
+          style={{backgroundColor: '#666'}}
+        >
+          <VolumeX className="w-6 h-6 sm:w-8 sm:h-8" />
         </Button>
       )}
     </div>
