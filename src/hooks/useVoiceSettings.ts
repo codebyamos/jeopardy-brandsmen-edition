@@ -50,8 +50,9 @@ export const useVoiceSettings = () => {
         if (data.selected_voice) {
           localStorage.setItem('selected_voice', data.selected_voice);
         }
-        // Handle voice_enabled with fallback for backward compatibility
-        const voiceEnabled = data.voice_enabled !== undefined ? data.voice_enabled : true;
+        // Handle voice_enabled with fallback - use type assertion to access the property
+        const dbData = data as any;
+        const voiceEnabled = dbData.voice_enabled !== undefined ? dbData.voice_enabled : true;
         localStorage.setItem('voice_enabled', voiceEnabled.toString());
         
         setSettings({
@@ -76,7 +77,7 @@ export const useVoiceSettings = () => {
       localStorage.setItem('selected_voice', newSettings.selectedVoice);
       localStorage.setItem('voice_enabled', newSettings.isVoiceEnabled.toString());
       
-      // Save to database
+      // Save to database with type assertion for the new column
       const { error } = await supabase
         .from('voice_settings')
         .upsert({
@@ -85,7 +86,7 @@ export const useVoiceSettings = () => {
           selected_voice: newSettings.selectedVoice,
           voice_enabled: newSettings.isVoiceEnabled,
           updated_at: new Date().toISOString()
-        });
+        } as any);
 
       if (error) {
         throw error;
