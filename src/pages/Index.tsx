@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import GameBoard from '../components/GameBoard';
 import QuestionModal from '../components/QuestionModal';
@@ -55,24 +56,10 @@ const Index = () => {
   ]);
 
   const { saveGame, isLoading } = useGameData();
-  const { theme, updateTheme } = useTheme();
+  const { theme } = useTheme();
 
   const categories = Array.from(new Set(questions.map(q => q.category)));
   const pointValues = [100, 200, 300, 400, 500];
-
-  // Initialize theme CSS variables on load
-  useEffect(() => {
-    const root = document.documentElement;
-    root.style.setProperty('--theme-primary', theme.primary);
-    root.style.setProperty('--theme-secondary', theme.secondary);
-    root.style.setProperty('--theme-background', theme.background);
-    root.style.setProperty('--theme-board-background', theme.boardBackground);
-    root.style.setProperty('--theme-category-header', theme.categoryHeader);
-    root.style.setProperty('--theme-question-item', theme.questionItem);
-    root.style.setProperty('--theme-question-item-hover', theme.questionItemHover);
-    root.style.setProperty('--theme-text', theme.text);
-    root.style.setProperty('--theme-button-text', theme.buttonText);
-  }, [theme]);
 
   const handleQuestionSelect = (category: string, points: number) => {
     const question = questions.find(q => q.category === category && q.points === points);
@@ -110,16 +97,11 @@ const Index = () => {
   }, []);
 
   return (
-    <div className="min-h-screen p-2 sm:p-4 lg:p-8" style={{ background: `linear-gradient(135deg, ${theme.background}, #1a1a1a)` }}>
+    <div className="min-h-screen p-2 sm:p-4 lg:p-8">
       <div className="container mx-auto">
         <div className="text-center mb-4 sm:mb-6 lg:mb-8">
           <h1 className="main-title font-bold mb-2 tracking-wider text-lg sm:text-xl lg:text-2xl" 
-              style={{ 
-                fontFamily: 'arial', 
-                textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
-                backgroundColor: theme.primary,
-                color: theme.buttonText
-              }}>
+              style={{ fontFamily: 'arial', textShadow: '2px 2px 4px rgba(0,0,0,0.8)' }}>
             JEOPARDY: BRANDSMEN EDITION
           </h1>
         </div>

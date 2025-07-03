@@ -72,9 +72,12 @@ export const useTheme = () => {
         console.error('Error loading theme:', error);
       }
     }
-    // Apply theme on mount
-    applyThemeToDOM(theme);
   }, []);
+
+  // Apply theme whenever it changes
+  useEffect(() => {
+    applyThemeToDOM(theme);
+  }, [theme]);
 
   const applyThemeToDOM = (themeColors: ThemeColors) => {
     const variations = generateThemeVariations(themeColors);
@@ -97,7 +100,6 @@ export const useTheme = () => {
   const updateTheme = (newTheme: ThemeColors) => {
     setTheme(newTheme);
     localStorage.setItem('game_theme', JSON.stringify(newTheme));
-    applyThemeToDOM(newTheme);
   };
 
   const previewTheme = (previewTheme: ThemeColors) => {
