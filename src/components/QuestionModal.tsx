@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Question, Player } from '../types/game';
 import { Button } from '../components/ui/button';
@@ -27,26 +26,80 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
       
       setIsSpeaking(true);
       const utterance = new SpeechSynthesisUtterance(text);
-      utterance.rate = 0.8;
-      utterance.pitch = 1.1;
+      utterance.rate = 0.9;
+      utterance.pitch = 1.0;
       utterance.volume = 1;
       
-      // Ensure female voice with better selection
+      // Enhanced voice selection for more natural-sounding female voices
       const voices = window.speechSynthesis.getVoices();
-      const femaleVoice = voices.find(voice => 
-        voice.name.toLowerCase().includes('samantha') ||
-        voice.name.toLowerCase().includes('karen') ||
-        voice.name.toLowerCase().includes('susan') ||
-        voice.name.toLowerCase().includes('allison') ||
-        voice.name.toLowerCase().includes('ava') ||
-        voice.name.toLowerCase().includes('serena') ||
-        voice.name.toLowerCase().includes('zira') ||
-        voice.name.toLowerCase().includes('female') ||
-        voice.name.toLowerCase().includes('google')
-      ) || voices.find(voice => voice.lang.startsWith('en'));
       
-      if (femaleVoice) {
-        utterance.voice = femaleVoice;
+      // Priority order: high-quality natural voices first
+      const preferredVoices = [
+        // Premium/Natural voices (usually sound most human)
+        'Microsoft Aria Online (Natural) - English (United States)',
+        'Microsoft Jenny Online (Natural) - English (United States)',
+        'Google US English Female',
+        'Microsoft Zira - English (United States)',
+        'Microsoft Hazel - English (Great Britain)',
+        'Alex (Enhanced)', // macOS enhanced voice
+        'Samantha (Enhanced)', // macOS enhanced voice
+        // Fallback to any available female voice
+        'samantha',
+        'karen',
+        'susan',
+        'allison',
+        'ava',
+        'serena',
+        'zira',
+        'aria',
+        'jenny',
+        'hazel'
+      ];
+      
+      let selectedVoice = null;
+      
+      // First, try to find preferred high-quality voices by exact name match
+      for (const preferredName of preferredVoices) {
+        selectedVoice = voices.find(voice => 
+          voice.name.toLowerCase() === preferredName.toLowerCase()
+        );
+        if (selectedVoice) break;
+      }
+      
+      // If no exact match, try partial matching with quality indicators
+      if (!selectedVoice) {
+        selectedVoice = voices.find(voice => 
+          (voice.name.toLowerCase().includes('natural') || 
+           voice.name.toLowerCase().includes('enhanced') ||
+           voice.name.toLowerCase().includes('premium')) &&
+          (voice.name.toLowerCase().includes('female') ||
+           voice.name.toLowerCase().includes('aria') ||
+           voice.name.toLowerCase().includes('jenny') ||
+           voice.name.toLowerCase().includes('zira'))
+        );
+      }
+      
+      // Fallback to any female-sounding voice
+      if (!selectedVoice) {
+        for (const preferredName of preferredVoices.slice(8)) { // Skip the exact matches we already tried
+          selectedVoice = voices.find(voice => 
+            voice.name.toLowerCase().includes(preferredName)
+          );
+          if (selectedVoice) break;
+        }
+      }
+      
+      // Final fallback to any English voice
+      if (!selectedVoice) {
+        selectedVoice = voices.find(voice => 
+          voice.lang.startsWith('en') && 
+          !voice.name.toLowerCase().includes('male')
+        );
+      }
+      
+      if (selectedVoice) {
+        utterance.voice = selectedVoice;
+        console.log('Using voice:', selectedVoice.name); // For debugging
       }
       
       utterance.onend = () => {
