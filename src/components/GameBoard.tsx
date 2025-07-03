@@ -30,10 +30,11 @@ const GameBoard: React.FC<GameBoardProps> = ({
     <div className="relative">
       {/* Mountain background */}
       <div 
-        className="absolute inset-0 rounded-lg opacity-30 bg-cover bg-center bg-no-repeat"
+        className="absolute inset-0 rounded-lg bg-cover bg-center bg-no-repeat"
         style={{ 
-          backgroundImage: 'url(/lovable-uploads/cec25934-a99c-463c-bcd9-e6dbaeffb42b.png)',
-          zIndex: -1
+          backgroundImage: 'url(/lovable-uploads/44a7d90f-f2ca-4800-8c84-95430b21c8bb.png)',
+          zIndex: -1,
+          opacity: 0.3
         }}
       />
       
