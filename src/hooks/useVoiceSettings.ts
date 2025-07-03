@@ -34,13 +34,13 @@ export const useVoiceSettings = () => {
         isVoiceEnabled: localVoiceEnabled
       });
 
-      // Then check database for any updates
+      // Then check database for any updates - use maybeSingle() to handle no rows
       const { data, error } = await supabase
         .from('voice_settings')
         .select('*')
-        .single();
+        .maybeSingle();
 
-      if (error && error.code !== 'PGRST116') { // PGRST116 = no rows found
+      if (error) {
         console.error('Error loading voice settings:', error);
       } else if (data) {
         // Update localStorage with database values if they exist
@@ -50,9 +50,8 @@ export const useVoiceSettings = () => {
         if (data.selected_voice) {
           localStorage.setItem('selected_voice', data.selected_voice);
         }
-        // Handle voice_enabled with fallback - use type assertion to access the property
-        const dbData = data as any;
-        const voiceEnabled = dbData.voice_enabled !== undefined ? dbData.voice_enabled : true;
+        // Handle voice_enabled with fallback
+        const voiceEnabled = data.voice_enabled !== undefined ? data.voice_enabled : true;
         localStorage.setItem('voice_enabled', voiceEnabled.toString());
         
         setSettings({
@@ -77,7 +76,7 @@ export const useVoiceSettings = () => {
       localStorage.setItem('selected_voice', newSettings.selectedVoice);
       localStorage.setItem('voice_enabled', newSettings.isVoiceEnabled.toString());
       
-      // Save to database with type assertion for the new column
+      // Save to database
       const { error } = await supabase
         .from('voice_settings')
         .upsert({
@@ -86,7 +85,7 @@ export const useVoiceSettings = () => {
           selected_voice: newSettings.selectedVoice,
           voice_enabled: newSettings.isVoiceEnabled,
           updated_at: new Date().toISOString()
-        } as any);
+        });
 
       if (error) {
         throw error;
