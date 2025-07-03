@@ -13,7 +13,7 @@ const PasscodeContext = createContext<PasscodeContextType | undefined>(undefined
 
 export const PasscodeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [passcode, setPasscodeState] = useState('');
+  const [passcode, setPasscodeState] = useState('1234'); // Default fallback
 
   useEffect(() => {
     const savedPasscode = localStorage.getItem('game_passcode');
@@ -22,7 +22,7 @@ export const PasscodeProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     if (savedPasscode) {
       setPasscodeState(savedPasscode);
     } else {
-      // Set default passcode if none exists
+      // Only set default if no passcode exists at all
       const defaultCode = '1234';
       setPasscodeState(defaultCode);
       localStorage.setItem('game_passcode', defaultCode);
