@@ -15,6 +15,10 @@ export const useGameData = () => {
       const today = gameDate || new Date().toISOString().split('T')[0];
       let gameId = currentGameId;
 
+      console.log('Saving game with players:', players);
+      console.log('Current game ID:', gameId);
+      console.log('Game date:', today);
+
       // If currentGameId is set, check if it still exists in the database
       if (gameId) {
         const { data: existingGame } = await supabase
@@ -36,16 +40,18 @@ export const useGameData = () => {
           .from('games')
           .select('id')
           .eq('game_date', today)
-          .single();
+          .maybeSingle();
 
         if (existingGame) {
           gameId = existingGame.id;
           setCurrentGameId(gameId);
+          console.log('Found existing game for today:', gameId);
         }
       }
 
       // Create a new game if none exists for today
       if (!gameId) {
+        console.log('Creating new game for today');
         const { data: gameData, error: gameError } = await supabase
           .from('games')
           .insert([{ game_date: today }])
@@ -55,6 +61,7 @@ export const useGameData = () => {
         if (gameError) throw gameError;
         gameId = gameData.id;
         setCurrentGameId(gameId);
+        console.log('Created new game:', gameId);
       }
 
       // Delete existing players for this game

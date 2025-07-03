@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import GameBoard from '../components/GameBoard';
 import QuestionModal from '../components/QuestionModal';
 import GameControls from '../components/GameControls';
@@ -67,6 +66,11 @@ const Index = () => {
   const categories = Array.from(new Set(questions.map(q => q.category)));
   const pointValues = [100, 200, 300, 400, 500];
 
+  // Create a stable loadRecentGames function to avoid infinite loops
+  const stableLoadRecentGames = useCallback(() => {
+    return loadRecentGames(1);
+  }, []);
+
   // Load existing game state on component mount
   useEffect(() => {
     const loadGameState = async () => {
@@ -77,21 +81,23 @@ const Index = () => {
 
       try {
         console.log('Loading game state from database...');
-        // Load the most recent game for today
-        const recentGames = await loadRecentGames(1);
+        const recentGames = await stableLoadRecentGames();
         console.log('Recent games loaded:', recentGames);
         
         if (recentGames.length > 0) {
-          const todaysGame = recentGames.find(game => 
-            new Date(game.game_date).toDateString() === new Date().toDateString()
-          );
+          const today = new Date().toDateString();
+          const todaysGame = recentGames.find(game => {
+            const gameDate = new Date(game.game_date).toDateString();
+            console.log('Comparing dates:', { today, gameDate, match: today === gameDate });
+            return today === gameDate;
+          });
           
           console.log('Todays game found:', todaysGame);
           
-          if (todaysGame && todaysGame.game_players.length > 0) {
+          if (todaysGame && todaysGame.game_players && todaysGame.game_players.length > 0) {
             // Load players from the database
-            const loadedPlayers: Player[] = todaysGame.game_players.map(player => ({
-              id: parseInt(player.id), // Convert string ID to number for compatibility
+            const loadedPlayers: Player[] = todaysGame.game_players.map((player, index) => ({
+              id: index + 1, // Use index + 1 for consistent ID
               name: player.player_name,
               score: player.player_score,
               avatar: player.avatar_url || undefined
@@ -106,16 +112,30 @@ const Index = () => {
         // Continue with default players if loading fails
       } finally {
         setIsLoadingGameState(false);
+        if (!hasDataLoaded) {
+          setHasDataLoaded(true);
+        }
       }
     };
 
     loadGameState();
-  }, [isAuthenticated, loadRecentGames]);
+  }, [isAuthenticated, stableLoadRecentGames, hasDataLoaded]);
 
   // Auto-save game state whenever players change (with debouncing)
   useEffect(() => {
     if (!isAuthenticated || isLoadingGameState || !hasDataLoaded) {
       console.log('Skipping auto-save:', { isAuthenticated, isLoadingGameState, hasDataLoaded });
+      return;
+    }
+
+    // Don't auto-save if players are still default values
+    const isDefaultState = players.length === 2 && 
+      players[0].name === 'Team 1' && players[0].score === 0 &&
+      players[1].name === 'Team 2' && players[1].score === 0 &&
+      !players[0].avatar && !players[1].avatar;
+
+    if (isDefaultState) {
+      console.log('Skipping auto-save for default state');
       return;
     }
 
@@ -131,13 +151,6 @@ const Index = () => {
 
     return () => clearTimeout(timeoutId);
   }, [players, saveGame, isAuthenticated, isLoadingGameState, hasDataLoaded]);
-
-  // Set hasDataLoaded to true after initial load is complete
-  useEffect(() => {
-    if (!isLoadingGameState && !hasDataLoaded) {
-      setHasDataLoaded(true);
-    }
-  }, [isLoadingGameState, hasDataLoaded]);
 
   const handleQuestionSelect = (category: string, points: number) => {
     const question = questions.find(q => q.category === category && q.points === points);
@@ -191,6 +204,7 @@ const Index = () => {
     setShowGameEditor(false);
     setShowScoreManager(false);
     setShowGameHistory(false);
+    setHasDataLoaded(false); // Reset this so new data can be loaded
   };
 
   // Initialize speech system on app load

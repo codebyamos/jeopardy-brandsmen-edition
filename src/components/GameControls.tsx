@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from './ui/button';
 import { Settings, Save, History, Edit, Calculator, Users, Volume2, Timer, Key, RotateCcw } from 'lucide-react';
@@ -38,7 +37,7 @@ const GameControls: React.FC<GameControlsProps> = ({
   const [showPasscodeManager, setShowPasscodeManager] = useState(false);
 
   const menuItems = [
-    { icon: Save, label: 'Save Game', action: onSaveGame, disabled: false }, // Re-enabled the save button
+    { icon: Save, label: 'Save Game', action: onSaveGame, disabled: false },
     { icon: History, label: 'Game History', action: onShowGameHistory },
     { icon: Edit, label: 'Edit Game', action: onShowGameEditor },
     { icon: Calculator, label: 'Manage Scores', action: onShowScoreManager },
