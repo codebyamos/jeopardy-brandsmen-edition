@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { Button } from '../components/ui/button';
 import GameBoard from '../components/GameBoard';
 import QuestionModal from '../components/QuestionModal';
 import GameControls from '../components/GameControls';
 import GameEditor from '../components/GameEditor';
 import ScoreManager from '../components/ScoreManager';
 import GameHistory from '../components/GameHistory';
+import PlayerScores from '../components/PlayerScores';
+import ScoringModal from '../components/ScoringModal';
 import { Question, Player } from '../types/game';
 import { useGameData } from '../hooks/useGameData';
 
@@ -105,31 +106,8 @@ const Index = () => {
           />
         </div>
         
-        {/* Bottom Player Scores with Avatars */}
-        <div className="mb-4 flex justify-center">
-          <div className="flex flex-wrap gap-2 sm:gap-4 lg:gap-8 justify-center">
-            {players.map((player) => (
-              <div key={player.id} className="bg-yellow-400 text-black rounded-lg px-3 sm:px-4 lg:px-6 py-2 sm:py-3 lg:py-4 min-w-[100px] sm:min-w-[120px] text-center" style={{ backgroundColor: '#fa1e4e' }}>
-                {/* Name with Avatar */}
-                <div className="flex items-center justify-center gap-2 mb-1 sm:mb-2">
-                  {player.avatar && (
-                    <img 
-                      src={player.avatar} 
-                      alt={`${player.name} avatar`}
-                      className="w-5 h-5 sm:w-6 sm:h-6 rounded-full object-cover border border-white/30 flex-shrink-0"
-                    />
-                  )}
-                  <div className="font-bold text-sm sm:text-lg" style={{fontWeight: '400'}}>{player.name}</div>
-                </div>
-                <div className="bg-blue-800 text-white rounded px-2 sm:px-4 py-1 sm:py-2 text-base sm:text-xl font-bold" style={{backgroundColor: '#1c1726', fontWeight:'400', fontSize: '14px', padding: '3px 3px'}}>
-                  {player.score}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+        <PlayerScores players={players} />
 
-        {/* Consolidated Game Controls */}
         <GameControls
           players={players}
           onPlayersUpdate={setPlayers}
@@ -169,52 +147,14 @@ const Index = () => {
           onClose={() => setShowGameHistory(false)}
         />
 
-        {/* Score Assignment Overlay - Compact Version */}
         {showScoring && (
-          <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-2 sm:p-4">
-            <div className="bg-gray-900 border border-gray-700 rounded-lg max-w-md w-full p-3 sm:p-4">
-              <h3 className="text-yellow-400 text-lg sm:text-xl font-bold mb-3 text-center" style={{color: '#fa1e4e'}}>Award Points</h3>
-              <div className="space-y-2">
-                {players.map((player) => (
-                  <div key={player.id} className="flex justify-between items-center bg-gray-800 rounded-lg p-2 sm:p-3">
-                    <span className="text-white text-sm sm:text-base font-medium">{player.name}</span>
-                    <div className="flex gap-1">
-                      <Button
-                        onClick={() => handleScorePlayer(player.id, answeredQuestions.size > 0 ? 
-                          Array.from(answeredQuestions).slice(-1).map(id => 
-                            questions.find(q => q.id === id)?.points || 0
-                          )[0] : 0)}
-                        size="sm"
-                        className="bg-green-600 hover:bg-green-700 text-white text-xs sm:text-sm px-2 sm:px-3 py-1"
-                      >
-                        +Points
-                      </Button>
-                      <Button
-                        onClick={() => handleScorePlayer(player.id, -(answeredQuestions.size > 0 ? 
-                          Array.from(answeredQuestions).slice(-1).map(id => 
-                            questions.find(q => q.id === id)?.points || 0
-                          )[0] : 0))}
-                        size="sm"
-                        className="bg-red-600 hover:bg-red-700 text-white text-xs sm:text-sm px-2 sm:px-3 py-1"
-                      >
-                        -Points
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div className="flex justify-center mt-3">
-                <Button
-                  onClick={() => setShowScoring(false)}
-                  variant="outline"
-                  size="sm"
-                  className="text-white border-gray-600 hover:bg-gray-800 text-sm"
-                >
-                  Skip Scoring
-                </Button>
-              </div>
-            </div>
-          </div>
+          <ScoringModal
+            players={players}
+            answeredQuestions={answeredQuestions}
+            questions={questions}
+            onScorePlayer={handleScorePlayer}
+            onClose={() => setShowScoring(false)}
+          />
         )}
       </div>
     </div>
