@@ -142,6 +142,7 @@ All colors MUST be HSL.
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
+    line-height: 1.3em !important;
 }
 
 @media (min-width: 640px) {
