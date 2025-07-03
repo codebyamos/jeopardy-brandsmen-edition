@@ -20,46 +20,53 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
 }) => {
   const [showAnswer, setShowAnswer] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
-  const [hasAutoPlayed, setHasAutoPlayed] = useState(false);
+  const [currentSpeech, setCurrentSpeech] = useState<'question' | 'answer' | null>(null);
 
-  const speakText = async (text: string) => {
+  const speakText = async (text: string, type: 'question' | 'answer') => {
+    // Stop any current speech first
     if (isSpeaking) {
-      // Stop current speech
       if ('speechSynthesis' in window) {
         window.speechSynthesis.cancel();
       }
       setIsSpeaking(false);
+      setCurrentSpeech(null);
       return;
     }
 
     setIsSpeaking(true);
+    setCurrentSpeech(type);
+    
     try {
       await speakWithElevenLabs(text);
     } catch (error) {
       console.error('Speech error:', error);
     } finally {
       setIsSpeaking(false);
+      setCurrentSpeech(null);
     }
   };
 
   useEffect(() => {
-    // Auto-read the question when modal opens with a slight delay
-    if (!hasAutoPlayed) {
-      const timer = setTimeout(() => {
-        speakText(question.question);
-        setHasAutoPlayed(true);
-      }, 300);
-      
-      return () => clearTimeout(timer);
-    }
-  }, [question.question, hasAutoPlayed]);
+    // Auto-read the question when modal opens
+    const timer = setTimeout(() => {
+      speakText(question.question, 'question');
+    }, 100);
+    
+    return () => {
+      clearTimeout(timer);
+      // Clean up any ongoing speech when component unmounts
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, [question.question]);
 
   const handleShowAnswer = () => {
     setShowAnswer(true);
-    // Small delay before reading answer to ensure UI has updated
+    // Read answer immediately when revealed
     setTimeout(() => {
-      speakText(question.answer);
-    }, 200);
+      speakText(question.answer, 'answer');
+    }, 100);
   };
 
   const stopSpeaking = () => {
@@ -67,10 +74,10 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
       window.speechSynthesis.cancel();
     }
     setIsSpeaking(false);
+    setCurrentSpeech(null);
   };
 
   const handleClose = () => {
-    // Stop any ongoing speech when closing
     stopSpeaking();
     onClose();
   };
@@ -104,16 +111,16 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
             <div className="text-center">
               <div className="flex items-center justify-center gap-2 mb-4 sm:mb-6">
                 <Button
-                  onClick={() => speakText(question.answer)}
+                  onClick={() => speakText(question.answer, 'answer')}
                   variant="ghost"
                   size="sm"
                   className="text-white p-2"
                   style={{backgroundColor: '#fa1e4e'}}
-                  disabled={isSpeaking}
+                  disabled={isSpeaking && currentSpeech === 'answer'}
                 >
                   <Volume2 className="w-6 h-6 sm:w-8 sm:h-8" />
                 </Button>
-                {isSpeaking && (
+                {isSpeaking && currentSpeech === 'answer' && (
                   <Button
                     onClick={stopSpeaking}
                     variant="ghost"
@@ -166,16 +173,16 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
           <div className="text-center">
             <div className="flex items-center justify-center gap-2 mb-4 sm:mb-6">
               <Button
-                onClick={() => speakText(question.question)}
+                onClick={() => speakText(question.question, 'question')}
                 variant="ghost"
                 size="sm"
                 className="text-white p-2"
                 style={{backgroundColor: '#fa1e4e'}}
-                disabled={isSpeaking}
+                disabled={isSpeaking && currentSpeech === 'question'}
               >
                 <Volume2 className="w-6 h-6 sm:w-8 sm:h-8" />
               </Button>
-              {isSpeaking && (
+              {isSpeaking && currentSpeech === 'question' && (
                 <Button
                   onClick={stopSpeaking}
                   variant="ghost"

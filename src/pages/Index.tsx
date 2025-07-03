@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '../components/ui/button';
 import GameBoard from '../components/GameBoard';
@@ -170,23 +169,23 @@ const Index = () => {
           onClose={() => setShowGameHistory(false)}
         />
 
-        {/* Score Assignment Overlay */}
+        {/* Score Assignment Overlay - Compact Version */}
         {showScoring && (
           <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-2 sm:p-4">
-            <div className="bg-gray-900 border border-gray-700 rounded-lg max-w-2xl w-full p-4 sm:p-6">
-              <h3 className="text-yellow-400 text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-center" style={{color: '#fa1e4e'}}>Award Points</h3>
-              <div className="grid grid-cols-1 gap-3 sm:gap-4">
+            <div className="bg-gray-900 border border-gray-700 rounded-lg max-w-md w-full p-3 sm:p-4">
+              <h3 className="text-yellow-400 text-lg sm:text-xl font-bold mb-3 text-center" style={{color: '#fa1e4e'}}>Award Points</h3>
+              <div className="space-y-2">
                 {players.map((player) => (
-                  <div key={player.id} className="flex justify-between items-center bg-gray-800 rounded-lg p-3 sm:p-4">
-                    <span className="text-white text-lg sm:text-xl font-medium">{player.name}</span>
-                    <div className="flex gap-2">
+                  <div key={player.id} className="flex justify-between items-center bg-gray-800 rounded-lg p-2 sm:p-3">
+                    <span className="text-white text-sm sm:text-base font-medium">{player.name}</span>
+                    <div className="flex gap-1">
                       <Button
                         onClick={() => handleScorePlayer(player.id, answeredQuestions.size > 0 ? 
                           Array.from(answeredQuestions).slice(-1).map(id => 
                             questions.find(q => q.id === id)?.points || 0
                           )[0] : 0)}
                         size="sm"
-                        className="bg-green-600 hover:bg-green-700 text-white text-sm sm:text-lg px-3 sm:px-4 py-2"
+                        className="bg-green-600 hover:bg-green-700 text-white text-xs sm:text-sm px-2 sm:px-3 py-1"
                       >
                         +Points
                       </Button>
@@ -196,7 +195,7 @@ const Index = () => {
                             questions.find(q => q.id === id)?.points || 0
                           )[0] : 0))}
                         size="sm"
-                        className="bg-red-600 hover:bg-red-700 text-white text-sm sm:text-lg px-3 sm:px-4 py-2"
+                        className="bg-red-600 hover:bg-red-700 text-white text-xs sm:text-sm px-2 sm:px-3 py-1"
                       >
                         -Points
                       </Button>
@@ -204,11 +203,12 @@ const Index = () => {
                   </div>
                 ))}
               </div>
-              <div className="flex justify-center mt-4 sm:mt-6">
+              <div className="flex justify-center mt-3">
                 <Button
                   onClick={() => setShowScoring(false)}
                   variant="outline"
-                  className="text-white border-gray-600 hover:bg-gray-800"
+                  size="sm"
+                  className="text-white border-gray-600 hover:bg-gray-800 text-sm"
                 >
                   Skip Scoring
                 </Button>
