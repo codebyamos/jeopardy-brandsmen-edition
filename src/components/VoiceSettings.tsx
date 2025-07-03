@@ -50,14 +50,14 @@ const VoiceSettings: React.FC<VoiceSettingsProps> = ({ isVisible, onClose }) => 
 
   return (
     <Dialog open={isVisible} onOpenChange={onClose}>
-      <DialogContent className="bg-gray-900 border-gray-700 text-white max-w-2xl">
+      <DialogContent className="bg-white border-2 text-gray-800 max-w-2xl" style={{ borderColor: '#2c5b69' }}>
         <DialogHeader>
-          <DialogTitle className="text-yellow-400">Voice Settings</DialogTitle>
+          <DialogTitle style={{ color: '#2c5b69' }}>Voice Settings</DialogTitle>
         </DialogHeader>
         
         <div className="space-y-6">
           <div className="flex items-center justify-between">
-            <Label htmlFor="voice-enabled" className="text-white">
+            <Label htmlFor="voice-enabled" style={{ color: '#2c5b69' }}>
               Enable Voice Features
             </Label>
             <Switch
@@ -70,7 +70,7 @@ const VoiceSettings: React.FC<VoiceSettingsProps> = ({ isVisible, onClose }) => 
           {localVoiceEnabled && (
             <>
               <div>
-                <Label htmlFor="api-key" className="text-white">
+                <Label htmlFor="api-key" style={{ color: '#2c5b69' }}>
                   ElevenLabs API Key
                 </Label>
                 <Input
@@ -79,15 +79,17 @@ const VoiceSettings: React.FC<VoiceSettingsProps> = ({ isVisible, onClose }) => 
                   value={localApiKey}
                   onChange={(e) => setLocalApiKey(e.target.value)}
                   placeholder="Enter your ElevenLabs API key"
-                  className="bg-gray-800 border-gray-600 text-white"
+                  className="bg-white border-2 text-gray-800"
+                  style={{ borderColor: '#2c5b69' }}
                 />
-                <p className="text-sm text-gray-400 mt-1">
+                <p className="text-sm text-gray-600 mt-1">
                   Get your API key from{' '}
                   <a 
                     href="https://elevenlabs.io" 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="text-blue-400 hover:underline"
+                    className="hover:underline"
+                    style={{ color: '#2c5b69' }}
                   >
                     elevenlabs.io
                   </a>
@@ -108,13 +110,15 @@ const VoiceSettings: React.FC<VoiceSettingsProps> = ({ isVisible, onClose }) => 
             <Button
               onClick={onClose}
               variant="outline"
-              className="border-gray-600 text-gray-300 hover:bg-gray-800"
+              className="text-white hover:opacity-90"
+              style={{ backgroundColor: '#2c5b69', borderColor: '#2c5b69' }}
             >
               Cancel
             </Button>
             <Button
               onClick={handleSaveSettings}
-              className="bg-yellow-500 text-black hover:bg-yellow-400"
+              className="text-white hover:opacity-90"
+              style={{ backgroundColor: '#2c5b69' }}
               disabled={isLoading}
             >
               {isLoading ? 'Saving...' : 'Save Settings'}

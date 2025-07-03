@@ -71,7 +71,7 @@
 
   body {
     @apply bg-background text-foreground;
-    background: linear-gradient(135deg, #2c5b69, #ffffff);
+    background: white;
     min-height: 100vh;
   }
 
@@ -113,6 +113,11 @@
 
   [data-radix-dialog-content] input::placeholder {
     color: #6b7280 !important;
+  }
+
+  /* Switch component styling */
+  [data-radix-dialog-content] [data-state="checked"] {
+    background-color: #2c5b69 !important;
   }
 
   /* Button styling */

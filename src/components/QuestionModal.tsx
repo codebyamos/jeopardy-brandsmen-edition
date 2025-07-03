@@ -156,7 +156,7 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-2 sm:p-4">
-      <div className="modal-content bg-gradient-to-b from-gray-900 to-black border-2 border-gray-700 rounded-lg w-full max-w-6xl shadow-2xl">
+      <div className="modal-content bg-white border-2 rounded-lg w-full max-w-6xl shadow-2xl" style={{ borderColor: '#2c5b69' }}>
         <div className="p-4 sm:p-6 lg:p-8 relative">
           <QuestionModalHeader 
             category={question.category}

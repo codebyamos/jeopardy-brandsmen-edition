@@ -33,14 +33,14 @@ const TimerSettings: React.FC<TimerSettingsProps> = ({ isVisible, onClose }) => 
 
   return (
     <Dialog open={isVisible} onOpenChange={onClose}>
-      <DialogContent className="bg-gray-900 border-gray-700 text-white">
+      <DialogContent className="bg-white border-2 text-gray-800 max-w-md" style={{ borderColor: '#2c5b69' }}>
         <DialogHeader>
-          <DialogTitle className="text-yellow-400">Timer Settings</DialogTitle>
+          <DialogTitle style={{ color: '#2c5b69' }}>Timer Settings</DialogTitle>
         </DialogHeader>
         
         <div className="space-y-6">
           <div>
-            <Label htmlFor="timer-duration" className="text-white">
+            <Label htmlFor="timer-duration" style={{ color: '#2c5b69' }}>
               Timer Duration (seconds)
             </Label>
             <Input
@@ -50,9 +50,10 @@ const TimerSettings: React.FC<TimerSettingsProps> = ({ isVisible, onClose }) => 
               max="300"
               value={localTimerDuration}
               onChange={(e) => setLocalTimerDuration(e.target.value)}
-              className="bg-gray-800 border-gray-600 text-white"
+              className="bg-white border-2 text-gray-800"
+              style={{ borderColor: '#2c5b69' }}
             />
-            <p className="text-sm text-gray-400 mt-1">
+            <p className="text-sm text-gray-600 mt-1">
               Set how many seconds players have to answer each question (5-300 seconds)
             </p>
           </div>
@@ -61,13 +62,15 @@ const TimerSettings: React.FC<TimerSettingsProps> = ({ isVisible, onClose }) => 
             <Button
               onClick={onClose}
               variant="outline"
-              className="border-gray-600 text-gray-300 hover:bg-gray-800"
+              className="text-white hover:opacity-90"
+              style={{ backgroundColor: '#2c5b69', borderColor: '#2c5b69' }}
             >
               Cancel
             </Button>
             <Button
               onClick={handleSaveSettings}
-              className="bg-yellow-500 text-black hover:bg-yellow-400"
+              className="text-white hover:opacity-90"
+              style={{ backgroundColor: '#2c5b69' }}
             >
               Save Settings
             </Button>
