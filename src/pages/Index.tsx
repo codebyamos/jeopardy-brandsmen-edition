@@ -45,7 +45,7 @@ const sampleQuestions: Question[] = [
 ];
 
 const Index = () => {
-  const { isAuthenticated } = usePasscode();
+  const { isAuthenticated, setPasscode } = usePasscode();
   
   const [questions, setQuestions] = useState<Question[]>(sampleQuestions);
   const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(null);
@@ -95,7 +95,12 @@ const Index = () => {
     }
   };
 
-  const handleStartNewGame = () => {
+  const handleStartNewGame = (newPasscode?: string) => {
+    // Update the passcode if provided
+    if (newPasscode) {
+      setPasscode(newPasscode);
+    }
+    
     // Reset all game state
     setQuestions(sampleQuestions);
     setAnsweredQuestions(new Set());
