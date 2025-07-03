@@ -25,48 +25,63 @@ const VoiceControl: React.FC<VoiceControlProps> = ({
   
   // Don't show any buttons if voice is disabled
   if (!settings.isVoiceEnabled) {
+    console.log(`VoiceControl ${type}: Voice disabled, returning null`);
     return null;
   }
 
   // Check if THIS SPECIFIC voice control is currently playing
   const isThisVoicePlaying = isSpeaking && currentSpeech === type;
   
-  console.log(`VoiceControl ${type}:`, {
+  console.log(`VoiceControl ${type} RENDER:`, {
     isSpeaking,
     currentSpeech,
     isThisVoicePlaying,
-    type
+    type,
+    willShowPlayButton: !isThisVoicePlaying,
+    willShowStopButton: isThisVoicePlaying
   });
 
   return (
     <div className="flex items-center justify-center gap-2 mb-4 sm:mb-6">
       {/* Play button - show ONLY when this voice is NOT playing */}
       {!isThisVoicePlaying && (
-        <Button
-          id={`voice-play-${type}`}
-          onClick={() => onSpeak(text, type)}
-          variant="ghost"
-          size="sm"
-          className="text-white p-2"
-          style={{backgroundColor: '#fa1e4e'}}
-          disabled={isSpeaking && currentSpeech !== type} // Disable if another voice is playing
-        >
-          <Volume2 className="w-6 h-6 sm:w-8 sm:h-8" />
-        </Button>
+        <>
+          {console.log(`Rendering PLAY button for ${type}`)}
+          <Button
+            id={`voice-play-${type}`}
+            onClick={() => {
+              console.log(`PLAY button clicked for ${type}`);
+              onSpeak(text, type);
+            }}
+            variant="ghost"
+            size="sm"
+            className="text-white p-2"
+            style={{backgroundColor: '#fa1e4e'}}
+            disabled={isSpeaking && currentSpeech !== type} // Disable if another voice is playing
+          >
+            <Volume2 className="w-6 h-6 sm:w-8 sm:h-8" />
+          </Button>
+        </>
       )}
       
       {/* Stop button - show ONLY when this voice IS playing */}
       {isThisVoicePlaying && (
-        <Button
-          id={`voice-stop-${type}`}
-          onClick={onStop}
-          variant="ghost"
-          size="sm"
-          className="text-white p-2"
-          style={{backgroundColor: '#666'}}
-        >
-          <VolumeX className="w-6 h-6 sm:w-8 sm:h-8" />
-        </Button>
+        <>
+          {console.log(`Rendering STOP button for ${type}`)}
+          <Button
+            id={`voice-stop-${type}`}
+            onClick={() => {
+              console.log(`STOP button clicked for ${type}`);
+              onStop();
+            }}
+            variant="ghost"
+            size="sm"
+            className="text-white p-2"
+            style={{backgroundColor: '#666'}}
+          >
+            <VolumeX className="w-6 h-6 sm:w-8 sm:h-8" />
+          </Button>
+        </>
       )}
     </div>
   );
