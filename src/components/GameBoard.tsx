@@ -33,8 +33,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
         className="absolute inset-0 rounded-lg bg-cover bg-center bg-no-repeat"
         style={{ 
           backgroundImage: 'url(/lovable-uploads/f13c6811-ed03-4cb1-85d3-69c6605c47c8.png)',
-          zIndex: 0,
-          opacity: 0.6
+          zIndex: 0
         }}
       />
       
