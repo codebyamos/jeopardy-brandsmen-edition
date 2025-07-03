@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Button } from './ui/button';
-import { Edit2, Plus, Trash2, Save, X } from 'lucide-react';
+import { Edit2, Plus, Trash2, Save, X, FolderPlus } from 'lucide-react';
 import { Question } from '../types/game';
 
 interface GameEditorProps {
@@ -19,12 +19,18 @@ const GameEditor: React.FC<GameEditorProps> = ({
 }) => {
   const [editingQuestion, setEditingQuestion] = useState<Question | null>(null);
   const [tempQuestion, setTempQuestion] = useState<Partial<Question>>({});
+  const [editingCategory, setEditingCategory] = useState<string | null>(null);
+  const [tempCategoryName, setTempCategoryName] = useState('');
+  const [showAddCategory, setShowAddCategory] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState('');
 
   const categories = Array.from(new Set(questions.map(q => q.category)));
 
   const startEdit = (question: Question) => {
     setEditingQuestion(question);
     setTempQuestion({ ...question });
+    setEditingCategory(null);
+    setShowAddCategory(false);
   };
 
   const saveEdit = () => {
@@ -41,18 +47,19 @@ const GameEditor: React.FC<GameEditorProps> = ({
   const cancelEdit = () => {
     setEditingQuestion(null);
     setTempQuestion({});
+    setEditingCategory(null);
+    setTempCategoryName('');
+    setShowAddCategory(false);
+    setNewCategoryName('');
   };
 
   const addQuestion = (category: string, points: number) => {
-    // Check if a question already exists for this category/points combination
     const existingQuestion = questions.find(q => q.category === category && q.points === points);
     if (existingQuestion) {
-      // If it exists, edit it instead of adding a duplicate
       startEdit(existingQuestion);
       return;
     }
 
-    // Generate a unique ID using timestamp and random number to avoid collisions
     const newId = Date.now() + Math.floor(Math.random() * 1000);
     const newQuestion: Question = {
       id: newId,
@@ -70,6 +77,48 @@ const GameEditor: React.FC<GameEditorProps> = ({
     onQuestionsUpdate(updatedQuestions);
   };
 
+  const startEditCategory = (category: string) => {
+    setEditingCategory(category);
+    setTempCategoryName(category);
+    setEditingQuestion(null);
+    setShowAddCategory(false);
+  };
+
+  const saveEditCategory = () => {
+    if (editingCategory && tempCategoryName.trim() && tempCategoryName !== editingCategory) {
+      const updatedQuestions = questions.map(q => 
+        q.category === editingCategory ? { ...q, category: tempCategoryName.trim() } : q
+      );
+      onQuestionsUpdate(updatedQuestions);
+    }
+    setEditingCategory(null);
+    setTempCategoryName('');
+  };
+
+  const deleteCategory = (category: string) => {
+    if (confirm(`Are you sure you want to delete the category "${category}" and all its questions?`)) {
+      const updatedQuestions = questions.filter(q => q.category !== category);
+      onQuestionsUpdate(updatedQuestions);
+    }
+  };
+
+  const addNewCategory = () => {
+    if (newCategoryName.trim() && !categories.includes(newCategoryName.trim())) {
+      // Create a placeholder question for the new category
+      const newId = Date.now() + Math.floor(Math.random() * 1000);
+      const newQuestion: Question = {
+        id: newId,
+        category: newCategoryName.trim(),
+        points: 100,
+        question: 'New Question - Click edit to modify',
+        answer: 'What is the answer?'
+      };
+      onQuestionsUpdate([...questions, newQuestion]);
+      setShowAddCategory(false);
+      setNewCategoryName('');
+    }
+  };
+
   if (!isVisible) return null;
 
   return (
@@ -78,15 +127,79 @@ const GameEditor: React.FC<GameEditorProps> = ({
         <div className="p-4 sm:p-6">
           <div className="flex justify-between items-center mb-4 sm:mb-6">
             <h3 className="text-xl sm:text-2xl font-bold" style={{color: '#fa1e4e'}}>Edit Game Content</h3>
-            <Button
-              onClick={onClose}
-              variant="ghost"
-              size="sm"
-              className="text-white hover:text-red-400"
-            >
-              <X className="w-5 h-5" />
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                onClick={() => setShowAddCategory(true)}
+                size="sm"
+                className="bg-blue-600 hover:bg-blue-700 text-white"
+              >
+                <FolderPlus className="w-4 h-4 mr-1" />
+                Add Category
+              </Button>
+              <Button
+                onClick={onClose}
+                variant="ghost"
+                size="sm"
+                className="text-white hover:text-red-400"
+              >
+                <X className="w-5 h-5" />
+              </Button>
+            </div>
           </div>
+
+          {showAddCategory && (
+            <div className="bg-gray-800 rounded-lg p-4 sm:p-6 mb-4">
+              <h4 className="text-lg font-semibold text-white mb-4">Add New Category</h4>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={newCategoryName}
+                  onChange={(e) => setNewCategoryName(e.target.value)}
+                  className="flex-1 bg-gray-700 text-white px-3 py-2 rounded text-sm sm:text-base"
+                  placeholder="Enter category name"
+                  onKeyPress={(e) => e.key === 'Enter' && addNewCategory()}
+                />
+                <Button 
+                  onClick={addNewCategory} 
+                  className="bg-green-600 hover:bg-green-700"
+                  disabled={!newCategoryName.trim() || categories.includes(newCategoryName.trim())}
+                >
+                  <Save className="w-4 h-4 mr-1" />
+                  Add
+                </Button>
+                <Button onClick={cancelEdit} variant="outline" className="text-white border-gray-600 hover:bg-gray-800">
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {editingCategory && (
+            <div className="bg-gray-800 rounded-lg p-4 sm:p-6 mb-4">
+              <h4 className="text-lg font-semibold text-white mb-4">Edit Category Name</h4>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={tempCategoryName}
+                  onChange={(e) => setTempCategoryName(e.target.value)}
+                  className="flex-1 bg-gray-700 text-white px-3 py-2 rounded text-sm sm:text-base"
+                  placeholder="Enter category name"
+                  onKeyPress={(e) => e.key === 'Enter' && saveEditCategory()}
+                />
+                <Button 
+                  onClick={saveEditCategory} 
+                  className="bg-green-600 hover:bg-green-700"
+                  disabled={!tempCategoryName.trim()}
+                >
+                  <Save className="w-4 h-4 mr-1" />
+                  Save
+                </Button>
+                <Button onClick={cancelEdit} variant="outline" className="text-white border-gray-600 hover:bg-gray-800">
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          )}
 
           {editingQuestion ? (
             <div className="bg-gray-800 rounded-lg p-4 sm:p-6 mb-4">
@@ -153,9 +266,31 @@ const GameEditor: React.FC<GameEditorProps> = ({
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
               {categories.map(category => (
                 <div key={category} className="bg-gray-800 rounded-lg p-3 sm:p-4">
-                  <h4 className="text-white font-semibold mb-3 text-sm sm:text-base" style={{color: '#fa1e4e'}}>
-                    {category}
-                  </h4>
+                  <div className="flex items-center justify-between mb-3">
+                    <h4 className="text-white font-semibold text-sm sm:text-base" style={{color: '#fa1e4e'}}>
+                      {category}
+                    </h4>
+                    <div className="flex gap-1">
+                      <Button
+                        onClick={() => startEditCategory(category)}
+                        size="sm"
+                        variant="ghost"
+                        className="text-blue-400 hover:text-blue-300 p-1 h-6 w-6"
+                        title="Edit category name"
+                      >
+                        <Edit2 className="w-3 h-3" />
+                      </Button>
+                      <Button
+                        onClick={() => deleteCategory(category)}
+                        size="sm"
+                        variant="ghost"
+                        className="text-red-400 hover:text-red-300 p-1 h-6 w-6"
+                        title="Delete category"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </Button>
+                    </div>
+                  </div>
                   <div className="space-y-2">
                     {[100, 200, 300, 400, 500].map(points => {
                       const question = questions.find(q => q.category === category && q.points === points);
