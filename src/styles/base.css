@@ -116,6 +116,17 @@
 
   /* ===== UNIVERSAL MODAL STYLING ===== */
   
+  /* Modal overlays - prevent transparency on hover */
+  [data-radix-dialog-overlay],
+  .fixed.inset-0.bg-black {
+    background-color: rgba(0, 0, 0, 0.8) !important;
+  }
+
+  [data-radix-dialog-overlay]:hover,
+  .fixed.inset-0.bg-black:hover {
+    background-color: rgba(0, 0, 0, 0.8) !important;
+  }
+
   /* All modal content containers */
   [data-radix-dialog-content],
   [role="dialog"],
@@ -156,7 +167,7 @@
     color: var(--theme-accent) !important;
   }
 
-  /* Close buttons - always in top right corner */
+  /* Close buttons - always in top right corner with proper hover */
   [data-radix-dialog-content] [data-radix-dialog-close],
   [aria-label="Close"],
   button:has(svg[aria-hidden="true"]) {
@@ -175,7 +186,7 @@
   [aria-label="Close"]:hover,
   button:has(svg[aria-hidden="true"]):hover {
     color: #ff6b6b !important;
-    background-color: rgba(255, 255, 255, 0.1) !important;
+    background-color: rgba(255, 107, 107, 0.1) !important;
   }
 
   /* ===== COMPREHENSIVE BUTTON STYLING ===== */
@@ -356,20 +367,36 @@
 
   /* ===== ICON HOVER FIXES ===== */
   
-  /* White icons should have dark hover */
-  svg[style*="color: white"]:hover,
+  /* White icons should have contrasting hover */
+  svg.text-white:hover,
   .text-white svg:hover,
-  button:has(svg.text-white):hover svg {
-    color: #666666 !important;
+  button:has(svg.text-white):hover svg,
+  svg[style*="color: white"]:hover,
+  svg[style*="color: #ffffff"]:hover,
+  svg[style*="color: #fff"]:hover {
+    color: #ff6b6b !important;
+  }
+
+  /* Light colored icons should have contrasting hover */
+  svg.text-gray-300:hover,
+  svg.text-gray-400:hover,
+  svg.text-gray-200:hover,
+  svg.text-gray-100:hover,
+  .text-gray-300 svg:hover,
+  .text-gray-400 svg:hover,
+  .text-gray-200 svg:hover,
+  .text-gray-100 svg:hover {
+    color: #ef4444 !important;
   }
 
   /* Dark icons should have light hover */
-  svg[style*="color: #"],
+  svg.text-gray-600:hover,
+  svg.text-gray-700:hover,
+  svg.text-gray-800:hover,
   .text-gray-600 svg:hover,
   .text-gray-700 svg:hover,
-  button:has(svg.text-gray-600):hover svg,
-  button:has(svg.text-gray-700):hover svg {
-    color: #cccccc !important;
+  .text-gray-800 svg:hover {
+    color: #60a5fa !important;
   }
 
   /* ===== INPUT FIELDS IN MODALS ===== */
@@ -410,6 +437,18 @@
   .questions-item[style*="background: #ffffff"] *,
   .questions-item[style*="background: white"] * {
     text-shadow: none !important;
+  }
+
+  /* Brandsmen theme player scores */
+  body:has(.questions-item[style*="background: #ffffff"]) .bg-yellow-400 {
+    background-color: #ffffff !important;
+    color: #2C5F6F !important;
+    border: 2px solid #2C5F6F !important;
+  }
+
+  body:has(.questions-item[style*="background: #ffffff"]) .bg-blue-800 {
+    background-color: #2C5F6F !important;
+    color: #ffffff !important;
   }
 
   /* Answered questions styling */
@@ -460,6 +499,7 @@
   
   .category-header {
     border-radius: 0 !important;
+    border-right: none !important;
   }
 
   .category-header:first-child {
@@ -474,6 +514,15 @@
   
   .questions-item {
     border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    text-shadow: none !important;
+  }
+
+  /* Remove text shadows from all game board items */
+  .questions-item,
+  .questions-item *,
+  .category-header,
+  .category-header * {
+    text-shadow: none !important;
   }
 
   /* ===== TIMER CONTROL VISIBILITY ===== */
