@@ -27,16 +27,12 @@ const GameBoard: React.FC<GameBoardProps> = ({
   };
 
   return (
-    <div className="relative">
-      {/* Mountain background */}
-      <div 
-        className="absolute inset-0 rounded-lg bg-cover bg-center bg-no-repeat"
-        style={{ 
-          backgroundImage: 'url(/lovable-uploads/f13c6811-ed03-4cb1-85d3-69c6605c47c8.png)',
-          zIndex: 0
-        }}
-      />
-      
+    <div 
+      className="relative rounded-lg bg-cover bg-center bg-no-repeat min-h-[600px]"
+      style={{ 
+        backgroundImage: 'url(/lovable-uploads/f13c6811-ed03-4cb1-85d3-69c6605c47c8.png)'
+      }}
+    >
       <div className="relative z-10 border-2 rounded-lg overflow-hidden shadow-2xl bg-white bg-opacity-95" style={{ borderColor: '#2c5b69' }}>
         {/* Header row with categories */}
         <div className="grid grid-cols-5 gap-px" style={{ backgroundColor: '#2c5b69' }}>
