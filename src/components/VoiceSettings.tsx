@@ -2,10 +2,11 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from './ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Volume2, Play, Square } from 'lucide-react';
+import { useVoiceSettings } from '../hooks/useVoiceSettings';
+import { initializeSpeechSystem } from '../utils/textToSpeech';
 
 interface VoiceSettingsProps {
   isVisible: boolean;
@@ -26,28 +27,34 @@ const ELEVENLABS_VOICES = [
 ];
 
 const VoiceSettings: React.FC<VoiceSettingsProps> = ({ isVisible, onClose }) => {
-  const [apiKey, setApiKey] = useState('');
-  const [selectedVoice, setSelectedVoice] = useState('');
+  const { settings, saveSettings, isLoading } = useVoiceSettings();
+  const [localApiKey, setLocalApiKey] = useState('');
+  const [localSelectedVoice, setLocalSelectedVoice] = useState('');
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentAudio, setCurrentAudio] = useState<HTMLAudioElement | null>(null);
 
   useEffect(() => {
-    // Load saved settings
-    const savedApiKey = localStorage.getItem('elevenlabs_api_key');
-    const savedVoice = localStorage.getItem('selected_voice');
-    
-    if (savedApiKey) setApiKey(savedApiKey);
-    if (savedVoice) setSelectedVoice(savedVoice);
-  }, []);
+    if (isVisible) {
+      setLocalApiKey(settings.apiKey);
+      setLocalSelectedVoice(settings.selectedVoice);
+    }
+  }, [isVisible, settings]);
 
-  const saveSettings = () => {
-    localStorage.setItem('elevenlabs_api_key', apiKey);
-    localStorage.setItem('selected_voice', selectedVoice);
-    onClose();
+  const handleSaveSettings = async () => {
+    const success = await saveSettings({
+      apiKey: localApiKey,
+      selectedVoice: localSelectedVoice
+    });
+    
+    if (success) {
+      // Re-initialize speech system with new settings
+      await initializeSpeechSystem();
+      onClose();
+    }
   };
 
   const testVoice = async (voiceId: string) => {
-    if (!apiKey) {
+    if (!localApiKey) {
       alert('Please enter your ElevenLabs API key first');
       return;
     }
@@ -65,7 +72,7 @@ const VoiceSettings: React.FC<VoiceSettingsProps> = ({ isVisible, onClose }) => 
         headers: {
           'Accept': 'audio/mpeg',
           'Content-Type': 'application/json',
-          'xi-api-key': apiKey
+          'xi-api-key': localApiKey
         },
         body: JSON.stringify({
           text: "Hello! This is a test of how I sound reading a Jeopardy question.",
@@ -108,7 +115,7 @@ const VoiceSettings: React.FC<VoiceSettingsProps> = ({ isVisible, onClose }) => 
     }
   };
 
-  const stopAudio = () => {
+  const stopAudio = () => {  
     if (currentAudio) {
       currentAudio.pause();
       currentAudio.currentTime = 0;
@@ -132,8 +139,8 @@ const VoiceSettings: React.FC<VoiceSettingsProps> = ({ isVisible, onClose }) => 
             <Input
               id="api-key"
               type="password"
-              value={apiKey}
-              onChange={(e) => setApiKey(e.target.value)}
+              value={localApiKey}
+              onChange={(e) => setLocalApiKey(e.target.value)}
               placeholder="Enter your ElevenLabs API key"
               className="bg-gray-800 border-gray-600 text-white"
             />
@@ -157,11 +164,11 @@ const VoiceSettings: React.FC<VoiceSettingsProps> = ({ isVisible, onClose }) => 
                 <div 
                   key={voice.id} 
                   className={`p-3 rounded-lg border cursor-pointer transition-colors ${
-                    selectedVoice === voice.id 
+                    localSelectedVoice === voice.id 
                       ? 'border-yellow-400 bg-yellow-400/10' 
                       : 'border-gray-600 bg-gray-800 hover:bg-gray-700'
                   }`}
-                  onClick={() => setSelectedVoice(voice.id)}
+                  onClick={() => setLocalSelectedVoice(voice.id)}
                 >
                   <div className="flex items-center justify-between">
                     <div>
@@ -195,11 +202,11 @@ const VoiceSettings: React.FC<VoiceSettingsProps> = ({ isVisible, onClose }) => 
               Cancel
             </Button>
             <Button
-              onClick={saveSettings}
+              onClick={handleSaveSettings}
               className="bg-yellow-500 text-black hover:bg-yellow-400"
-              disabled={!selectedVoice}
+              disabled={!localSelectedVoice || isLoading}
             >
-              Save Settings
+              {isLoading ? 'Saving...' : 'Save Settings'}
             </Button>
           </div>
         </div>

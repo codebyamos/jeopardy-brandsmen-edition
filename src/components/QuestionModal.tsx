@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Question, Player } from '../types/game';
 import { Button } from '../components/ui/button';
-import { speakWithElevenLabs } from '../utils/textToSpeech';
+import { speakWithElevenLabs, stopCurrentSpeech, initializeSpeechSystem } from '../utils/textToSpeech';
 import ModalHeader from './ModalHeader';
 import QuestionContent from './QuestionContent';
 import AnswerContent from './AnswerContent';
@@ -23,24 +23,18 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
   const [showAnswer, setShowAnswer] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [currentSpeech, setCurrentSpeech] = useState<'question' | 'answer' | null>(null);
-  const speechControllerRef = useRef<AbortController | null>(null);
   const hasAutoPlayedRef = useRef(false);
 
   const speakText = async (text: string, type: 'question' | 'answer') => {
     // Stop any current speech first
-    if (speechControllerRef.current) {
-      speechControllerRef.current.abort();
-    }
+    stopCurrentSpeech();
     
-    if (isSpeaking) {
+    if (isSpeaking && currentSpeech === type) {
       setIsSpeaking(false);
       setCurrentSpeech(null);
       return;
     }
 
-    // Create new controller for this speech
-    speechControllerRef.current = new AbortController();
-    
     // Set speaking state immediately
     setIsSpeaking(true);
     setCurrentSpeech(type);
@@ -48,50 +42,66 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
     try {
       await speakWithElevenLabs(text);
     } catch (error) {
-      if (error.name !== 'AbortError') {
-        console.error('Speech error:', error);
-      }
+      console.error('Speech error:', error);
     } finally {
       setIsSpeaking(false);
       setCurrentSpeech(null);
-      speechControllerRef.current = null;
     }
   };
 
   const stopSpeaking = () => {
-    if (speechControllerRef.current) {
-      speechControllerRef.current.abort();
-    }
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-    }
+    stopCurrentSpeech();
     setIsSpeaking(false);
     setCurrentSpeech(null);
   };
 
   useEffect(() => {
-    // Auto-read the question immediately when modal opens
-    if (!hasAutoPlayedRef.current) {
-      hasAutoPlayedRef.current = true;
-      // Start speaking immediately without any delay
-      speakText(question.question, 'question');
-    }
+    // Initialize speech system and auto-play question immediately
+    const initAndPlay = async () => {
+      if (!hasAutoPlayedRef.current) {
+        hasAutoPlayedRef.current = true;
+        
+        // Initialize speech system
+        await initializeSpeechSystem();
+        
+        // Start speaking immediately
+        setIsSpeaking(true);
+        setCurrentSpeech('question');
+        
+        try {
+          await speakWithElevenLabs(question.question);
+        } catch (error) {
+          console.error('Speech error:', error);
+        } finally {
+          setIsSpeaking(false);
+          setCurrentSpeech(null);
+        }
+      }
+    };
+
+    initAndPlay();
     
     return () => {
       // Clean up any ongoing speech when component unmounts
-      if (speechControllerRef.current) {
-        speechControllerRef.current.abort();
-      }
-      if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
-      }
+      stopCurrentSpeech();
     };
-  }, []);
+  }, [question.question]);
 
-  const handleShowAnswer = () => {
+  const handleShowAnswer = async () => {
     setShowAnswer(true);
-    // Read answer immediately when revealed
-    speakText(question.answer, 'answer');
+    
+    // Start speaking answer immediately
+    setIsSpeaking(true);
+    setCurrentSpeech('answer');
+    
+    try {
+      await speakWithElevenLabs(question.answer);
+    } catch (error) {
+      console.error('Speech error:', error);
+    } finally {
+      setIsSpeaking(false);
+      setCurrentSpeech(null);
+    }
   };
 
   const handleClose = () => {

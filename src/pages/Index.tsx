@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import GameBoard from '../components/GameBoard';
 import QuestionModal from '../components/QuestionModal';
 import GameControls from '../components/GameControls';
@@ -9,6 +9,7 @@ import PlayerScores from '../components/PlayerScores';
 import ScoringModal from '../components/ScoringModal';
 import { Question, Player } from '../types/game';
 import { useGameData } from '../hooks/useGameData';
+import { initializeSpeechSystem } from '../utils/textToSpeech';
 
 const sampleQuestions: Question[] = [
   // Category 1: Company History
@@ -86,6 +87,11 @@ const Index = () => {
       console.error('Failed to save game:', error);
     }
   };
+
+  // Initialize speech system on app load
+  useEffect(() => {
+    initializeSpeechSystem();
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 p-2 sm:p-4 lg:p-8">

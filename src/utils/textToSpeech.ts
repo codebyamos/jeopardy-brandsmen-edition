@@ -1,4 +1,64 @@
 
+// Pre-initialize voices and API connection
+let voicesInitialized = false;
+let currentAudio: HTMLAudioElement | null = null;
+let isApiReady = false;
+
+// Pre-initialize the speech system
+export const initializeSpeechSystem = async () => {
+  if (isApiReady) return;
+  
+  const apiKey = localStorage.getItem('elevenlabs_api_key');
+  const voiceId = localStorage.getItem('selected_voice');
+
+  if (apiKey && voiceId) {
+    try {
+      // Test API connection with a minimal request
+      const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
+        method: 'POST',
+        headers: {
+          'Accept': 'audio/mpeg',
+          'Content-Type': 'application/json',
+          'xi-api-key': apiKey
+        },
+        body: JSON.stringify({
+          text: "Ready",
+          model_id: "eleven_multilingual_v2",
+          voice_settings: {
+            stability: 0.5,
+            similarity_boost: 0.5,
+            style: 0.5,
+            use_speaker_boost: true
+          }
+        })
+      });
+
+      if (response.ok) {
+        isApiReady = true;
+        console.log('ElevenLabs API initialized successfully');
+      }
+    } catch (error) {
+      console.log('ElevenLabs API not available, will use browser speech');
+    }
+  }
+
+  // Initialize browser speech synthesis
+  if ('speechSynthesis' in window && !voicesInitialized) {
+    const loadVoices = () => {
+      const voices = window.speechSynthesis.getVoices();
+      if (voices.length > 0) {
+        voicesInitialized = true;
+        console.log('Browser speech synthesis initialized');
+      }
+    };
+    
+    loadVoices();
+    if (!voicesInitialized) {
+      window.speechSynthesis.onvoiceschanged = loadVoices;
+    }
+  }
+};
+
 export const speakWithElevenLabs = async (text: string): Promise<void> => {
   const apiKey = localStorage.getItem('elevenlabs_api_key');
   const voiceId = localStorage.getItem('selected_voice');
@@ -35,13 +95,27 @@ export const speakWithElevenLabs = async (text: string): Promise<void> => {
 
     const audioBlob = await response.blob();
     const audioUrl = URL.createObjectURL(audioBlob);
-    const audio = new Audio(audioUrl);
     
-    audio.onended = () => {
+    // Stop any current audio
+    if (currentAudio) {
+      currentAudio.pause();
+      currentAudio = null;
+    }
+    
+    currentAudio = new Audio(audioUrl);
+    
+    currentAudio.onended = () => {
       URL.revokeObjectURL(audioUrl);
+      currentAudio = null;
     };
     
-    await audio.play();
+    currentAudio.onerror = () => {
+      URL.revokeObjectURL(audioUrl);
+      currentAudio = null;
+    };
+    
+    // Start playing immediately
+    await currentAudio.play();
     
   } catch (error) {
     console.error('ElevenLabs TTS error:', error);
@@ -86,5 +160,15 @@ const speakWithBrowser = (text: string): void => {
     }
     
     window.speechSynthesis.speak(utterance);
+  }
+};
+
+export const stopCurrentSpeech = () => {
+  if (currentAudio) {
+    currentAudio.pause();
+    currentAudio = null;
+  }
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.cancel();
   }
 };

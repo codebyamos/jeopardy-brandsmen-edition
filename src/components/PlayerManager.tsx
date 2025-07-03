@@ -28,7 +28,12 @@ const PlayerManager: React.FC<PlayerManagerProps> = ({
   const [editingScoreId, setEditingScoreId] = useState<number | null>(null);
   const [editScore, setEditScore] = useState('');
 
+  // Check if any player is currently being edited
+  const isAnyPlayerBeingEdited = editingId !== null || editingScoreId !== null;
+
   const addPlayer = () => {
+    if (isAnyPlayerBeingEdited) return; // Prevent adding while editing
+    
     const newPlayer: Player = {
       id: Date.now(),
       name: `Team ${players.length + 1}`,
@@ -38,10 +43,14 @@ const PlayerManager: React.FC<PlayerManagerProps> = ({
   };
 
   const removePlayer = (id: number) => {
+    if (isAnyPlayerBeingEdited) return; // Prevent removing while editing
+    
     onPlayersUpdate(players.filter(p => p.id !== id));
   };
 
   const startEdit = (player: Player) => {
+    if (isAnyPlayerBeingEdited) return; // Prevent starting new edit while editing
+    
     setEditingId(player.id);
     setEditName(player.name);
   };
@@ -54,7 +63,14 @@ const PlayerManager: React.FC<PlayerManagerProps> = ({
     setEditName('');
   };
 
+  const cancelEdit = () => {
+    setEditingId(null);
+    setEditName('');
+  };
+
   const startScoreEdit = (player: Player) => {
+    if (isAnyPlayerBeingEdited) return; // Prevent starting new edit while editing
+    
     setEditingScoreId(player.id);
     setEditScore(player.score.toString());
   };
@@ -68,7 +84,14 @@ const PlayerManager: React.FC<PlayerManagerProps> = ({
     setEditScore('');
   };
 
+  const cancelScoreEdit = () => {
+    setEditingScoreId(null);
+    setEditScore('');
+  };
+
   const handleAvatarUpload = (playerId: number, event: React.ChangeEvent<HTMLInputElement>) => {
+    if (isAnyPlayerBeingEdited) return; // Prevent avatar upload while editing
+    
     const file = event.target.files?.[0];
     if (file) {
       const reader = new FileReader();
@@ -95,6 +118,7 @@ const PlayerManager: React.FC<PlayerManagerProps> = ({
                 onClick={addPlayer}
                 className="bg-blue-600 hover:bg-blue-700 text-white"
                 size="sm"
+                disabled={isAnyPlayerBeingEdited}
               >
                 <Plus className="w-4 h-4 mr-1" />
                 Add Player
@@ -104,11 +128,20 @@ const PlayerManager: React.FC<PlayerManagerProps> = ({
                 variant="ghost"
                 size="sm"
                 className="text-white hover:text-red-400"
+                disabled={isAnyPlayerBeingEdited}
               >
                 <X className="w-4 h-4" />
               </Button>
             </div>
           </div>
+          
+          {isAnyPlayerBeingEdited && (
+            <div className="mb-4 p-3 bg-yellow-900/20 border border-yellow-600 rounded-lg">
+              <p className="text-yellow-300 text-sm">
+                Complete your current edit before making changes to other players.
+              </p>
+            </div>
+          )}
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {players.map((player) => (
@@ -127,13 +160,14 @@ const PlayerManager: React.FC<PlayerManagerProps> = ({
                         <span className="text-gray-300 text-xs">No Image</span>
                       </div>
                     )}
-                    <label className="absolute bottom-0 right-0 bg-blue-600 hover:bg-blue-700 rounded-full p-1 cursor-pointer">
+                    <label className={`absolute bottom-0 right-0 bg-blue-600 hover:bg-blue-700 rounded-full p-1 ${isAnyPlayerBeingEdited ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}>
                       <Upload className="w-3 h-3 text-white" />
                       <input
                         type="file"
                         accept="image/*"
                         onChange={(e) => handleAvatarUpload(player.id, e)}
                         className="hidden"
+                        disabled={isAnyPlayerBeingEdited}
                       />
                     </label>
                   </div>
@@ -148,12 +182,13 @@ const PlayerManager: React.FC<PlayerManagerProps> = ({
                         onChange={(e) => setEditName(e.target.value)}
                         className="w-full bg-gray-700 text-white px-2 py-1 rounded text-sm"
                         onKeyDown={(e) => e.key === 'Enter' && saveEdit()}
+                        autoFocus
                       />
                       <div className="flex gap-1 mt-1">
                         <Button onClick={saveEdit} size="sm" className="bg-green-600 hover:bg-green-700 text-xs">
                           Save
                         </Button>
-                        <Button onClick={() => setEditingId(null)} size="sm" variant="outline" className="text-xs">
+                        <Button onClick={cancelEdit} size="sm" variant="outline" className="text-xs">
                           Cancel
                         </Button>
                       </div>
@@ -172,11 +207,12 @@ const PlayerManager: React.FC<PlayerManagerProps> = ({
                                 onChange={(e) => setEditScore(e.target.value)}
                                 className="w-20 bg-gray-700 text-white px-2 py-1 rounded text-sm"
                                 onKeyDown={(e) => e.key === 'Enter' && saveScoreEdit()}
+                                autoFocus
                               />
                               <Button onClick={saveScoreEdit} size="sm" variant="ghost" className="text-green-400 hover:text-green-300 p-1">
                                 <Check className="w-3 h-3" />
                               </Button>
-                              <Button onClick={() => setEditingScoreId(null)} size="sm" variant="ghost" className="text-red-400 hover:text-red-300 p-1">
+                              <Button onClick={cancelScoreEdit} size="sm" variant="ghost" className="text-red-400 hover:text-red-300 p-1">
                                 <X className="w-3 h-3" />
                               </Button>
                             </div>
@@ -188,6 +224,7 @@ const PlayerManager: React.FC<PlayerManagerProps> = ({
                                 size="sm"
                                 variant="ghost"
                                 className="text-gray-400 hover:text-white p-1"
+                                disabled={isAnyPlayerBeingEdited}
                               >
                                 <Edit2 className="w-3 h-3" />
                               </Button>
@@ -206,6 +243,7 @@ const PlayerManager: React.FC<PlayerManagerProps> = ({
                     size="sm"
                     variant="ghost"
                     className="text-gray-400 hover:text-white p-1"
+                    disabled={isAnyPlayerBeingEdited}
                   >
                     <Edit2 className="w-3 h-3" />
                   </Button>
@@ -214,6 +252,7 @@ const PlayerManager: React.FC<PlayerManagerProps> = ({
                     size="sm"
                     variant="ghost"
                     className="text-red-400 hover:text-red-300 p-1"
+                    disabled={isAnyPlayerBeingEdited}
                   >
                     <Trash2 className="w-3 h-3" />
                   </Button>
