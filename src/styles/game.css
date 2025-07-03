@@ -17,7 +17,7 @@
 .category-header {
     background: var(--theme-category-header) !important;
     font-weight: 600 !important;
-    color: var(--theme-button-text) !important;
+    color: var(--theme-category-header-text) !important;
     font-size: 13px !important;
     display: flex !important;
     align-items: center !important;
@@ -43,6 +43,17 @@
   border-radius: 6px;
   transform: translateY(-1px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Special handling for white question items in Brandsmen theme */
+.questions-item[style*="background: #ffffff"] {
+  color: var(--theme-white-button-text) !important;
+  text-shadow: none !important;
+}
+
+.questions-item[style*="background: #ffffff"]:hover {
+  color: var(--theme-white-button-text) !important;
+  text-shadow: none !important;
 }
 
 /* Ensure answered questions remain visible */

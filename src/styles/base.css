@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -40,10 +39,12 @@
     --theme-background: linear-gradient(135deg, #87CEEB, #4A90A4);
     --theme-board-background: linear-gradient(135deg, #87CEEBcc, #4A90A4cc);
     --theme-category-header: #2C5F6F;
+    --theme-category-header-text: #ffffff;
     --theme-question-item: #4A90A4;
     --theme-question-item-hover: #3a7a8a;
     --theme-text: #ffffff;
     --theme-button-text: #ffffff;
+    --theme-white-button-text: #2C5F6F;
     --theme-accent: #6badbe;
     --theme-muted: #244955;
     --theme-background-image: none;
@@ -123,12 +124,50 @@
   }
 
   /* White button special handling for text contrast */
-  .bg-white button, button.bg-white {
-    color: #2C5F6F !important;
+  .bg-white button, button.bg-white, 
+  button[style*="background: white"], 
+  button[style*="background-color: white"],
+  button[style*="background: #ffffff"] {
+    color: var(--theme-white-button-text) !important;
   }
 
-  .bg-white:hover button, button.bg-white:hover {
-    color: #2C5F6F !important;
+  .bg-white:hover button, button.bg-white:hover,
+  button[style*="background: white"]:hover, 
+  button[style*="background-color: white"]:hover,
+  button[style*="background: #ffffff"]:hover {
+    color: var(--theme-white-button-text) !important;
+  }
+
+  /* Game board question items with white background */
+  .questions-item[style*="background: #ffffff"],
+  .questions-item[style*="background: white"] {
+    color: var(--theme-white-button-text) !important;
+  }
+
+  .questions-item[style*="background: #ffffff"]:hover,
+  .questions-item[style*="background: white"]:hover {
+    color: var(--theme-white-button-text) !important;
+  }
+
+  /* Default theme - colored buttons should have white text */
+  .bg-red-600, .bg-red-500, .bg-red-700,
+  .bg-blue-600, .bg-blue-500, .bg-blue-700,
+  .bg-green-600, .bg-green-500, .bg-green-700,
+  .bg-yellow-600, .bg-yellow-500, .bg-yellow-700,
+  .bg-purple-600, .bg-purple-500, .bg-purple-700,
+  .bg-pink-600, .bg-pink-500, .bg-pink-700,
+  .bg-indigo-600, .bg-indigo-500, .bg-indigo-700 {
+    color: white !important;
+  }
+
+  .hover\:bg-red-700:hover, .hover\:bg-red-600:hover,
+  .hover\:bg-blue-700:hover, .hover\:bg-blue-600:hover,
+  .hover\:bg-green-700:hover, .hover\:bg-green-600:hover,
+  .hover\:bg-yellow-700:hover, .hover\:bg-yellow-600:hover,
+  .hover\:bg-purple-700:hover, .hover\:bg-purple-600:hover,
+  .hover\:bg-pink-700:hover, .hover\:bg-pink-600:hover,
+  .hover\:bg-indigo-700:hover, .hover\:bg-indigo-600:hover {
+    color: white !important;
   }
 
   /* Gray button variants */
@@ -152,28 +191,6 @@
     border-color: var(--theme-muted) !important;
   }
 
-  /* Green button variants */
-  .bg-green-600, .bg-green-500 {
-    background-color: #16a34a !important;
-    color: white !important;
-  }
-
-  .hover\:bg-green-700:hover, .hover\:bg-green-600:hover {
-    background-color: #15803d !important;
-    color: white !important;
-  }
-
-  /* Red button variants */
-  .bg-red-600, .bg-red-500 {
-    background-color: #dc2626 !important;
-    color: white !important;
-  }
-
-  .hover\:bg-red-700:hover, .hover\:bg-red-600:hover {
-    background-color: #b91c1c !important;
-    color: white !important;
-  }
-
   /* Teal/Settings menu buttons */
   .bg-teal-600, .bg-teal-700, .bg-teal-800 {
     background-color: var(--theme-primary) !important;
@@ -184,17 +201,6 @@
   .hover\:bg-teal-700:hover, .hover\:bg-teal-800:hover, .hover\:bg-teal-600:hover {
     background-color: var(--theme-question-item-hover) !important;
     color: var(--theme-button-text) !important;
-  }
-
-  /* Blue button variants */
-  .bg-blue-600, .bg-blue-500 {
-    background-color: #2563eb !important;
-    color: white !important;
-  }
-
-  .hover\:bg-blue-700:hover, .hover\:bg-blue-600:hover {
-    background-color: #1d4ed8 !important;
-    color: white !important;
   }
 
   /* Slate button variants (scoring modal) */

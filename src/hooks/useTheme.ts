@@ -61,10 +61,12 @@ const generateThemeVariations = (theme: ThemeColors) => {
     background: `linear-gradient(135deg, ${gradientStart}, ${gradientEnd})`,
     boardBackground: `linear-gradient(135deg, ${gradientStart}${Math.round(opacity * 255).toString(16).padStart(2, '0')}, ${gradientEnd}${Math.round(opacity * 255).toString(16).padStart(2, '0')})`,
     categoryHeader: secondaryColor,
+    categoryHeaderText: isBrandsmenTheme ? '#ffffff' : '#ffffff', // White text for both themes
     questionItem: primaryColor,
     questionItemHover: isBrandsmenTheme ? '#f0f0f0' : darkenColor(primaryColor, 20),
     text: isBrandsmenTheme ? '#2C5F6F' : '#ffffff', // Dark green text for Brandsmen theme
     buttonText: isBrandsmenTheme ? '#2C5F6F' : '#ffffff', // Dark green button text for Brandsmen theme
+    whiteButtonText: '#2C5F6F', // Always dark green for white buttons
     accent: lightenColor(primaryColor === '#ffffff' ? secondaryColor : primaryColor, 20),
     muted: darkenColor(secondaryColor, 10)
   };
@@ -112,10 +114,12 @@ export const useTheme = () => {
     root.style.setProperty('--theme-background', variations.background);
     root.style.setProperty('--theme-board-background', variations.boardBackground);
     root.style.setProperty('--theme-category-header', variations.categoryHeader);
+    root.style.setProperty('--theme-category-header-text', variations.categoryHeaderText);
     root.style.setProperty('--theme-question-item', variations.questionItem);
     root.style.setProperty('--theme-question-item-hover', variations.questionItemHover);
     root.style.setProperty('--theme-text', variations.text);
     root.style.setProperty('--theme-button-text', variations.buttonText);
+    root.style.setProperty('--theme-white-button-text', variations.whiteButtonText);
     root.style.setProperty('--theme-accent', variations.accent);
     root.style.setProperty('--theme-muted', variations.muted);
     root.style.setProperty('--theme-background-opacity', themeColors.opacity.toString());
