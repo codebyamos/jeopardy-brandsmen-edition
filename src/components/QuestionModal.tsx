@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Question, Player } from '../types/game';
 import { Button } from '../components/ui/button';
-import { Volume2, X } from 'lucide-react';
+import { Volume2, X, VolumeX } from 'lucide-react';
 import { speakWithElevenLabs } from '../utils/textToSpeech';
 
 interface QuestionModalProps {
@@ -20,6 +20,7 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
 }) => {
   const [showAnswer, setShowAnswer] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [hasAutoPlayed, setHasAutoPlayed] = useState(false);
 
   const speakText = async (text: string) => {
     if (isSpeaking) {
@@ -42,20 +43,36 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
   };
 
   useEffect(() => {
-    // Auto-read the question when modal opens
-    speakText(question.question);
-  }, [question.question]);
+    // Auto-read the question when modal opens with a slight delay
+    if (!hasAutoPlayed) {
+      const timer = setTimeout(() => {
+        speakText(question.question);
+        setHasAutoPlayed(true);
+      }, 300);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [question.question, hasAutoPlayed]);
 
   const handleShowAnswer = () => {
     setShowAnswer(true);
-    speakText(question.answer);
+    // Small delay before reading answer to ensure UI has updated
+    setTimeout(() => {
+      speakText(question.answer);
+    }, 200);
   };
 
   const stopSpeaking = () => {
     if ('speechSynthesis' in window) {
       window.speechSynthesis.cancel();
-      setIsSpeaking(false);
     }
+    setIsSpeaking(false);
+  };
+
+  const handleClose = () => {
+    // Stop any ongoing speech when closing
+    stopSpeaking();
+    onClose();
   };
 
   if (showAnswer) {
@@ -65,7 +82,7 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
           <div className="p-4 sm:p-6 lg:p-8 relative">
             {/* Close X button */}
             <Button
-              onClick={onClose}
+              onClick={handleClose}
               variant="ghost"
               size="sm"
               className="absolute top-2 right-2 sm:top-4 sm:right-4 text-white hover:text-red-400 p-2 z-10"
@@ -85,13 +102,14 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
             
             {/* Answer */}
             <div className="text-center">
-              <div className="flex items-center justify-center mb-4 sm:mb-6">
+              <div className="flex items-center justify-center gap-2 mb-4 sm:mb-6">
                 <Button
                   onClick={() => speakText(question.answer)}
                   variant="ghost"
                   size="sm"
-                  className="text-yellow-400 hover:text-yellow-300 p-2"
-                  style={{backgroundColor: '#fa1e4e', color:'white'}}
+                  className="text-white p-2"
+                  style={{backgroundColor: '#fa1e4e'}}
+                  disabled={isSpeaking}
                 >
                   <Volume2 className="w-6 h-6 sm:w-8 sm:h-8" />
                 </Button>
@@ -100,10 +118,10 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
                     onClick={stopSpeaking}
                     variant="ghost"
                     size="sm"
-                    className="ml-2 text-red-400 hover:text-red-300 p-2"
+                    className="text-white p-2"
                     style={{backgroundColor: '#666'}}
                   >
-                    Stop
+                    <VolumeX className="w-6 h-6 sm:w-8 sm:h-8" />
                   </Button>
                 )}
               </div>
@@ -125,7 +143,7 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
         <div className="p-4 sm:p-6 lg:p-8 relative">
           {/* Close X button */}
           <Button
-            onClick={onClose}
+            onClick={handleClose}
             variant="ghost"
             size="sm"
             className="absolute top-2 right-2 sm:top-4 sm:right-4 text-white hover:text-red-400 p-2 z-10"
@@ -146,13 +164,14 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
           
           {/* Question */}
           <div className="text-center">
-            <div className="flex items-center justify-center mb-4 sm:mb-6">
+            <div className="flex items-center justify-center gap-2 mb-4 sm:mb-6">
               <Button
                 onClick={() => speakText(question.question)}
                 variant="ghost"
                 size="sm"
-                className="text-yellow-400 hover:text-yellow-300 p-2"
-                style={{backgroundColor: '#fa1e4e', color: 'white'}}
+                className="text-white p-2"
+                style={{backgroundColor: '#fa1e4e'}}
+                disabled={isSpeaking}
               >
                 <Volume2 className="w-6 h-6 sm:w-8 sm:h-8" />
               </Button>
@@ -161,10 +180,10 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
                   onClick={stopSpeaking}
                   variant="ghost"
                   size="sm"
-                  className="ml-2 text-red-400 hover:text-red-300 p-2"
+                  className="text-white p-2"
                   style={{backgroundColor: '#666'}}
                 >
-                  Stop
+                  <VolumeX className="w-6 h-6 sm:w-8 sm:h-8" />
                 </Button>
               )}
             </div>
