@@ -7,6 +7,7 @@ interface QuestionModalHeaderProps {
   category: string;
   points: number;
   isTimerEnabled: boolean;
+  showTimerToggle?: boolean;
   onClose: () => void;
   onTimerToggle: () => void;
 }
@@ -15,6 +16,7 @@ const QuestionModalHeader: React.FC<QuestionModalHeaderProps> = ({
   category,
   points,
   isTimerEnabled,
+  showTimerToggle = true,
   onClose,
   onTimerToggle
 }) => {
@@ -39,17 +41,19 @@ const QuestionModalHeader: React.FC<QuestionModalHeaderProps> = ({
         </div>
       </div>
 
-      <div className="mb-6 flex justify-center items-center gap-4">
-        <Button
-          onClick={onTimerToggle}
-          variant="ghost"
-          size="sm"
-          className={`flex items-center gap-2 ${isTimerEnabled ? 'text-blue-400' : 'text-gray-400'}`}
-        >
-          <Timer className="w-4 h-4" />
-          Timer {isTimerEnabled ? 'ON' : 'OFF'}
-        </Button>
-      </div>
+      {showTimerToggle && (
+        <div className="mb-6 flex justify-center items-center gap-4">
+          <Button
+            onClick={onTimerToggle}
+            variant="ghost"
+            size="sm"
+            className={`flex items-center gap-2 ${isTimerEnabled ? 'text-blue-400' : 'text-gray-400'}`}
+          >
+            <Timer className="w-4 h-4" />
+            Timer {isTimerEnabled ? 'ON' : 'OFF'}
+          </Button>
+        </div>
+      )}
     </>
   );
 };
