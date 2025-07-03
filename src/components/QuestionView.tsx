@@ -51,7 +51,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
         <Button
           onClick={onShowAnswer}
           className="text-white hover:opacity-90 text-lg sm:text-xl px-6 sm:px-8 py-3 sm:py-4 font-bold"
-          style={{ backgroundColor: '#2c5b69' }}
+          style={{ backgroundColor: '#0f766e' }}
         >
           Reveal Answer
         </Button>

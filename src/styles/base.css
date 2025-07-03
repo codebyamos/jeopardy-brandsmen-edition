@@ -75,7 +75,13 @@
     min-height: 100vh;
   }
 
-  /* Modal background overlay */
+  /* Global button styling - ALL buttons use #0f766e */
+  button:not(.hover\:text-red-400):not([style*="background"]) {
+    background-color: #0f766e !important;
+    color: white !important;
+  }
+
+  /* Specific modal styling */
   .fixed.inset-0.bg-black.bg-opacity-90 {
     background-color: rgba(44, 91, 105, 0.9) !important;
   }

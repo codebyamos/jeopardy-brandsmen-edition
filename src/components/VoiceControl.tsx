@@ -59,7 +59,7 @@ const VoiceControl: React.FC<VoiceControlProps> = ({
           variant="ghost"
           size="sm"
           className="text-white p-2"
-          style={{backgroundColor: '#fa1e4e'}}
+          style={{backgroundColor: '#0f766e'}}
           disabled={isSpeaking && currentSpeech !== type} // Disable if another voice is playing
         >
           <Volume2 className="w-6 h-6 sm:w-8 sm:h-8" />

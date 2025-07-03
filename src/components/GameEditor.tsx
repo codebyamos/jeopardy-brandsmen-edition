@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from './ui/button';
 import { Edit2, Plus, Trash2, Save, X, FolderPlus } from 'lucide-react';
@@ -134,16 +135,17 @@ const GameEditor: React.FC<GameEditorProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-2 sm:p-4">
-      <div className="bg-gray-900 border border-gray-700 rounded-lg w-full max-w-7xl max-h-[95vh] overflow-auto shadow-2xl">
+      <div className="bg-white border-2 rounded-lg w-full max-w-7xl max-h-[95vh] overflow-auto shadow-2xl" style={{ borderColor: '#2c5b69' }}>
         <div className="p-4 sm:p-6">
           <div className="flex justify-between items-center mb-4 sm:mb-6">
-            <h3 className="text-xl sm:text-2xl font-bold" style={{color: '#fa1e4e'}}>Edit Game Content</h3>
+            <h3 className="text-xl sm:text-2xl font-bold" style={{color: '#2c5b69'}}>Edit Game Content</h3>
             <div className="flex gap-2">
               {isMainView && (
                 <Button
                   onClick={() => setShowAddCategory(true)}
                   size="sm"
-                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                  className="text-white"
+                  style={{ backgroundColor: '#0f766e' }}
                 >
                   <FolderPlus className="w-4 h-4 mr-1" />
                   Add Category
@@ -154,6 +156,7 @@ const GameEditor: React.FC<GameEditorProps> = ({
                 variant="ghost"
                 size="sm"
                 className="text-white hover:text-red-400"
+                style={{ backgroundColor: '#2c5b69' }}
               >
                 <X className="w-5 h-5" />
               </Button>
@@ -161,26 +164,33 @@ const GameEditor: React.FC<GameEditorProps> = ({
           </div>
 
           {showAddCategory && (
-            <div className="bg-gray-800 rounded-lg p-4 sm:p-6 mb-4">
-              <h4 className="text-lg font-semibold text-white mb-4">Add New Category</h4>
+            <div className="border rounded-lg p-4 sm:p-6 mb-4" style={{ backgroundColor: '#f8fafc', borderColor: '#2c5b69' }}>
+              <h4 className="text-lg font-semibold mb-4" style={{ color: '#2c5b69' }}>Add New Category</h4>
               <div className="flex gap-2">
                 <input
                   type="text"
                   value={newCategoryName}
                   onChange={(e) => setNewCategoryName(e.target.value)}
-                  className="flex-1 bg-gray-700 text-white px-3 py-2 rounded text-sm sm:text-base"
+                  className="flex-1 px-3 py-2 rounded text-sm sm:text-base border-2"
+                  style={{ borderColor: '#2c5b69', color: '#2c5b69' }}
                   placeholder="Enter category name"
                   onKeyPress={(e) => e.key === 'Enter' && addNewCategory()}
                 />
                 <Button 
                   onClick={addNewCategory} 
-                  className="bg-green-600 hover:bg-green-700"
+                  className="text-white"
+                  style={{ backgroundColor: '#0f766e' }}
                   disabled={!newCategoryName.trim() || categories.includes(newCategoryName.trim())}
                 >
                   <Save className="w-4 h-4 mr-1" />
                   Add
                 </Button>
-                <Button onClick={cancelEdit} variant="outline" className="text-white border-gray-600 hover:bg-gray-800">
+                <Button 
+                  onClick={cancelEdit} 
+                  variant="outline" 
+                  className="border-2"
+                  style={{ borderColor: '#2c5b69', color: '#2c5b69' }}
+                >
                   Cancel
                 </Button>
               </div>
@@ -188,26 +198,33 @@ const GameEditor: React.FC<GameEditorProps> = ({
           )}
 
           {editingCategory && (
-            <div className="bg-gray-800 rounded-lg p-4 sm:p-6 mb-4">
-              <h4 className="text-lg font-semibold text-white mb-4">Edit Category Name</h4>
+            <div className="border rounded-lg p-4 sm:p-6 mb-4" style={{ backgroundColor: '#f8fafc', borderColor: '#2c5b69' }}>
+              <h4 className="text-lg font-semibold mb-4" style={{ color: '#2c5b69' }}>Edit Category Name</h4>
               <div className="flex gap-2">
                 <input
                   type="text"
                   value={tempCategoryName}
                   onChange={(e) => setTempCategoryName(e.target.value)}
-                  className="flex-1 bg-gray-700 text-white px-3 py-2 rounded text-sm sm:text-base"
+                  className="flex-1 px-3 py-2 rounded text-sm sm:text-base border-2"
+                  style={{ borderColor: '#2c5b69', color: '#2c5b69' }}
                   placeholder="Enter category name"
                   onKeyPress={(e) => e.key === 'Enter' && saveEditCategory()}
                 />
                 <Button 
                   onClick={saveEditCategory} 
-                  className="bg-green-600 hover:bg-green-700"
+                  className="text-white"
+                  style={{ backgroundColor: '#0f766e' }}
                   disabled={!tempCategoryName.trim()}
                 >
                   <Save className="w-4 h-4 mr-1" />
                   Save
                 </Button>
-                <Button onClick={cancelEdit} variant="outline" className="text-white border-gray-600 hover:bg-gray-800">
+                <Button 
+                  onClick={cancelEdit} 
+                  variant="outline" 
+                  className="border-2"
+                  style={{ borderColor: '#2c5b69', color: '#2c5b69' }}
+                >
                   Cancel
                 </Button>
               </div>
@@ -215,25 +232,27 @@ const GameEditor: React.FC<GameEditorProps> = ({
           )}
 
           {editingQuestion ? (
-            <div className="bg-gray-800 rounded-lg p-4 sm:p-6 mb-4">
-              <h4 className="text-lg font-semibold text-white mb-4">Edit Question</h4>
+            <div className="border rounded-lg p-4 sm:p-6 mb-4" style={{ backgroundColor: '#f8fafc', borderColor: '#2c5b69' }}>
+              <h4 className="text-lg font-semibold mb-4" style={{ color: '#2c5b69' }}>Edit Question</h4>
               <div className="grid grid-cols-1 gap-4">
                 <div>
-                  <label className="block text-white text-sm font-medium mb-2">Category</label>
+                  <label className="block text-sm font-medium mb-2" style={{ color: '#2c5b69' }}>Category</label>
                   <input
                     type="text"
                     value={tempQuestion.category || ''}
                     onChange={(e) => setTempQuestion({...tempQuestion, category: e.target.value})}
-                    className="w-full bg-gray-700 text-white px-3 py-2 rounded text-sm sm:text-base"
+                    className="w-full px-3 py-2 rounded text-sm sm:text-base border-2"
+                    style={{ borderColor: '#2c5b69', color: '#2c5b69' }}
                     placeholder="Enter category name"
                   />
                 </div>
                 <div>
-                  <label className="block text-white text-sm font-medium mb-2">Points</label>
+                  <label className="block text-sm font-medium mb-2" style={{ color: '#2c5b69' }}>Points</label>
                   <select
                     value={tempQuestion.points || 100}
                     onChange={(e) => setTempQuestion({...tempQuestion, points: Number(e.target.value)})}
-                    className="w-full bg-gray-700 text-white px-3 py-2 rounded text-sm sm:text-base"
+                    className="w-full px-3 py-2 rounded text-sm sm:text-base border-2"
+                    style={{ borderColor: '#2c5b69', color: '#2c5b69' }}
                   >
                     <option value={100}>100</option>
                     <option value={200}>200</option>
@@ -243,33 +262,41 @@ const GameEditor: React.FC<GameEditorProps> = ({
                   </select>
                 </div>
                 <div>
-                  <label className="block text-white text-sm font-medium mb-2">Question</label>
+                  <label className="block text-sm font-medium mb-2" style={{ color: '#2c5b69' }}>Question</label>
                   <textarea
                     value={tempQuestion.question || ''}
                     onChange={(e) => setTempQuestion({...tempQuestion, question: e.target.value})}
-                    className="w-full bg-gray-700 text-white px-3 py-2 rounded text-sm sm:text-base h-20"
+                    className="w-full px-3 py-2 rounded text-sm sm:text-base h-20 border-2"
+                    style={{ borderColor: '#2c5b69', color: '#2c5b69' }}
                     placeholder="Enter the question"
                   />
                 </div>
                 <div>
-                  <label className="block text-white text-sm font-medium mb-2">Answer</label>
+                  <label className="block text-sm font-medium mb-2" style={{ color: '#2c5b69' }}>Answer</label>
                   <textarea
                     value={tempQuestion.answer || ''}
                     onChange={(e) => setTempQuestion({...tempQuestion, answer: e.target.value})}
-                    className="w-full bg-gray-700 text-white px-3 py-2 rounded text-sm sm:text-base h-20"
+                    className="w-full px-3 py-2 rounded text-sm sm:text-base h-20 border-2"
+                    style={{ borderColor: '#2c5b69', color: '#2c5b69' }}
                     placeholder="Enter the answer (e.g., What is...?)"
                   />
                 </div>
                 <div className="flex gap-2">
                   <Button 
                     onClick={saveEdit} 
-                    className="bg-green-600 hover:bg-green-700"
+                    className="text-white"
+                    style={{ backgroundColor: '#0f766e' }}
                     disabled={!tempQuestion.category || !tempQuestion.question || !tempQuestion.answer}
                   >
                     <Save className="w-4 h-4 mr-1" />
                     Save Changes
                   </Button>
-                  <Button onClick={cancelEdit} variant="outline" className="text-white border-gray-600 hover:bg-gray-800">
+                  <Button 
+                    onClick={cancelEdit} 
+                    variant="outline" 
+                    className="border-2"
+                    style={{ borderColor: '#2c5b69', color: '#2c5b69' }}
+                  >
                     Cancel
                   </Button>
                 </div>
@@ -278,9 +305,9 @@ const GameEditor: React.FC<GameEditorProps> = ({
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
               {categories.map(category => (
-                <div key={category} className="bg-gray-800 rounded-lg p-3 sm:p-4">
+                <div key={category} className="border rounded-lg p-3 sm:p-4" style={{ backgroundColor: '#f8fafc', borderColor: '#2c5b69' }}>
                   <div className="flex items-center justify-between mb-3">
-                    <h4 className="text-white font-semibold text-sm sm:text-base" style={{color: '#fa1e4e'}}>
+                    <h4 className="font-semibold text-sm sm:text-base" style={{color: '#2c5b69'}}>
                       {category}
                     </h4>
                     <div className="flex gap-1">
@@ -288,7 +315,8 @@ const GameEditor: React.FC<GameEditorProps> = ({
                         onClick={() => startEditCategory(category)}
                         size="sm"
                         variant="ghost"
-                        className="text-blue-400 hover:text-blue-300 p-1 h-6 w-6"
+                        className="p-1 h-6 w-6"
+                        style={{ color: '#0f766e' }}
                         title="Edit category name"
                       >
                         <Edit2 className="w-3 h-3" />
@@ -308,8 +336,8 @@ const GameEditor: React.FC<GameEditorProps> = ({
                     {[100, 200, 300, 400, 500].map(points => {
                       const question = questions.find(q => q.category === category && q.points === points);
                       return (
-                        <div key={points} className="flex items-center justify-between bg-gray-700 rounded px-2 py-1">
-                          <span className="text-gray-300 text-sm font-medium">${points}</span>
+                        <div key={points} className="flex items-center justify-between rounded px-2 py-1" style={{ backgroundColor: '#e2e8f0' }}>
+                          <span className="text-sm font-medium" style={{ color: '#2c5b69' }}>${points}</span>
                           <div className="flex gap-1">
                             {question ? (
                               <>
@@ -317,7 +345,8 @@ const GameEditor: React.FC<GameEditorProps> = ({
                                   onClick={() => startEdit(question)}
                                   size="sm"
                                   variant="ghost"
-                                  className="text-blue-400 hover:text-blue-300 p-1 h-6 w-6"
+                                  className="p-1 h-6 w-6"
+                                  style={{ color: '#0f766e' }}
                                   title={`Edit ${points} point question`}
                                 >
                                   <Edit2 className="w-3 h-3" />
@@ -337,7 +366,8 @@ const GameEditor: React.FC<GameEditorProps> = ({
                                 onClick={() => addQuestion(category, points)}
                                 size="sm"
                                 variant="ghost"
-                                className="text-green-400 hover:text-green-300 p-1 h-6 w-6"
+                                className="p-1 h-6 w-6"
+                                style={{ color: '#0f766e' }}
                                 title={`Add ${points} point question`}
                               >
                                 <Plus className="w-3 h-3" />

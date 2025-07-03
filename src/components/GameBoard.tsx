@@ -32,13 +32,13 @@ const GameBoard: React.FC<GameBoardProps> = ({
       <div 
         className="absolute inset-0 rounded-lg bg-cover bg-center bg-no-repeat"
         style={{ 
-          backgroundImage: 'url(/lovable-uploads/44a7d90f-f2ca-4800-8c84-95430b21c8bb.png)',
-          zIndex: -1,
-          opacity: 0.3
+          backgroundImage: 'url(/lovable-uploads/681095dc-1965-4217-8d71-490184141bb4.png)',
+          zIndex: 0,
+          opacity: 0.6
         }}
       />
       
-      <div className="border-2 rounded-lg overflow-hidden shadow-2xl bg-white bg-opacity-95" style={{ borderColor: '#2c5b69' }}>
+      <div className="relative z-10 border-2 rounded-lg overflow-hidden shadow-2xl bg-white bg-opacity-95" style={{ borderColor: '#2c5b69' }}>
         {/* Header row with categories */}
         <div className="grid grid-cols-5 gap-px" style={{ backgroundColor: '#2c5b69' }}>
           {categories.map((category, index) => (

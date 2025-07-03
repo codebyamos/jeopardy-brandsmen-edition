@@ -29,7 +29,7 @@ const AnswerContent: React.FC<AnswerContentProps> = ({
         onStop={onStop}
       />
       <div className="modal-text-container">
-        <p className="modal-answer-text text-white font-bold px-2">
+        <p className="modal-answer-text font-bold px-2" style={{ color: '#2c5b69' }}>
           {question.answer}
         </p>
       </div>

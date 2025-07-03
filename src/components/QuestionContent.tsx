@@ -29,7 +29,7 @@ const QuestionContent: React.FC<QuestionContentProps> = ({
         onStop={onStop}
       />
       <div className="modal-text-container">
-        <p className="modal-question-text text-white font-bold px-2">
+        <p className="modal-question-text font-bold px-2" style={{ color: '#2c5b69' }}>
           {question.question}
         </p>
       </div>
