@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Question, Player } from '../types/game';
 import { speakWithElevenLabs, stopCurrentSpeech, initializeSpeechSystem, preloadAudio } from '../utils/textToSpeech';
@@ -32,29 +33,37 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
   const speakText = async (text: string, type: 'question' | 'answer') => {
     if (!voiceSettings.isVoiceEnabled) return;
     
+    console.log(`speakText called: ${type}, currently speaking: ${isSpeaking}, current speech: ${currentSpeech}`);
+    
     // Stop any current speech first
     if (isSpeaking) {
+      console.log('Stopping current speech');
       stopCurrentSpeech();
       setIsSpeaking(false);
       setCurrentSpeech(null);
       return;
     }
 
-    // Set speaking state immediately
+    // Set speaking state immediately and synchronously
+    console.log(`Starting speech for ${type}`);
     setIsSpeaking(true);
     setCurrentSpeech(type);
     
     try {
       await speakWithElevenLabs(text);
+      console.log(`Speech completed for ${type}`);
     } catch (error) {
       console.error('Speech error:', error);
     } finally {
+      // Ensure state is reset after speech completes
+      console.log(`Resetting speech state after ${type}`);
       setIsSpeaking(false);
       setCurrentSpeech(null);
     }
   };
 
   const stopSpeaking = () => {
+    console.log('stopSpeaking called');
     stopCurrentSpeech();
     setIsSpeaking(false);
     setCurrentSpeech(null);
@@ -65,6 +74,8 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
     const initAndPlay = async () => {
       if (!hasAutoPlayedRef.current && voiceSettings.isVoiceEnabled) {
         hasAutoPlayedRef.current = true;
+        
+        console.log('Initializing speech system and auto-playing question');
         
         // Initialize speech system
         await initializeSpeechSystem();
@@ -81,14 +92,17 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
         });
         
         // Start speaking question immediately without waiting for preloading
+        console.log('Auto-playing question');
         setIsSpeaking(true);
         setCurrentSpeech('question');
         
         try {
           await speakWithElevenLabs(question.question);
+          console.log('Auto-play question completed');
         } catch (error) {
-          console.error('Speech error:', error);
+          console.error('Auto-play speech error:', error);
         } finally {
+          console.log('Resetting state after auto-play');
           setIsSpeaking(false);
           setCurrentSpeech(null);
         }
@@ -104,18 +118,22 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
   }, [question.question, question.answer, voiceSettings.isVoiceEnabled]);
 
   const handleShowAnswer = async () => {
+    console.log('Show answer clicked');
     setShowAnswer(true);
     
     if (voiceSettings.isVoiceEnabled) {
+      console.log('Auto-playing answer');
       // Start speaking answer immediately
       setIsSpeaking(true);
       setCurrentSpeech('answer');
       
       try {
         await speakWithElevenLabs(question.answer);
+        console.log('Auto-play answer completed');
       } catch (error) {
-        console.error('Speech error:', error);
+        console.error('Auto-play answer error:', error);
       } finally {
+        console.log('Resetting state after answer auto-play');
         setIsSpeaking(false);
         setCurrentSpeech(null);
       }
@@ -123,6 +141,7 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
   };
 
   const handleClose = () => {
+    console.log('Modal closing, stopping speech');
     stopSpeaking();
     onClose();
   };
@@ -130,6 +149,11 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
   const handleTimeUp = () => {
     console.log('Time is up!');
   };
+
+  // Debug logging for state changes
+  useEffect(() => {
+    console.log(`QuestionModal state updated: isSpeaking=${isSpeaking}, currentSpeech=${currentSpeech}`);
+  }, [isSpeaking, currentSpeech]);
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-2 sm:p-4">

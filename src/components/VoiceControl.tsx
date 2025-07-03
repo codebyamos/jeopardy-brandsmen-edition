@@ -36,18 +36,26 @@ const VoiceControl: React.FC<VoiceControlProps> = ({
     currentSpeech,
     isThisVoicePlaying,
     shouldShowPlay: !isThisVoicePlaying,
-    shouldShowStop: isThisVoicePlaying
+    shouldShowStop: isThisVoicePlaying,
+    propsReceived: { isSpeaking, currentSpeech, type }
   });
+
+  const handlePlayClick = () => {
+    console.log(`PLAY clicked for ${type} - calling onSpeak`);
+    onSpeak(text, type);
+  };
+
+  const handleStopClick = () => {
+    console.log(`STOP clicked for ${type} - calling onStop`);
+    onStop();
+  };
 
   return (
     <div className="flex items-center justify-center gap-2 mb-4 sm:mb-6">
       {!isThisVoicePlaying ? (
         // Show PLAY button when THIS voice is NOT playing
         <Button
-          onClick={() => {
-            console.log(`PLAY clicked for ${type}`);
-            onSpeak(text, type);
-          }}
+          onClick={handlePlayClick}
           variant="ghost"
           size="sm"
           className="text-white p-2"
@@ -59,10 +67,7 @@ const VoiceControl: React.FC<VoiceControlProps> = ({
       ) : (
         // Show STOP button when THIS voice is playing
         <Button
-          onClick={() => {
-            console.log(`STOP clicked for ${type}`);
-            onStop();
-          }}
+          onClick={handleStopClick}
           variant="ghost"
           size="sm"
           className="text-white p-2"
