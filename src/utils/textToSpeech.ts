@@ -4,6 +4,7 @@ let voicesInitialized = false;
 let currentAudio: HTMLAudioElement | null = null;
 let isApiReady = false;
 let preloadedAudioCache = new Map<string, string>();
+let apiInitPromise: Promise<void> | null = null;
 
 // Check if voice is enabled
 const isVoiceEnabled = () => {
@@ -12,7 +13,19 @@ const isVoiceEnabled = () => {
 
 // Pre-initialize the speech system
 export const initializeSpeechSystem = async () => {
-  if (isApiReady || !isVoiceEnabled()) return;
+  if (!isVoiceEnabled()) return;
+  
+  // Return existing promise if already initializing
+  if (apiInitPromise) {
+    return apiInitPromise;
+  }
+  
+  apiInitPromise = initializeApi();
+  return apiInitPromise;
+};
+
+const initializeApi = async () => {
+  if (isApiReady) return;
   
   const apiKey = localStorage.getItem('elevenlabs_api_key');
   const voiceId = localStorage.getItem('selected_voice');
@@ -28,7 +41,7 @@ export const initializeSpeechSystem = async () => {
           'xi-api-key': apiKey
         },
         body: JSON.stringify({
-          text: "Ready",
+          text: "Test",
           model_id: "eleven_multilingual_v2",
           voice_settings: {
             stability: 0.5,
@@ -42,13 +55,18 @@ export const initializeSpeechSystem = async () => {
       if (response.ok) {
         isApiReady = true;
         console.log('ElevenLabs API initialized successfully');
+        
+        // Preload the test audio
+        const audioBlob = await response.blob();
+        const audioUrl = URL.createObjectURL(audioBlob);
+        preloadedAudioCache.set(`Test_${voiceId}`, audioUrl);
       }
     } catch (error) {
       console.log('ElevenLabs API not available, will use browser speech');
     }
   }
 
-  // Initialize browser speech synthesis
+  // Initialize browser speech synthesis in parallel
   if ('speechSynthesis' in window && !voicesInitialized) {
     const loadVoices = () => {
       const voices = window.speechSynthesis.getVoices();
@@ -131,7 +149,7 @@ export const speakWithElevenLabs = async (text: string): Promise<void> => {
     let audioUrl = preloadedAudioCache.get(cacheKey);
 
     if (!audioUrl) {
-      // Generate audio on demand
+      // Generate audio on demand with faster settings
       const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
         method: 'POST',
         headers: {
@@ -141,7 +159,7 @@ export const speakWithElevenLabs = async (text: string): Promise<void> => {
         },
         body: JSON.stringify({
           text: text,
-          model_id: "eleven_multilingual_v2",
+          model_id: "eleven_turbo_v2_5", // Use faster model
           voice_settings: {
             stability: 0.5,
             similarity_boost: 0.5,
@@ -157,6 +175,8 @@ export const speakWithElevenLabs = async (text: string): Promise<void> => {
 
       const audioBlob = await response.blob();
       audioUrl = URL.createObjectURL(audioBlob);
+      // Cache for potential replay
+      preloadedAudioCache.set(cacheKey, audioUrl);
     }
     
     // Stop any current audio
@@ -167,17 +187,13 @@ export const speakWithElevenLabs = async (text: string): Promise<void> => {
     
     currentAudio = new Audio(audioUrl);
     
+    // Set up event listeners
     currentAudio.onended = () => {
-      if (!preloadedAudioCache.has(cacheKey)) {
-        URL.revokeObjectURL(audioUrl!);
-      }
       currentAudio = null;
     };
     
     currentAudio.onerror = () => {
-      if (!preloadedAudioCache.has(cacheKey)) {
-        URL.revokeObjectURL(audioUrl!);
-      }
+      console.error('Audio playback error');
       currentAudio = null;
     };
     

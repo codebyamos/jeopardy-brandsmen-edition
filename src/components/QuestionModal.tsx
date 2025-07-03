@@ -9,6 +9,7 @@ import ModalHeader from './ModalHeader';
 import QuestionContent from './QuestionContent';
 import AnswerContent from './AnswerContent';
 import QuestionTimer from './QuestionTimer';
+import { Timer } from 'lucide-react';
 
 interface QuestionModalProps {
   question: Question;
@@ -26,6 +27,7 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
   const [showAnswer, setShowAnswer] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [currentSpeech, setCurrentSpeech] = useState<'question' | 'answer' | null>(null);
+  const [isTimerEnabled, setIsTimerEnabled] = useState(false);
   const hasAutoPlayedRef = useRef(false);
   
   const { settings: voiceSettings } = useVoiceSettings();
@@ -35,9 +37,8 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
     if (!voiceSettings.isVoiceEnabled) return;
     
     // Stop any current speech first
-    stopCurrentSpeech();
-    
-    if (isSpeaking && currentSpeech === type) {
+    if (isSpeaking) {
+      stopCurrentSpeech();
       setIsSpeaking(false);
       setCurrentSpeech(null);
       return;
@@ -72,11 +73,18 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
         // Initialize speech system
         await initializeSpeechSystem();
         
-        // Preload both question and answer audio
-        preloadAudio(question.question);
-        preloadAudio(question.answer);
+        // Preload both question and answer audio in parallel
+        const preloadPromises = [
+          preloadAudio(question.question),
+          preloadAudio(question.answer)
+        ];
         
-        // Start speaking question immediately
+        // Start preloading but don't wait for it to complete
+        Promise.all(preloadPromises).catch(error => {
+          console.log('Preloading failed, will generate on demand:', error);
+        });
+        
+        // Start speaking question immediately without waiting for preloading
         setIsSpeaking(true);
         setCurrentSpeech('question');
         
@@ -161,14 +169,25 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
             onClose={handleClose}
           />
           
-          {timerSettings.isTimerEnabled && (
-            <div className="mb-6 flex justify-center">
+          {/* Timer Toggle and Timer */}
+          <div className="mb-6 flex justify-center items-center gap-4">
+            <Button
+              onClick={() => setIsTimerEnabled(!isTimerEnabled)}
+              variant="ghost"
+              size="sm"
+              className={`flex items-center gap-2 ${isTimerEnabled ? 'text-blue-400' : 'text-gray-400'}`}
+            >
+              <Timer className="w-4 h-4" />
+              Timer {isTimerEnabled ? 'ON' : 'OFF'}
+            </Button>
+            
+            {isTimerEnabled && (
               <QuestionTimer 
                 duration={timerSettings.timerDuration}
                 onTimeUp={handleTimeUp}
               />
-            </div>
-          )}
+            )}
+          </div>
           
           <QuestionContent
             question={question}

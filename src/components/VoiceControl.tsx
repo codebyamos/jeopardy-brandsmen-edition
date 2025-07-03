@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from './ui/button';
-import { VolumeX } from 'lucide-react';
+import { VolumeX, Volume2 } from 'lucide-react';
 
 interface VoiceControlProps {
   text: string;
@@ -24,7 +24,7 @@ const VoiceControl: React.FC<VoiceControlProps> = ({
 
   return (
     <div className="flex items-center justify-center gap-2 mb-4 sm:mb-6">
-      {!isCurrentlyPlaying && (
+      {!isCurrentlyPlaying ? (
         <Button
           onClick={() => onSpeak(text, type)}
           variant="ghost"
@@ -32,12 +32,9 @@ const VoiceControl: React.FC<VoiceControlProps> = ({
           className="text-white p-2"
           style={{backgroundColor: '#fa1e4e'}}
         >
-          <svg className="w-6 h-6 sm:w-8 sm:h-8" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
-          </svg>
+          <Volume2 className="w-6 h-6 sm:w-8 sm:h-8" />
         </Button>
-      )}
-      {isCurrentlyPlaying && (
+      ) : (
         <Button
           onClick={onStop}
           variant="ghost"
