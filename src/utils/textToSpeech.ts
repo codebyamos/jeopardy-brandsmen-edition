@@ -1,4 +1,3 @@
-
 import { generateElevenLabsAudio, initializeElevenLabsApi } from './elevenLabsApi';
 import { initializeBrowserSpeech, speakWithBrowser, stopBrowserSpeech } from './browserSpeech';
 import { getCachedAudio } from './speechCache';
@@ -19,6 +18,15 @@ const isVoiceEnabled = () => {
 const hasValidApiCredentials = () => {
   const apiKey = localStorage.getItem('elevenlabs_api_key');
   const voiceId = localStorage.getItem('selected_voice');
+  
+  console.log('Checking API credentials:', {
+    hasApiKey: !!apiKey,
+    hasVoiceId: !!voiceId,
+    apiKeyLength: apiKey ? apiKey.length : 0,
+    voiceId: voiceId,
+    domain: window.location.hostname
+  });
+  
   return !!(apiKey && voiceId);
 };
 
@@ -29,7 +37,10 @@ export const setSpeechCompleteCallback = (callback: (() => void) | null) => {
 
 // Pre-initialize the speech system
 export const initializeSpeechSystem = async () => {
-  if (!isVoiceEnabled()) return;
+  if (!isVoiceEnabled()) {
+    console.log('Voice disabled, skipping speech system initialization');
+    return;
+  }
   
   if (apiInitPromise) {
     return apiInitPromise;
@@ -42,13 +53,18 @@ export const initializeSpeechSystem = async () => {
 const initializeApi = async () => {
   if (isApiReady) return;
   
+  console.log('Starting API initialization...');
+  
   // Only try to initialize ElevenLabs API if we have credentials
   if (hasValidApiCredentials()) {
     try {
+      console.log('Attempting ElevenLabs API initialization...');
       const elevenLabsReady = await initializeElevenLabsApi();
       if (elevenLabsReady) {
         isApiReady = true;
         console.log('ElevenLabs API initialized successfully');
+      } else {
+        console.log('ElevenLabs API initialization failed, will use browser speech');
       }
     } catch (error) {
       console.warn('ElevenLabs API initialization failed, will use browser speech:', error);
@@ -59,6 +75,7 @@ const initializeApi = async () => {
   
   // Initialize browser speech in parallel
   await initializeBrowserSpeech();
+  console.log('Speech system initialization complete');
 };
 
 // Preload audio for faster playback
