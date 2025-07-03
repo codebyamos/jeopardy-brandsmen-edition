@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import GameBoard from '../components/GameBoard';
 import QuestionModal from '../components/QuestionModal';
@@ -8,10 +7,12 @@ import ScoreManager from '../components/ScoreManager';
 import GameHistory from '../components/GameHistory';
 import PlayerScores from '../components/PlayerScores';
 import ScoringModal from '../components/ScoringModal';
+import PasscodeScreen from '../components/PasscodeScreen';
 import { Question, Player } from '../types/game';
 import { useGameData } from '../hooks/useGameData';
 import { initializeSpeechSystem } from '../utils/textToSpeech';
 import { useTheme } from '../hooks/useTheme';
+import { usePasscode } from '../contexts/PasscodeContext';
 
 const sampleQuestions: Question[] = [
   // Category 1: Company History
@@ -43,6 +44,8 @@ const sampleQuestions: Question[] = [
 ];
 
 const Index = () => {
+  const { isAuthenticated } = usePasscode();
+  
   const [questions, setQuestions] = useState<Question[]>(sampleQuestions);
   const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(null);
   const [answeredQuestions, setAnsweredQuestions] = useState<Set<number>>(new Set());
@@ -91,10 +94,30 @@ const Index = () => {
     }
   };
 
+  const handleStartNewGame = () => {
+    // Reset all game state
+    setQuestions(sampleQuestions);
+    setAnsweredQuestions(new Set());
+    setPlayers([
+      { id: 1, name: 'Team 1', score: 0 },
+      { id: 2, name: 'Team 2', score: 0 }
+    ]);
+    setSelectedQuestion(null);
+    setShowScoring(false);
+    setShowGameEditor(false);
+    setShowScoreManager(false);
+    setShowGameHistory(false);
+  };
+
   // Initialize speech system on app load
   useEffect(() => {
     initializeSpeechSystem();
   }, []);
+
+  // Show passcode screen if not authenticated
+  if (!isAuthenticated) {
+    return <PasscodeScreen />;
+  }
 
   return (
     <div className="min-h-screen p-2 sm:p-4 lg:p-8">
@@ -125,6 +148,7 @@ const Index = () => {
           onShowGameHistory={() => setShowGameHistory(true)}
           onShowGameEditor={() => setShowGameEditor(true)}
           onShowScoreManager={() => setShowScoreManager(true)}
+          onStartNewGame={handleStartNewGame}
           isLoading={isLoading}
         />
         
