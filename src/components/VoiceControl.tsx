@@ -2,6 +2,7 @@
 import React from 'react';
 import { Button } from './ui/button';
 import { VolumeX, Volume2 } from 'lucide-react';
+import { useVoiceSettings } from '../hooks/useVoiceSettings';
 
 interface VoiceControlProps {
   text: string;
@@ -20,11 +21,20 @@ const VoiceControl: React.FC<VoiceControlProps> = ({
   onSpeak,
   onStop
 }) => {
-  const isCurrentlyPlaying = isSpeaking && currentSpeech === type;
+  const { settings } = useVoiceSettings();
+  
+  // Don't show any buttons if voice is disabled
+  if (!settings.isVoiceEnabled) {
+    return null;
+  }
+
+  // Check if this specific voice control is currently playing
+  const isThisVoicePlaying = isSpeaking && currentSpeech === type;
 
   return (
     <div className="flex items-center justify-center gap-2 mb-4 sm:mb-6">
-      {isCurrentlyPlaying ? (
+      {isThisVoicePlaying ? (
+        // Show stop button when this voice is playing
         <Button
           onClick={onStop}
           variant="ghost"
@@ -35,6 +45,7 @@ const VoiceControl: React.FC<VoiceControlProps> = ({
           <VolumeX className="w-6 h-6 sm:w-8 sm:h-8" />
         </Button>
       ) : (
+        // Show play button when this voice is not playing
         <Button
           onClick={() => onSpeak(text, type)}
           variant="ghost"
