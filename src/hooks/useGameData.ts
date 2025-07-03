@@ -77,6 +77,7 @@ export const useGameData = () => {
 
       if (playersError) throw playersError;
 
+      console.log('Game saved successfully to database');
       toast({
         title: "Game Saved!",
         description: "Your game has been successfully saved to the database.",
@@ -140,6 +141,8 @@ export const useGameData = () => {
   const loadRecentGames = async (limit = 10) => {
     setIsLoading(true);
     try {
+      console.log('Attempting to load recent games from database...');
+      
       const { data: games, error } = await supabase
         .from('games')
         .select(`
@@ -156,16 +159,31 @@ export const useGameData = () => {
         .order('game_date', { ascending: false })
         .limit(limit);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error:', error);
+        throw error;
+      }
 
+      console.log('Successfully loaded games:', games?.length || 0);
       return games || [];
     } catch (error) {
       console.error('Error loading games:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load games. Please try again.",
-        variant: "destructive",
-      });
+      
+      // More specific error handling
+      if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
+        console.error('Network connection error - unable to reach database');
+        toast({
+          title: "Connection Error",
+          description: "Unable to connect to the database. Please check your internet connection.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to load games. Please try again.",
+          variant: "destructive",
+        });
+      }
       return [];
     } finally {
       setIsLoading(false);

@@ -38,7 +38,7 @@ const GameControls: React.FC<GameControlsProps> = ({
   const [showPasscodeManager, setShowPasscodeManager] = useState(false);
 
   const menuItems = [
-    { icon: Save, label: 'Save Game', action: onSaveGame, disabled: isLoading },
+    { icon: Save, label: 'Save Game', action: onSaveGame, disabled: false }, // Re-enabled the save button
     { icon: History, label: 'Game History', action: onShowGameHistory },
     { icon: Edit, label: 'Edit Game', action: onShowGameEditor },
     { icon: Calculator, label: 'Manage Scores', action: onShowScoreManager },
@@ -76,13 +76,13 @@ const GameControls: React.FC<GameControlsProps> = ({
                   item.action();
                   setIsMenuOpen(false);
                 }}
-                disabled={item.disabled}
+                disabled={item.disabled || (item.label === 'Save Game' && isLoading)}
                 size="sm"
                 className="text-white border justify-start gap-2 min-w-[140px] hover:opacity-90"
                 style={{ backgroundColor: '#2c5b69', borderColor: '#2c5b69' }}
               >
                 <item.icon className="w-4 h-4" />
-                {item.label}
+                {item.label} {item.label === 'Save Game' && isLoading && '...'}
               </Button>
             ))}
           </div>

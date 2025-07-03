@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import GameBoard from '../components/GameBoard';
 import QuestionModal from '../components/QuestionModal';
@@ -58,6 +59,7 @@ const Index = () => {
     { id: 2, name: 'Team 2', score: 0 }
   ]);
   const [isLoadingGameState, setIsLoadingGameState] = useState(true);
+  const [hasDataLoaded, setHasDataLoaded] = useState(false);
 
   const { saveGame, loadRecentGames, isLoading } = useGameData();
   const { theme } = useTheme();
@@ -68,13 +70,23 @@ const Index = () => {
   // Load existing game state on component mount
   useEffect(() => {
     const loadGameState = async () => {
+      if (!isAuthenticated) {
+        setIsLoadingGameState(false);
+        return;
+      }
+
       try {
+        console.log('Loading game state from database...');
         // Load the most recent game for today
         const recentGames = await loadRecentGames(1);
+        console.log('Recent games loaded:', recentGames);
+        
         if (recentGames.length > 0) {
           const todaysGame = recentGames.find(game => 
             new Date(game.game_date).toDateString() === new Date().toDateString()
           );
+          
+          console.log('Todays game found:', todaysGame);
           
           if (todaysGame && todaysGame.game_players.length > 0) {
             // Load players from the database
@@ -84,38 +96,48 @@ const Index = () => {
               score: player.player_score,
               avatar: player.avatar_url || undefined
             }));
+            console.log('Loaded players from database:', loadedPlayers);
             setPlayers(loadedPlayers);
+            setHasDataLoaded(true);
           }
         }
       } catch (error) {
         console.error('Failed to load game state:', error);
+        // Continue with default players if loading fails
       } finally {
         setIsLoadingGameState(false);
       }
     };
 
-    if (isAuthenticated) {
-      loadGameState();
-    } else {
-      setIsLoadingGameState(false);
-    }
+    loadGameState();
   }, [isAuthenticated, loadRecentGames]);
 
   // Auto-save game state whenever players change (with debouncing)
   useEffect(() => {
-    if (!isAuthenticated || isLoadingGameState) return;
+    if (!isAuthenticated || isLoadingGameState || !hasDataLoaded) {
+      console.log('Skipping auto-save:', { isAuthenticated, isLoadingGameState, hasDataLoaded });
+      return;
+    }
 
     const timeoutId = setTimeout(async () => {
       try {
+        console.log('Auto-saving game state...', players);
         await saveGame(players);
-        console.log('Game state auto-saved');
+        console.log('Game state auto-saved successfully');
       } catch (error) {
         console.error('Failed to auto-save game state:', error);
       }
     }, 2000); // Debounce for 2 seconds
 
     return () => clearTimeout(timeoutId);
-  }, [players, saveGame, isAuthenticated, isLoadingGameState]);
+  }, [players, saveGame, isAuthenticated, isLoadingGameState, hasDataLoaded]);
+
+  // Set hasDataLoaded to true after initial load is complete
+  useEffect(() => {
+    if (!isLoadingGameState && !hasDataLoaded) {
+      setHasDataLoaded(true);
+    }
+  }, [isLoadingGameState, hasDataLoaded]);
 
   const handleQuestionSelect = (category: string, points: number) => {
     const question = questions.find(q => q.category === category && q.points === points);
@@ -141,6 +163,7 @@ const Index = () => {
 
   const handleSaveGame = async () => {
     try {
+      console.log('Manual save triggered');
       await saveGame(players);
     } catch (error) {
       console.error('Failed to save game:', error);
