@@ -3,6 +3,7 @@
 let voicesInitialized = false;
 let currentAudio: HTMLAudioElement | null = null;
 let isApiReady = false;
+let preloadedAudioCache = new Map<string, string>();
 
 // Pre-initialize the speech system
 export const initializeSpeechSystem = async () => {
@@ -59,14 +60,17 @@ export const initializeSpeechSystem = async () => {
   }
 };
 
-export const speakWithElevenLabs = async (text: string): Promise<void> => {
+// Preload audio for faster playback
+export const preloadAudio = async (text: string): Promise<string | null> => {
   const apiKey = localStorage.getItem('elevenlabs_api_key');
   const voiceId = localStorage.getItem('selected_voice');
 
-  if (!apiKey || !voiceId) {
-    // Fallback to browser speech synthesis
-    speakWithBrowser(text);
-    return;
+  if (!apiKey || !voiceId) return null;
+
+  // Check cache first
+  const cacheKey = `${text}_${voiceId}`;
+  if (preloadedAudioCache.has(cacheKey)) {
+    return preloadedAudioCache.get(cacheKey)!;
   }
 
   try {
@@ -89,12 +93,62 @@ export const speakWithElevenLabs = async (text: string): Promise<void> => {
       })
     });
 
-    if (!response.ok) {
-      throw new Error('ElevenLabs API request failed');
+    if (response.ok) {
+      const audioBlob = await response.blob();
+      const audioUrl = URL.createObjectURL(audioBlob);
+      preloadedAudioCache.set(cacheKey, audioUrl);
+      return audioUrl;
     }
+  } catch (error) {
+    console.error('Preload error:', error);
+  }
 
-    const audioBlob = await response.blob();
-    const audioUrl = URL.createObjectURL(audioBlob);
+  return null;
+};
+
+export const speakWithElevenLabs = async (text: string): Promise<void> => {
+  const apiKey = localStorage.getItem('elevenlabs_api_key');
+  const voiceId = localStorage.getItem('selected_voice');
+
+  if (!apiKey || !voiceId) {
+    // Fallback to browser speech synthesis
+    speakWithBrowser(text);
+    return;
+  }
+
+  try {
+    // Check if we have preloaded audio
+    const cacheKey = `${text}_${voiceId}`;
+    let audioUrl = preloadedAudioCache.get(cacheKey);
+
+    if (!audioUrl) {
+      // Generate audio on demand
+      const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
+        method: 'POST',
+        headers: {
+          'Accept': 'audio/mpeg',
+          'Content-Type': 'application/json',
+          'xi-api-key': apiKey
+        },
+        body: JSON.stringify({
+          text: text,
+          model_id: "eleven_multilingual_v2",
+          voice_settings: {
+            stability: 0.5,
+            similarity_boost: 0.5,
+            style: 0.5,
+            use_speaker_boost: true
+          }
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('ElevenLabs API request failed');
+      }
+
+      const audioBlob = await response.blob();
+      audioUrl = URL.createObjectURL(audioBlob);
+    }
     
     // Stop any current audio
     if (currentAudio) {
@@ -105,12 +159,16 @@ export const speakWithElevenLabs = async (text: string): Promise<void> => {
     currentAudio = new Audio(audioUrl);
     
     currentAudio.onended = () => {
-      URL.revokeObjectURL(audioUrl);
+      if (!preloadedAudioCache.has(cacheKey)) {
+        URL.revokeObjectURL(audioUrl!);
+      }
       currentAudio = null;
     };
     
     currentAudio.onerror = () => {
-      URL.revokeObjectURL(audioUrl);
+      if (!preloadedAudioCache.has(cacheKey)) {
+        URL.revokeObjectURL(audioUrl!);
+      }
       currentAudio = null;
     };
     

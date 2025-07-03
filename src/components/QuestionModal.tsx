@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Question, Player } from '../types/game';
 import { Button } from '../components/ui/button';
-import { speakWithElevenLabs, stopCurrentSpeech, initializeSpeechSystem } from '../utils/textToSpeech';
+import { speakWithElevenLabs, stopCurrentSpeech, initializeSpeechSystem, preloadAudio } from '../utils/textToSpeech';
 import ModalHeader from './ModalHeader';
 import QuestionContent from './QuestionContent';
 import AnswerContent from './AnswerContent';
@@ -56,7 +56,7 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
   };
 
   useEffect(() => {
-    // Initialize speech system and auto-play question immediately
+    // Initialize speech system and preload audio, then auto-play question immediately
     const initAndPlay = async () => {
       if (!hasAutoPlayedRef.current) {
         hasAutoPlayedRef.current = true;
@@ -64,7 +64,11 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
         // Initialize speech system
         await initializeSpeechSystem();
         
-        // Start speaking immediately
+        // Preload both question and answer audio
+        preloadAudio(question.question);
+        preloadAudio(question.answer);
+        
+        // Start speaking question immediately
         setIsSpeaking(true);
         setCurrentSpeech('question');
         
@@ -85,7 +89,7 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
       // Clean up any ongoing speech when component unmounts
       stopCurrentSpeech();
     };
-  }, [question.question]);
+  }, [question.question, question.answer]);
 
   const handleShowAnswer = async () => {
     setShowAnswer(true);

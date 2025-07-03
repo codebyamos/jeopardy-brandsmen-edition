@@ -24,7 +24,7 @@ const VoiceControl: React.FC<VoiceControlProps> = ({
 
   return (
     <div className="flex items-center justify-center gap-2 mb-4 sm:mb-6">
-      {!isSpeaking && (
+      {!isCurrentlyPlaying && (
         <Button
           onClick={() => onSpeak(text, type)}
           variant="ghost"
