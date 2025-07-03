@@ -41,6 +41,7 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
     // Create new controller for this speech
     speechControllerRef.current = new AbortController();
     
+    // Set speaking state immediately
     setIsSpeaking(true);
     setCurrentSpeech(type);
     
@@ -69,9 +70,10 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
   };
 
   useEffect(() => {
-    // Auto-read the question when modal opens (only once)
+    // Auto-read the question immediately when modal opens
     if (!hasAutoPlayedRef.current) {
       hasAutoPlayedRef.current = true;
+      // Start speaking immediately without any delay
       speakText(question.question, 'question');
     }
     
@@ -84,7 +86,7 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
         window.speechSynthesis.cancel();
       }
     };
-  }, [question.question]);
+  }, []);
 
   const handleShowAnswer = () => {
     setShowAnswer(true);
