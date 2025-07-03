@@ -35,17 +35,17 @@
     --sidebar-ring: 217.2 91.2% 59.8%;
 
     /* Theme colors - Default (can be overridden) */
-    --theme-primary: #fa1e4e;
-    --theme-secondary: #1c1726;
-    --theme-background: linear-gradient(135deg, #000000, #374151);
-    --theme-board-background: linear-gradient(135deg, #000000cc, #374151cc);
-    --theme-category-header: #1c1726;
-    --theme-question-item: #fa1e4e;
-    --theme-question-item-hover: #dc1a44;
+    --theme-primary: #4A90A4;
+    --theme-secondary: #2C5F6F;
+    --theme-background: linear-gradient(135deg, #87CEEB, #4A90A4);
+    --theme-board-background: linear-gradient(135deg, #87CEEBcc, #4A90A4cc);
+    --theme-category-header: #2C5F6F;
+    --theme-question-item: #4A90A4;
+    --theme-question-item-hover: #3a7a8a;
     --theme-text: #ffffff;
     --theme-button-text: #ffffff;
-    --theme-accent: #ff4d6d;
-    --theme-muted: #6b7280;
+    --theme-accent: #6badbe;
+    --theme-muted: #244955;
     --theme-background-image: none;
   }
 
@@ -105,7 +105,11 @@
     background-attachment: fixed;
     opacity: 0.15;
     z-index: -1;
-    display: var(--theme-background-image) != none ? block : none;
+    display: block;
+  }
+
+  body[data-no-background]::before {
+    display: none;
   }
 
   /* Fix button text visibility */
@@ -178,5 +182,27 @@
   .hover\:bg-blue-700:hover {
     background-color: #1d4ed8 !important;
     color: white !important;
+  }
+
+  /* Scoring modal button fixes */
+  .bg-slate-600 {
+    background-color: var(--theme-secondary) !important;
+    color: var(--theme-button-text) !important;
+  }
+
+  .hover\:bg-slate-700:hover {
+    background-color: var(--theme-muted) !important;
+    color: var(--theme-button-text) !important;
+  }
+
+  /* Button group fixes */
+  .bg-zinc-700, .bg-zinc-800 {
+    background-color: var(--theme-secondary) !important;
+    color: var(--theme-button-text) !important;
+  }
+
+  .hover\:bg-zinc-600:hover, .hover\:bg-zinc-700:hover {
+    background-color: var(--theme-question-item-hover) !important;
+    color: var(--theme-button-text) !important;
   }
 }
