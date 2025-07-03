@@ -50,14 +50,14 @@ export const useVoiceSettings = () => {
         if (data.selected_voice) {
           localStorage.setItem('selected_voice', data.selected_voice);
         }
-        if (data.voice_enabled !== undefined) {
-          localStorage.setItem('voice_enabled', data.voice_enabled.toString());
-        }
+        // Handle voice_enabled with fallback for backward compatibility
+        const voiceEnabled = data.voice_enabled !== undefined ? data.voice_enabled : true;
+        localStorage.setItem('voice_enabled', voiceEnabled.toString());
         
         setSettings({
           apiKey: data.api_key || localApiKey,
           selectedVoice: data.selected_voice || localVoice,
-          isVoiceEnabled: data.voice_enabled !== false
+          isVoiceEnabled: voiceEnabled
         });
       }
     } catch (error) {

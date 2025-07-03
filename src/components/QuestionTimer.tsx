@@ -6,12 +6,20 @@ import { Timer, Play, Pause, Square } from 'lucide-react';
 interface QuestionTimerProps {
   duration: number;
   onTimeUp?: () => void;
+  isVisible?: boolean;
 }
 
-const QuestionTimer: React.FC<QuestionTimerProps> = ({ duration, onTimeUp }) => {
+const QuestionTimer: React.FC<QuestionTimerProps> = ({ duration, onTimeUp, isVisible = true }) => {
   const [timeLeft, setTimeLeft] = useState(duration);
   const [isRunning, setIsRunning] = useState(false);
   const [isFinished, setIsFinished] = useState(false);
+
+  // Reset timer when duration changes
+  useEffect(() => {
+    setTimeLeft(duration);
+    setIsRunning(false);
+    setIsFinished(false);
+  }, [duration]);
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -56,9 +64,11 @@ const QuestionTimer: React.FC<QuestionTimerProps> = ({ duration, onTimeUp }) => 
 
   const getTimerColor = () => {
     if (isFinished) return 'text-red-500';
-    if (timeLeft <= 10) return 'text-yellow-500';
+    if (timeLeft <= 10) return 'text-orange-500';
     return 'text-white';
   };
+
+  if (!isVisible) return null;
 
   return (
     <div className="flex items-center gap-3 bg-gray-800 rounded-lg p-3 border border-gray-600">
@@ -80,7 +90,7 @@ const QuestionTimer: React.FC<QuestionTimerProps> = ({ duration, onTimeUp }) => 
           <Button
             onClick={pauseTimer}
             size="sm"
-            className="bg-yellow-600 hover:bg-yellow-700 text-white"
+            className="bg-orange-600 hover:bg-orange-700 text-white"
           >
             <Pause className="w-4 h-4" />
           </Button>
