@@ -16,6 +16,12 @@ const isVoiceEnabled = () => {
   return localStorage.getItem('voice_enabled') !== 'false';
 };
 
+const hasValidApiCredentials = () => {
+  const apiKey = localStorage.getItem('elevenlabs_api_key');
+  const voiceId = localStorage.getItem('selected_voice');
+  return !!(apiKey && voiceId);
+};
+
 // Set callback for speech completion
 export const setSpeechCompleteCallback = (callback: (() => void) | null) => {
   onSpeechComplete = callback;
@@ -36,10 +42,19 @@ export const initializeSpeechSystem = async () => {
 const initializeApi = async () => {
   if (isApiReady) return;
   
-  // Try to initialize ElevenLabs API
-  const elevenLabsReady = await initializeElevenLabsApi();
-  if (elevenLabsReady) {
-    isApiReady = true;
+  // Only try to initialize ElevenLabs API if we have credentials
+  if (hasValidApiCredentials()) {
+    try {
+      const elevenLabsReady = await initializeElevenLabsApi();
+      if (elevenLabsReady) {
+        isApiReady = true;
+        console.log('ElevenLabs API initialized successfully');
+      }
+    } catch (error) {
+      console.warn('ElevenLabs API initialization failed, will use browser speech:', error);
+    }
+  } else {
+    console.log('No ElevenLabs credentials found, using browser speech only');
   }
   
   // Initialize browser speech in parallel
@@ -48,8 +63,8 @@ const initializeApi = async () => {
 
 // Preload audio for faster playback
 export const preloadAudio = async (text: string): Promise<string | null> => {
-  if (!isVoiceEnabled()) return null;
-  
+  if (!isVoiceEnabled() || !hasValidApiCredentials()) return null;
+
   const apiKey = localStorage.getItem('elevenlabs_api_key');
   const voiceId = localStorage.getItem('selected_voice');
 
@@ -64,7 +79,7 @@ export const preloadAudio = async (text: string): Promise<string | null> => {
   try {
     return await generateElevenLabsAudio(text, voiceId, apiKey, false);
   } catch (error) {
-    console.error('Preload error:', error);
+    console.warn('Preload failed, will generate on demand or use browser speech:', error);
     return null;
   }
 };
@@ -72,16 +87,24 @@ export const preloadAudio = async (text: string): Promise<string | null> => {
 export const speakWithElevenLabs = async (text: string): Promise<void> => {
   if (!isVoiceEnabled()) return;
   
-  const apiKey = localStorage.getItem('elevenlabs_api_key');
-  const voiceId = localStorage.getItem('selected_voice');
-
-  if (!apiKey || !voiceId) {
+  // Check if we have valid credentials before attempting ElevenLabs
+  if (!hasValidApiCredentials()) {
+    console.log('No valid ElevenLabs credentials, falling back to browser speech');
     speakWithBrowser(text);
+    // Simulate completion callback for browser speech
+    setTimeout(() => {
+      if (onSpeechComplete) {
+        onSpeechComplete();
+      }
+    }, text.length * 50); // Rough estimate based on text length
     return;
   }
 
+  const apiKey = localStorage.getItem('elevenlabs_api_key');
+  const voiceId = localStorage.getItem('selected_voice');
+
   try {
-    const audioUrl = await generateElevenLabsAudio(text, voiceId, apiKey, true);
+    const audioUrl = await generateElevenLabsAudio(text, voiceId!, apiKey!, true);
     
     // Stop any current audio
     if (currentAudio) {
@@ -99,7 +122,7 @@ export const speakWithElevenLabs = async (text: string): Promise<void> => {
       }
 
       currentAudio.onended = () => {
-        console.log('Audio playback completed');
+        console.log('ElevenLabs audio playback completed');
         currentAudio = null;
         // Notify parent component that speech is complete
         if (onSpeechComplete) {
@@ -109,7 +132,7 @@ export const speakWithElevenLabs = async (text: string): Promise<void> => {
       };
       
       currentAudio.onerror = (error) => {
-        console.error('Audio playback error:', error);
+        console.error('ElevenLabs audio playback error:', error);
         currentAudio = null;
         // Notify parent component that speech failed/stopped
         if (onSpeechComplete) {
@@ -120,7 +143,7 @@ export const speakWithElevenLabs = async (text: string): Promise<void> => {
       
       // Start playing
       currentAudio.play().catch((error) => {
-        console.error('Audio play error:', error);
+        console.error('ElevenLabs audio play error:', error);
         currentAudio = null;
         if (onSpeechComplete) {
           onSpeechComplete();
@@ -130,8 +153,14 @@ export const speakWithElevenLabs = async (text: string): Promise<void> => {
     });
     
   } catch (error) {
-    console.error('ElevenLabs TTS error:', error);
+    console.warn('ElevenLabs TTS failed, falling back to browser speech:', error);
     speakWithBrowser(text);
+    // Simulate completion callback for browser speech fallback
+    setTimeout(() => {
+      if (onSpeechComplete) {
+        onSpeechComplete();
+      }
+    }, text.length * 50); // Rough estimate based on text length
     throw error;
   }
 };
@@ -140,10 +169,11 @@ export const stopCurrentSpeech = () => {
   if (currentAudio) {
     currentAudio.pause();
     currentAudio = null;
-    // Notify parent component that speech was stopped
-    if (onSpeechComplete) {
-      onSpeechComplete();
-    }
   }
   stopBrowserSpeech();
+  
+  // Always notify completion when stopping
+  if (onSpeechComplete) {
+    onSpeechComplete();
+  }
 };

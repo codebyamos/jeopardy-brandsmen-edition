@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Question, Player } from '../types/game';
 import { speakWithElevenLabs, stopCurrentSpeech, initializeSpeechSystem, preloadAudio, setSpeechCompleteCallback } from '../utils/textToSpeech';
@@ -67,9 +66,8 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
       console.log(`Speech completed for ${type}`);
     } catch (error) {
       console.error('Speech error:', error);
-      // Reset state on error
-      setIsSpeaking(false);
-      setCurrentSpeech(null);
+      // Don't reset state here - let the completion callback handle it
+      // This prevents premature state reset when falling back to browser speech
     }
   };
 
@@ -87,33 +85,28 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
         
         console.log('Initializing speech system and auto-playing question');
         
-        // Initialize speech system
-        await initializeSpeechSystem();
-        
-        // Preload both question and answer audio in parallel
-        const preloadPromises = [
-          preloadAudio(question.question),
-          preloadAudio(question.answer)
-        ];
-        
-        // Start preloading but don't wait for it to complete
-        Promise.all(preloadPromises).catch(error => {
-          console.log('Preloading failed, will generate on demand:', error);
-        });
-        
-        // Start speaking question immediately without waiting for preloading
-        console.log('Auto-playing question');
-        setIsSpeaking(true);
-        setCurrentSpeech('question');
-        
         try {
+          // Initialize speech system
+          await initializeSpeechSystem();
+          
+          // Preload both question and answer audio in parallel (but don't wait)
+          preloadAudio(question.question).catch(error => {
+            console.log('Question preload failed:', error);
+          });
+          preloadAudio(question.answer).catch(error => {
+            console.log('Answer preload failed:', error);
+          });
+          
+          // Start speaking question immediately
+          console.log('Auto-playing question');
+          setIsSpeaking(true);
+          setCurrentSpeech('question');
+          
           await speakWithElevenLabs(question.question);
-          console.log('Auto-play question completed via promise resolution');
+          console.log('Auto-play question completed');
         } catch (error) {
-          console.error('Auto-play speech error:', error);
-          // Reset state on error
-          setIsSpeaking(false);
-          setCurrentSpeech(null);
+          console.error('Auto-play initialization/speech error:', error);
+          // Don't reset state here - let the completion callback handle it
         }
       }
     };
@@ -138,12 +131,10 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
       
       try {
         await speakWithElevenLabs(question.answer);
-        console.log('Auto-play answer completed via promise resolution');
+        console.log('Auto-play answer completed');
       } catch (error) {
         console.error('Auto-play answer error:', error);
-        // Reset state on error
-        setIsSpeaking(false);
-        setCurrentSpeech(null);
+        // Don't reset state here - let the completion callback handle it
       }
     }
   };
