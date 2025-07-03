@@ -370,7 +370,7 @@ const ThemeSettings: React.FC<ThemeSettingsProps> = ({ isVisible, onClose }) => 
                   <label className="block text-sm font-medium text-gray-300">
                     Background Opacity
                   </label>
-                  <p className="text-xs text-gray-400">Adjust transparency of gradient backgrounds</p>
+                  <p className="text-xs text-gray-400">Adjust transparency of gradient backgrounds (0% = fully transparent)</p>
                 </div>
                 <span className="text-sm text-gray-300 font-mono">
                   {Math.round(tempTheme.opacity * 100)}%
@@ -380,7 +380,7 @@ const ThemeSettings: React.FC<ThemeSettingsProps> = ({ isVisible, onClose }) => 
                 value={[tempTheme.opacity]}
                 onValueChange={(value) => handleColorChange('opacity', value[0])}
                 max={1}
-                min={0.1}
+                min={0}
                 step={0.1}
                 className="w-full"
               />

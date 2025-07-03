@@ -90,7 +90,7 @@
     position: relative;
   }
 
-  /* Background image overlay - now configurable */
+  /* Background image overlay - now configurable with full transparency support */
   body::before {
     content: '';
     position: fixed;
@@ -112,26 +112,7 @@
     display: none;
   }
 
-  /* Fix button text visibility */
-  .bg-gray-700, .bg-gray-800, .bg-gray-600 {
-    background: var(--theme-secondary) !important;
-    color: var(--theme-button-text) !important;
-  }
-
-  .hover\:bg-gray-600:hover, .hover\:bg-gray-700:hover, .hover\:bg-gray-800:hover {
-    background: var(--theme-question-item-hover) !important;
-    color: var(--theme-button-text) !important;
-  }
-
-  .text-gray-300, .text-gray-400 {
-    color: var(--theme-button-text) !important;
-  }
-
-  .border-gray-600, .border-gray-700 {
-    border-color: var(--theme-muted) !important;
-  }
-
-  /* Ensure all buttons have proper contrast */
+  /* Fix ALL button text visibility - comprehensive button styling */
   button {
     color: var(--theme-button-text) !important;
   }
@@ -140,69 +121,113 @@
     color: var(--theme-button-text) !important;
   }
 
-  /* Fix specific button variants */
-  .bg-green-600 {
+  /* Gray button variants */
+  .bg-gray-700, .bg-gray-800, .bg-gray-600, .bg-gray-900 {
+    background: var(--theme-secondary) !important;
+    color: var(--theme-button-text) !important;
+  }
+
+  .hover\:bg-gray-600:hover, .hover\:bg-gray-700:hover, .hover\:bg-gray-800:hover, .hover\:bg-gray-900:hover {
+    background: var(--theme-question-item-hover) !important;
+    color: var(--theme-button-text) !important;
+  }
+
+  /* Text color fixes */
+  .text-gray-300, .text-gray-400, .text-gray-200, .text-gray-100 {
+    color: var(--theme-button-text) !important;
+  }
+
+  /* Border color fixes */
+  .border-gray-600, .border-gray-700, .border-gray-500 {
+    border-color: var(--theme-muted) !important;
+  }
+
+  /* Green button variants */
+  .bg-green-600, .bg-green-500 {
     background-color: #16a34a !important;
     color: white !important;
   }
 
-  .bg-red-600 {
-    background-color: #dc2626 !important;
-    color: white !important;
-  }
-
-  .hover\:bg-green-700:hover {
+  .hover\:bg-green-700:hover, .hover\:bg-green-600:hover {
     background-color: #15803d !important;
     color: white !important;
   }
 
-  .hover\:bg-red-700:hover {
+  /* Red button variants */
+  .bg-red-600, .bg-red-500 {
+    background-color: #dc2626 !important;
+    color: white !important;
+  }
+
+  .hover\:bg-red-700:hover, .hover\:bg-red-600:hover {
     background-color: #b91c1c !important;
     color: white !important;
   }
 
-  /* Settings menu buttons */
-  .bg-teal-600, .bg-teal-700 {
+  /* Teal/Settings menu buttons */
+  .bg-teal-600, .bg-teal-700, .bg-teal-800 {
     background-color: var(--theme-primary) !important;
     color: var(--theme-button-text) !important;
     border-color: var(--theme-accent) !important;
   }
 
-  .hover\:bg-teal-700:hover, .hover\:bg-teal-800:hover {
+  .hover\:bg-teal-700:hover, .hover\:bg-teal-800:hover, .hover\:bg-teal-600:hover {
     background-color: var(--theme-question-item-hover) !important;
     color: var(--theme-button-text) !important;
   }
 
-  /* Blue button variants for theme settings */
-  .bg-blue-600 {
+  /* Blue button variants */
+  .bg-blue-600, .bg-blue-500 {
     background-color: #2563eb !important;
     color: white !important;
   }
 
-  .hover\:bg-blue-700:hover {
+  .hover\:bg-blue-700:hover, .hover\:bg-blue-600:hover {
     background-color: #1d4ed8 !important;
     color: white !important;
   }
 
-  /* Scoring modal button fixes */
-  .bg-slate-600 {
+  /* Slate button variants (scoring modal) */
+  .bg-slate-600, .bg-slate-700, .bg-slate-800 {
     background-color: var(--theme-secondary) !important;
     color: var(--theme-button-text) !important;
   }
 
-  .hover\:bg-slate-700:hover {
+  .hover\:bg-slate-700:hover, .hover\:bg-slate-600:hover, .hover\:bg-slate-800:hover {
     background-color: var(--theme-muted) !important;
     color: var(--theme-button-text) !important;
   }
 
-  /* Button group fixes */
-  .bg-zinc-700, .bg-zinc-800 {
+  /* Zinc button variants */
+  .bg-zinc-700, .bg-zinc-800, .bg-zinc-600 {
     background-color: var(--theme-secondary) !important;
     color: var(--theme-button-text) !important;
   }
 
-  .hover\:bg-zinc-600:hover, .hover\:bg-zinc-700:hover {
+  .hover\:bg-zinc-600:hover, .hover\:bg-zinc-700:hover, .hover\:bg-zinc-800:hover {
     background-color: var(--theme-question-item-hover) !important;
     color: var(--theme-button-text) !important;
+  }
+
+  /* Outline button variants */
+  .border-gray-600, .border-gray-700, .border-gray-500 {
+    border-color: var(--theme-muted) !important;
+  }
+
+  /* Additional button background fixes */
+  .bg-yellow-400 {
+    background-color: var(--theme-primary) !important;
+    color: var(--theme-text) !important;
+  }
+
+  /* Ensure dialog and modal backgrounds are properly styled */
+  .bg-gray-900 {
+    background-color: var(--theme-secondary) !important;
+    color: var(--theme-text) !important;
+  }
+
+  .bg-gray-800 {
+    background-color: var(--theme-muted) !important;
+    color: var(--theme-text) !important;
   }
 }

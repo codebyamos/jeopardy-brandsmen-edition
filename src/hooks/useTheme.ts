@@ -17,10 +17,10 @@ const defaultTheme: ThemeColors = {
   opacity: 0.8
 };
 
-// Brandsmen theme colors from the website
+// Brandsmen theme colors - updated for white grid items with dark green text
 const brandsmenTheme: ThemeColors = {
-  primaryColor: '#4A90A4',
-  secondaryColor: '#2C5F6F',
+  primaryColor: '#ffffff', // White for grid items
+  secondaryColor: '#2C5F6F', // Dark teal for headers
   gradientStart: '#87CEEB',
   gradientEnd: '#4A90A4',
   opacity: 0.9
@@ -53,6 +53,9 @@ const generateThemeVariations = (theme: ThemeColors) => {
       (B > 255 ? 255 : B < 0 ? 0 : B)).toString(16).slice(1);
   };
 
+  // Special handling for Brandsmen theme
+  const isBrandsmenTheme = primaryColor === '#ffffff' && secondaryColor === '#2C5F6F';
+  
   return {
     primary: primaryColor,
     secondary: secondaryColor,
@@ -60,10 +63,10 @@ const generateThemeVariations = (theme: ThemeColors) => {
     boardBackground: `linear-gradient(135deg, ${gradientStart}${Math.round(opacity * 255).toString(16).padStart(2, '0')}, ${gradientEnd}${Math.round(opacity * 255).toString(16).padStart(2, '0')})`,
     categoryHeader: secondaryColor,
     questionItem: primaryColor,
-    questionItemHover: darkenColor(primaryColor, 20),
-    text: '#ffffff',
-    buttonText: '#ffffff',
-    accent: lightenColor(primaryColor, 20),
+    questionItemHover: isBrandsmenTheme ? '#f0f0f0' : darkenColor(primaryColor, 20),
+    text: isBrandsmenTheme ? '#2C5F6F' : '#ffffff', // Dark green text for Brandsmen theme
+    buttonText: isBrandsmenTheme ? '#2C5F6F' : '#ffffff', // Dark green button text for Brandsmen theme
+    accent: lightenColor(primaryColor === '#ffffff' ? secondaryColor : primaryColor, 20),
     muted: darkenColor(secondaryColor, 10)
   };
 };
