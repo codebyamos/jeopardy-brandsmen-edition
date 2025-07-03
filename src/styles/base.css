@@ -115,7 +115,40 @@
     display: none;
   }
 
-  /* Universal button styling with comprehensive contrast fixes */
+  /* ===== UNIVERSAL MODAL STYLING ===== */
+  /* All modals get theme-aware styling */
+  [data-radix-dialog-content], 
+  .modal-content, 
+  .bg-gray-900[role="dialog"],
+  .bg-gray-800[role="dialog"] {
+    background-color: var(--theme-secondary) !important;
+    color: var(--theme-text) !important;
+    border-color: var(--theme-muted) !important;
+  }
+
+  /* All modal text uses theme text color */
+  [data-radix-dialog-content] *,
+  .modal-content *,
+  [role="dialog"] * {
+    color: var(--theme-text) !important;
+  }
+
+  /* Modal headers and titles */
+  [data-radix-dialog-content] [data-radix-dialog-title],
+  [data-radix-dialog-content] h1,
+  [data-radix-dialog-content] h2,
+  [data-radix-dialog-content] h3,
+  [data-radix-dialog-content] h4,
+  .modal-content h1,
+  .modal-content h2,
+  .modal-content h3,
+  .modal-content h4 {
+    color: var(--theme-accent) !important;
+  }
+
+  /* ===== UNIVERSAL BUTTON STYLING ===== */
+  
+  /* Default button text color */
   button {
     color: var(--theme-button-text) !important;
   }
@@ -124,72 +157,180 @@
     color: var(--theme-button-text) !important;
   }
 
-  /* White button special handling for text contrast */
-  .bg-white button, button.bg-white, 
+  /* Force visibility for all button content */
+  button span, 
+  button div, 
+  button p,
+  button svg {
+    color: inherit !important;
+  }
+
+  /* ===== WHITE BUTTON CONTRAST FIXES ===== */
+  /* White buttons need dark text for visibility */
+  .bg-white, 
+  button.bg-white,
   button[style*="background: white"], 
   button[style*="background-color: white"],
   button[style*="background: #ffffff"],
   button[style*="background:#ffffff"] {
     color: var(--theme-white-button-text) !important;
+    background-color: white !important;
   }
 
-  .bg-white:hover button, button.bg-white:hover,
+  .bg-white *, 
+  button.bg-white *,
+  button[style*="background: white"] *, 
+  button[style*="background-color: white"] *,
+  button[style*="background: #ffffff"] *,
+  button[style*="background:#ffffff"] * {
+    color: var(--theme-white-button-text) !important;
+  }
+
+  /* White button hover states */
+  .bg-white:hover, 
+  button.bg-white:hover,
   button[style*="background: white"]:hover, 
   button[style*="background-color: white"]:hover,
   button[style*="background: #ffffff"]:hover,
   button[style*="background:#ffffff"]:hover {
     color: var(--theme-white-button-text) !important;
+    background-color: #f0f0f0 !important;
   }
 
-  /* Modal backgrounds and button styling */
-  .bg-gray-900, [data-radix-dialog-content] {
-    background-color: var(--theme-secondary) !important;
-    color: var(--theme-text) !important;
-  }
-
-  .bg-gray-800 {
-    background-color: var(--theme-muted) !important;
-    color: var(--theme-text) !important;
-  }
-
-  /* Skip button specific styling */
-  .bg-gray-800 button, button.bg-gray-800 {
-    color: var(--theme-button-text) !important;
-  }
-
-  .bg-gray-800:hover button, button.bg-gray-800:hover {
-    color: var(--theme-button-text) !important;
-  }
-
-  /* Green button styling */
-  .bg-green-600, .bg-green-500, .bg-green-700 {
+  /* ===== COLORED BUTTON CONTRAST FIXES ===== */
+  
+  /* Green buttons */
+  .bg-green-600, .bg-green-500, .bg-green-700,
+  button.bg-green-600, button.bg-green-500, button.bg-green-700 {
     background-color: #16a34a !important;
     color: white !important;
   }
 
-  .bg-green-600 button, .bg-green-500 button, .bg-green-700 button,
-  button.bg-green-600, button.bg-green-500, button.bg-green-700 {
+  .bg-green-600 *, .bg-green-500 *, .bg-green-700 *,
+  button.bg-green-600 *, button.bg-green-500 *, button.bg-green-700 * {
     color: white !important;
   }
 
-  .hover\:bg-green-700:hover, .hover\:bg-green-600:hover {
-    background-color: #15803d !important;
-    color: white !important;
-  }
-
-  .hover\:bg-green-700:hover button, .hover\:bg-green-600:hover button,
-  button.hover\:bg-green-700:hover, button.hover\:bg-green-600:hover {
-    color: white !important;
-  }
-
-  /* Red button styling */
-  .bg-red-600, .bg-red-500, .bg-red-700 {
+  /* Red buttons */
+  .bg-red-600, .bg-red-500, .bg-red-700,
+  button.bg-red-600, button.bg-red-500, button.bg-red-700 {
     background-color: #dc2626 !important;
     color: white !important;
   }
 
-  .bg-red-600 button, .bg-red-500 button, .bg-red-700 button,
-  button.bg-red-600, button.bg-red-500, button.bg-red-700 {
+  .bg-red-600 *, .bg-red-500 *, .bg-red-700 *,
+  button.bg-red-600 *, button.bg-red-500 *, button.bg-red-700 * {
+    color: white !important;
+  }
+
+  /* Blue buttons */
+  .bg-blue-600, .bg-blue-500, .bg-blue-700,
+  button.bg-blue-600, button.bg-blue-500, button.bg-blue-700 {
+    background-color: #2563eb !important;
+    color: white !important;
+  }
+
+  .bg-blue-600 *, .bg-blue-500 *, .bg-blue-700 *,
+  button.bg-blue-600 *, button.bg-blue-500 *, button.bg-blue-700 * {
+    color: white !important;
+  }
+
+  /* Purple buttons */
+  .bg-purple-600, .bg-purple-500, .bg-purple-700,
+  button.bg-purple-600, button.bg-purple-500, button.bg-purple-700 {
+    background-color: #9333ea !important;
+    color: white !important;
+  }
+
+  .bg-purple-600 *, .bg-purple-500 *, .bg-purple-700 *,
+  button.bg-purple-600 *, button.bg-purple-500 *, button.bg-purple-700 * {
+    color: white !important;
+  }
+
+  /* Yellow/Orange buttons */
+  .bg-yellow-600, .bg-yellow-500, .bg-yellow-700,
+  .bg-orange-600, .bg-orange-500, .bg-orange-700,
+  button.bg-yellow-600, button.bg-yellow-500, button.bg-yellow-700,
+  button.bg-orange-600, button.bg-orange-500, button.bg-orange-700 {
+    color: black !important;
+  }
+
+  .bg-yellow-600 *, .bg-yellow-500 *, .bg-yellow-700 *,
+  .bg-orange-600 *, .bg-orange-500 *, .bg-orange-700 *,
+  button.bg-yellow-600 *, button.bg-yellow-500 *, button.bg-yellow-700 *,
+  button.bg-orange-600 *, button.bg-orange-500 *, button.bg-orange-700 * {
+    color: black !important;
+  }
+
+  /* ===== THEME-AWARE BUTTON COLORS ===== */
+  
+  /* Gray/Theme buttons use theme colors */
+  .bg-gray-900, .bg-gray-800, .bg-gray-700, .bg-gray-600,
+  button.bg-gray-900, button.bg-gray-800, button.bg-gray-700, button.bg-gray-600 {
+    background-color: var(--theme-secondary) !important;
+    color: var(--theme-button-text) !important;
+  }
+
+  .bg-gray-900 *, .bg-gray-800 *, .bg-gray-700 *, .bg-gray-600 *,
+  button.bg-gray-900 *, button.bg-gray-800 *, button.bg-gray-700 *, button.bg-gray-600 * {
+    color: var(--theme-button-text) !important;
+  }
+
+  /* Slate buttons */
+  .bg-slate-600, .bg-slate-700, .bg-slate-800,
+  button.bg-slate-600, button.bg-slate-700, button.bg-slate-800 {
+    background-color: var(--theme-secondary) !important;
+    color: var(--theme-button-text) !important;
+  }
+
+  .bg-slate-600 *, .bg-slate-700 *, .bg-slate-800 *,
+  button.bg-slate-600 *, button.bg-slate-700 *, button.bg-slate-800 * {
+    color: var(--theme-button-text) !important;
+  }
+
+  /* Teal/Theme primary buttons */
+  .bg-teal-600, .bg-teal-700, .bg-teal-800,
+  button.bg-teal-600, button.bg-teal-700, button.bg-teal-800 {
+    background-color: var(--theme-primary) !important;
+    color: var(--theme-button-text) !important;
+  }
+
+  .bg-teal-600 *, .bg-teal-700 *, .bg-teal-800 *,
+  button.bg-teal-600 *, button.bg-teal-700 *, button.bg-teal-800 * {
+    color: var(--theme-button-text) !important;
+  }
+
+  /* ===== OUTLINE BUTTON STYLING ===== */
+  
+  [variant="outline"], 
+  button[variant="outline"],
+  .border-gray-600,
+  .border-gray-700 {
+    background-color: transparent !important;
+    border: 1px solid var(--theme-muted) !important;
+    color: var(--theme-button-text) !important;
+  }
+
+  [variant="outline"]:hover, 
+  button[variant="outline"]:hover {
+    background-color: var(--theme-muted) !important;
+    color: var(--theme-button-text) !important;
+  }
+
+  /* ===== HOVER STATES ===== */
+  
+  /* Theme button hover states */
+  .hover\:bg-gray-600:hover, .hover\:bg-gray-700:hover, 
+  .hover\:bg-gray-800:hover, .hover\:bg-gray-900:hover,
+  .hover\:bg-slate-600:hover, .hover\:bg-slate-700:hover, .hover\:bg-slate-800:hover,
+  .hover\:bg-teal-600:hover, .hover\:bg-teal-700:hover, .hover\:bg-teal-800:hover {
+    background-color: var(--theme-question-item-hover) !important;
+    color: var(--theme-button-text) !important;
+  }
+
+  /* Colored button hover states */
+  .hover\:bg-green-700:hover, .hover\:bg-green-600:hover {
+    background-color: #15803d !important;
     color: white !important;
   }
 
@@ -198,224 +339,70 @@
     color: white !important;
   }
 
-  .hover\:bg-red-700:hover button, .hover\:bg-red-600:hover button,
-  button.hover\:bg-red-700:hover, button.hover\:bg-red-600:hover {
-    color: white !important;
-  }
-
-  /* Blue button styling */
-  .bg-blue-600, .bg-blue-500, .bg-blue-700 {
-    background-color: #2563eb !important;
-    color: white !important;
-  }
-
-  .bg-blue-600 button, .bg-blue-500 button, .bg-blue-700 button,
-  button.bg-blue-600, button.bg-blue-500, button.bg-blue-700 {
-    color: white !important;
-  }
-
   .hover\:bg-blue-700:hover, .hover\:bg-blue-600:hover {
     background-color: #1d4ed8 !important;
     color: white !important;
   }
 
-  /* Other colored button variants */
-  .bg-yellow-600, .bg-yellow-500, .bg-yellow-700,
-  .bg-purple-600, .bg-purple-500, .bg-purple-700,
-  .bg-pink-600, .bg-pink-500, .bg-pink-700,
-  .bg-indigo-600, .bg-indigo-500, .bg-indigo-700 {
-    color: white !important;
-  }
-
-  .bg-yellow-600 button, .bg-yellow-500 button, .bg-yellow-700 button,
-  .bg-purple-600 button, .bg-purple-500 button, .bg-purple-700 button,
-  .bg-pink-600 button, .bg-pink-500 button, .bg-pink-700 button,
-  .bg-indigo-600 button, .bg-indigo-500 button, .bg-indigo-700 button,
-  button.bg-yellow-600, button.bg-yellow-500, button.bg-yellow-700,
-  button.bg-purple-600, button.bg-purple-500, button.bg-purple-700,
-  button.bg-pink-600, button.bg-pink-500, button.bg-pink-700,
-  button.bg-indigo-600, button.bg-indigo-500, button.bg-indigo-700 {
-    color: white !important;
-  }
-
-  /* Gray button variants */
-  .bg-gray-700, .bg-gray-600, .bg-gray-900 {
-    background-color: var(--theme-secondary) !important;
-    color: var(--theme-button-text) !important;
-  }
-
-  .bg-gray-700 button, .bg-gray-600 button, .bg-gray-900 button,
-  button.bg-gray-700, button.bg-gray-600, button.bg-gray-900 {
-    color: var(--theme-button-text) !important;
-  }
-
-  .hover\:bg-gray-600:hover, .hover\:bg-gray-700:hover, .hover\:bg-gray-800:hover, .hover\:bg-gray-900:hover {
-    background-color: var(--theme-question-item-hover) !important;
-    color: var(--theme-button-text) !important;
-  }
-
-  .hover\:bg-gray-600:hover button, .hover\:bg-gray-700:hover button, 
-  .hover\:bg-gray-800:hover button, .hover\:bg-gray-900:hover button,
-  button.hover\:bg-gray-600:hover, button.hover\:bg-gray-700:hover, 
-  button.hover\:bg-gray-800:hover, button.hover\:bg-gray-900:hover {
-    color: var(--theme-button-text) !important;
-  }
-
-  /* Teal/Settings menu buttons */
-  .bg-teal-600, .bg-teal-700, .bg-teal-800 {
-    background-color: var(--theme-primary) !important;
-    color: var(--theme-button-text) !important;
-    border-color: var(--theme-accent) !important;
-  }
-
-  .bg-teal-600 button, .bg-teal-700 button, .bg-teal-800 button,
-  button.bg-teal-600, button.bg-teal-700, button.bg-teal-800 {
-    color: var(--theme-button-text) !important;
-  }
-
-  .hover\:bg-teal-700:hover, .hover\:bg-teal-800:hover, .hover\:bg-teal-600:hover {
-    background-color: var(--theme-question-item-hover) !important;
-    color: var(--theme-button-text) !important;
-  }
-
-  /* Slate button variants (scoring modal) */
-  .bg-slate-600, .bg-slate-700, .bg-slate-800 {
-    background-color: var(--theme-secondary) !important;
-    color: var(--theme-button-text) !important;
-  }
-
-  .bg-slate-600 button, .bg-slate-700 button, .bg-slate-800 button,
-  button.bg-slate-600, button.bg-slate-700, button.bg-slate-800 {
-    color: var(--theme-button-text) !important;
-  }
-
-  .hover\:bg-slate-700:hover, .hover\:bg-slate-600:hover, .hover\:bg-slate-800:hover {
-    background-color: var(--theme-muted) !important;
-    color: var(--theme-button-text) !important;
-  }
-
-  /* Zinc button variants */
-  .bg-zinc-700, .bg-zinc-800, .bg-zinc-600 {
-    background-color: var(--theme-secondary) !important;
-    color: var(--theme-button-text) !important;
-  }
-
-  .bg-zinc-700 button, .bg-zinc-800 button, .bg-zinc-600 button,
-  button.bg-zinc-700, button.bg-zinc-800, button.bg-zinc-600 {
-    color: var(--theme-button-text) !important;
-  }
-
-  .hover\:bg-zinc-600:hover, .hover\:bg-zinc-700:hover, .hover\:bg-zinc-800:hover {
-    background-color: var(--theme-question-item-hover) !important;
-    color: var(--theme-button-text) !important;
-  }
-
-  /* Outline button variants */
-  .border-gray-600, .border-gray-700, .border-gray-500 {
-    border-color: var(--theme-muted) !important;
-  }
-
-  /* Outline buttons with hover states */
-  [variant="outline"], button[variant="outline"] {
-    background-color: transparent !important;
-    border: 1px solid var(--theme-muted) !important;
-    color: var(--theme-button-text) !important;
-  }
-
-  [variant="outline"]:hover, button[variant="outline"]:hover {
-    background-color: var(--theme-muted) !important;
-    color: var(--theme-button-text) !important;
-  }
-
-  /* Text color fixes */
-  .text-gray-300, .text-gray-400, .text-gray-200, .text-gray-100 {
-    color: var(--theme-button-text) !important;
-  }
-
-  .text-white {
-    color: var(--theme-button-text) !important;
-  }
-
-  /* Ensure dialog and modal content uses theme colors */
-  [data-radix-dialog-content] {
-    background-color: var(--theme-secondary) !important;
-    color: var(--theme-text) !important;
-    border-color: var(--theme-muted) !important;
-  }
-
-  /* Ensure all modal text is visible */
-  [data-radix-dialog-content] * {
-    color: var(--theme-text) !important;
-  }
-
-  /* Override specific text colors in modals */
-  [data-radix-dialog-content] h1,
-  [data-radix-dialog-content] h2,
-  [data-radix-dialog-content] h3,
-  [data-radix-dialog-content] h4,
-  [data-radix-dialog-content] h5,
-  [data-radix-dialog-content] h6,
-  [data-radix-dialog-content] p,
-  [data-radix-dialog-content] span,
-  [data-radix-dialog-content] div {
-    color: var(--theme-text) !important;
-  }
-
-  /* Special handling for Brandsmen theme modals */
-  .questions-item[style*="background: #ffffff"],
-  .questions-item[style*="background: white"] {
-    color: var(--theme-white-button-text) !important;
-  }
-
-  .questions-item[style*="background: #ffffff"]:hover,
-  .questions-item[style*="background: white"]:hover {
-    color: var(--theme-white-button-text) !important;
-  }
-
-  /* Ensure proper contrast for all button states */
-  button[style*="background-color: white"], 
-  button[style*="background: white"],
-  button[style*="background: #ffffff"],
-  button[style*="background:#ffffff"] {
-    color: #2C5F6F !important;
-  }
-
-  button[style*="background-color: white"]:hover, 
-  button[style*="background: white"]:hover,
-  button[style*="background: #ffffff"]:hover,
-  button[style*="background:#ffffff"]:hover {
-    color: #2C5F6F !important;
-  }
-
-  /* Force visibility for all button text */
-  button span, button div, button p {
-    color: inherit !important;
-  }
-
-  /* Ensure close buttons are visible */
+  /* ===== SPECIAL CASES ===== */
+  
+  /* Close buttons and icon buttons */
   button[aria-label="Close"], 
   button:has(svg[aria-hidden="true"]) {
     color: var(--theme-button-text) !important;
   }
 
-  /* Modal header and title styling */
-  [data-radix-dialog-content] [data-radix-dialog-title] {
+  /* Input fields in modals */
+  [data-radix-dialog-content] input,
+  .modal-content input,
+  [role="dialog"] input {
+    background-color: var(--theme-muted) !important;
     color: var(--theme-text) !important;
+    border-color: var(--theme-accent) !important;
   }
 
-  /* Ensure all interactive elements are visible */
-  [role="dialog"] {
-    background-color: var(--theme-secondary) !important;
-    color: var(--theme-text) !important;
+  /* ===== BRANDSMEN THEME OVERRIDES ===== */
+  
+  /* Special handling for Brandsmen theme white elements */
+  .questions-item[style*="background: #ffffff"],
+  .questions-item[style*="background: white"] {
+    color: var(--theme-white-button-text) !important;
+    text-shadow: none !important;
   }
 
-  [role="dialog"] button {
+  .questions-item[style*="background: #ffffff"]:hover,
+  .questions-item[style*="background: white"]:hover {
+    color: var(--theme-white-button-text) !important;
+    text-shadow: none !important;
+  }
+
+  /* Ensure answered questions remain visible */
+  .questions-item.answered {
+    background: var(--theme-secondary) !important;
     color: var(--theme-button-text) !important;
   }
 
-  /* Additional modal content styling */
-  .modal-content, .modal-header, .modal-body, .modal-footer {
-    background-color: var(--theme-secondary) !important;
+  .questions-item.answered:hover {
+    background: var(--theme-muted) !important;
+    color: var(--theme-button-text) !important;
+  }
+
+  /* ===== TEXT VISIBILITY FIXES ===== */
+  
+  /* Force visibility of specific text elements */
+  .text-gray-300, .text-gray-400, .text-gray-200, .text-gray-100 {
+    color: var(--theme-text) !important;
+  }
+
+  .text-white {
+    color: var(--theme-text) !important;
+  }
+
+  /* Ensure all modal content is visible */
+  [data-radix-dialog-content] label,
+  [data-radix-dialog-content] p,
+  [data-radix-dialog-content] span,
+  [data-radix-dialog-content] div {
     color: var(--theme-text) !important;
   }
 }

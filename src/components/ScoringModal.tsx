@@ -38,7 +38,7 @@ const ScoringModal: React.FC<ScoringModalProps> = ({
       >
         <h3 
           className="text-lg sm:text-xl font-bold mb-3 text-center"
-          style={{ color: 'var(--theme-text)' }}
+          style={{ color: 'var(--theme-accent)' }}
         >
           Award Points
         </h3>
@@ -63,10 +63,6 @@ const ScoringModal: React.FC<ScoringModalProps> = ({
                   onClick={() => onScorePlayer(player.id, points)}
                   size="sm"
                   className="bg-green-600 hover:bg-green-700 font-medium text-xs px-3 py-2 border-0"
-                  style={{
-                    backgroundColor: '#16a34a',
-                    color: 'white'
-                  }}
                 >
                   +{points}
                 </Button>
@@ -74,10 +70,6 @@ const ScoringModal: React.FC<ScoringModalProps> = ({
                   onClick={() => onScorePlayer(player.id, -points)}
                   size="sm"
                   className="bg-red-600 hover:bg-red-700 font-medium text-xs px-3 py-2 border-0"
-                  style={{
-                    backgroundColor: '#dc2626',
-                    color: 'white'
-                  }}
                 >
                   -{points}
                 </Button>
@@ -91,11 +83,6 @@ const ScoringModal: React.FC<ScoringModalProps> = ({
             variant="outline"
             size="sm"
             className="text-sm font-medium"
-            style={{
-              backgroundColor: 'var(--theme-muted)',
-              color: 'var(--theme-button-text)',
-              borderColor: 'var(--theme-muted)'
-            }}
           >
             Skip
           </Button>
