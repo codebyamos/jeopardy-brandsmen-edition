@@ -1,7 +1,8 @@
-
 import React, { useState } from 'react';
 import { Button } from './ui/button';
 import { Plus, Edit2, Trash2, X, Check, Upload } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 interface Player {
   id: number;
@@ -27,6 +28,8 @@ const PlayerManager: React.FC<PlayerManagerProps> = ({
   const [editName, setEditName] = useState('');
   const [editingScoreId, setEditingScoreId] = useState<number | null>(null);
   const [editScore, setEditScore] = useState('');
+  const [uploadingAvatars, setUploadingAvatars] = useState<Set<number>>(new Set());
+  const { toast } = useToast();
 
   // Check if any player is currently being edited
   const isAnyPlayerBeingEdited = editingId !== null || editingScoreId !== null;
@@ -89,19 +92,77 @@ const PlayerManager: React.FC<PlayerManagerProps> = ({
     setEditScore('');
   };
 
-  const handleAvatarUpload = (playerId: number, event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAvatarUpload = async (playerId: number, event: React.ChangeEvent<HTMLInputElement>) => {
     if (isAnyPlayerBeingEdited) return; // Prevent avatar upload while editing
     
     const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const avatarUrl = e.target?.result as string;
-        onPlayersUpdate(players.map(p => 
-          p.id === playerId ? { ...p, avatar: avatarUrl } : p
-        ));
-      };
-      reader.readAsDataURL(file);
+    if (!file) return;
+
+    // Check file size (limit to 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: "File too large",
+        description: "Please select an image smaller than 5MB.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Check file type
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: "Invalid file type",
+        description: "Please select an image file.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setUploadingAvatars(prev => new Set([...prev, playerId]));
+
+    try {
+      // Create a unique filename
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${playerId}-${Date.now()}.${fileExt}`;
+
+      // Upload to Supabase storage
+      const { data, error } = await supabase.storage
+        .from('player-avatars')
+        .upload(fileName, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
+
+      if (error) throw error;
+
+      // Get the public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('player-avatars')
+        .getPublicUrl(fileName);
+
+      // Update player with new avatar URL
+      onPlayersUpdate(players.map(p => 
+        p.id === playerId ? { ...p, avatar: publicUrl } : p
+      ));
+
+      toast({
+        title: "Avatar uploaded!",
+        description: "Player avatar has been successfully updated.",
+      });
+
+    } catch (error) {
+      console.error('Error uploading avatar:', error);
+      toast({
+        title: "Upload failed",
+        description: "Failed to upload avatar. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setUploadingAvatars(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(playerId);
+        return newSet;
+      });
     }
   };
 
@@ -163,14 +224,18 @@ const PlayerManager: React.FC<PlayerManagerProps> = ({
                         <span className="text-gray-500 text-xs">No Image</span>
                       </div>
                     )}
-                    <label className={`absolute bottom-0 right-0 rounded-full p-1 hover:opacity-90 ${isAnyPlayerBeingEdited ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`} style={{ backgroundColor: '#2c5b69' }}>
-                      <Upload className="w-3 h-3 text-white" />
+                    <label className={`absolute bottom-0 right-0 rounded-full p-1 hover:opacity-90 ${isAnyPlayerBeingEdited || uploadingAvatars.has(player.id) ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`} style={{ backgroundColor: '#2c5b69' }}>
+                      {uploadingAvatars.has(player.id) ? (
+                        <div className="w-3 h-3 border border-white border-t-transparent rounded-full animate-spin"></div>
+                      ) : (
+                        <Upload className="w-3 h-3 text-white" />
+                      )}
                       <input
                         type="file"
                         accept="image/*"
                         onChange={(e) => handleAvatarUpload(player.id, e)}
                         className="hidden"
-                        disabled={isAnyPlayerBeingEdited}
+                        disabled={isAnyPlayerBeingEdited || uploadingAvatars.has(player.id)}
                       />
                     </label>
                   </div>

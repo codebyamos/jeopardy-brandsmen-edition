@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import GameBoard from '../components/GameBoard';
 import QuestionModal from '../components/QuestionModal';
@@ -58,12 +57,65 @@ const Index = () => {
     { id: 1, name: 'Team 1', score: 0 },
     { id: 2, name: 'Team 2', score: 0 }
   ]);
+  const [isLoadingGameState, setIsLoadingGameState] = useState(true);
 
-  const { saveGame, isLoading } = useGameData();
+  const { saveGame, loadRecentGames, isLoading } = useGameData();
   const { theme } = useTheme();
 
   const categories = Array.from(new Set(questions.map(q => q.category)));
   const pointValues = [100, 200, 300, 400, 500];
+
+  // Load existing game state on component mount
+  useEffect(() => {
+    const loadGameState = async () => {
+      try {
+        // Load the most recent game for today
+        const recentGames = await loadRecentGames(1);
+        if (recentGames.length > 0) {
+          const todaysGame = recentGames.find(game => 
+            new Date(game.game_date).toDateString() === new Date().toDateString()
+          );
+          
+          if (todaysGame && todaysGame.game_players.length > 0) {
+            // Load players from the database
+            const loadedPlayers: Player[] = todaysGame.game_players.map(player => ({
+              id: parseInt(player.id), // Convert string ID to number for compatibility
+              name: player.player_name,
+              score: player.player_score,
+              avatar: player.avatar_url || undefined
+            }));
+            setPlayers(loadedPlayers);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to load game state:', error);
+      } finally {
+        setIsLoadingGameState(false);
+      }
+    };
+
+    if (isAuthenticated) {
+      loadGameState();
+    } else {
+      setIsLoadingGameState(false);
+    }
+  }, [isAuthenticated, loadRecentGames]);
+
+  // Auto-save game state whenever players change (with debouncing)
+  useEffect(() => {
+    if (!isAuthenticated || isLoadingGameState) return;
+
+    const timeoutId = setTimeout(async () => {
+      try {
+        await saveGame(players);
+        console.log('Game state auto-saved');
+      } catch (error) {
+        console.error('Failed to auto-save game state:', error);
+      }
+    }, 2000); // Debounce for 2 seconds
+
+    return () => clearTimeout(timeoutId);
+  }, [players, saveGame, isAuthenticated, isLoadingGameState]);
 
   const handleQuestionSelect = (category: string, points: number) => {
     const question = questions.find(q => q.category === category && q.points === points);
@@ -126,6 +178,19 @@ const Index = () => {
   // Show passcode screen if not authenticated
   if (!isAuthenticated) {
     return <PasscodeScreen />;
+  }
+
+  // Show loading state while game state is being loaded
+  if (isLoadingGameState) {
+    return (
+      <div className="min-h-screen bg-cover bg-top bg-no-repeat flex items-center justify-center"
+           style={{ backgroundImage: 'url(/lovable-uploads/d1647a56-db6d-4277-aeb4-395f4275273b.png)' }}>
+        <div className="text-center">
+          <div className="text-xl font-bold mb-4" style={{ color: '#2c5b69' }}>Loading Game...</div>
+          <div className="w-8 h-8 border-4 border-blue-200 border-t-blue-500 rounded-full animate-spin mx-auto"></div>
+        </div>
+      </div>
+    );
   }
 
   return (
