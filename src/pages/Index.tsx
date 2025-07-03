@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import GameBoard from '../components/GameBoard';
 import QuestionModal from '../components/QuestionModal';
@@ -86,9 +85,9 @@ const Index = () => {
         console.log('Recent games loaded:', recentGames);
         
         if (recentGames.length > 0) {
-          const today = new Date().toDateString();
+          const today = new Date().toISOString().split('T')[0];
           const todaysGame = recentGames.find(game => {
-            const gameDate = new Date(game.game_date).toDateString();
+            const gameDate = new Date(game.game_date).toISOString().split('T')[0];
             console.log('Comparing dates:', { today, gameDate, match: today === gameDate });
             return today === gameDate;
           });

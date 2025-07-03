@@ -65,6 +65,50 @@ export type Database = {
           },
         ]
       }
+      game_questions: {
+        Row: {
+          answer: string
+          category: string
+          created_at: string
+          game_id: string
+          id: string
+          is_answered: boolean
+          points: number
+          question: string
+          question_id: number
+        }
+        Insert: {
+          answer: string
+          category: string
+          created_at?: string
+          game_id: string
+          id?: string
+          is_answered?: boolean
+          points: number
+          question: string
+          question_id: number
+        }
+        Update: {
+          answer?: string
+          category?: string
+          created_at?: string
+          game_id?: string
+          id?: string
+          is_answered?: boolean
+          points?: number
+          question?: string
+          question_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "game_questions_game_id_fkey"
+            columns: ["game_id"]
+            isOneToOne: false
+            referencedRelation: "games"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       games: {
         Row: {
           created_at: string
