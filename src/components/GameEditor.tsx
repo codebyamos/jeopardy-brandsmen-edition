@@ -25,6 +25,9 @@ const GameEditor: React.FC<GameEditorProps> = ({
 
   const categories = Array.from(new Set(questions.map(q => q.category)));
 
+  // Check if we're in the main view (not editing anything)
+  const isMainView = !editingQuestion && !editingCategory && !showAddCategory;
+
   const startEdit = (question: Question) => {
     setEditingQuestion(question);
     setTempQuestion({ ...question });
@@ -136,14 +139,16 @@ const GameEditor: React.FC<GameEditorProps> = ({
           <div className="flex justify-between items-center mb-4 sm:mb-6">
             <h3 className="text-xl sm:text-2xl font-bold" style={{color: '#fa1e4e'}}>Edit Game Content</h3>
             <div className="flex gap-2">
-              <Button
-                onClick={() => setShowAddCategory(true)}
-                size="sm"
-                className="bg-blue-600 hover:bg-blue-700 text-white"
-              >
-                <FolderPlus className="w-4 h-4 mr-1" />
-                Add Category
-              </Button>
+              {isMainView && (
+                <Button
+                  onClick={() => setShowAddCategory(true)}
+                  size="sm"
+                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                >
+                  <FolderPlus className="w-4 h-4 mr-1" />
+                  Add Category
+                </Button>
+              )}
               <Button
                 onClick={onClose}
                 variant="ghost"
