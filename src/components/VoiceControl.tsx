@@ -24,17 +24,7 @@ const VoiceControl: React.FC<VoiceControlProps> = ({
 
   return (
     <div className="flex items-center justify-center gap-2 mb-4 sm:mb-6">
-      {!isCurrentlyPlaying ? (
-        <Button
-          onClick={() => onSpeak(text, type)}
-          variant="ghost"
-          size="sm"
-          className="text-white p-2"
-          style={{backgroundColor: '#fa1e4e'}}
-        >
-          <Volume2 className="w-6 h-6 sm:w-8 sm:h-8" />
-        </Button>
-      ) : (
+      {isCurrentlyPlaying ? (
         <Button
           onClick={onStop}
           variant="ghost"
@@ -43,6 +33,16 @@ const VoiceControl: React.FC<VoiceControlProps> = ({
           style={{backgroundColor: '#666'}}
         >
           <VolumeX className="w-6 h-6 sm:w-8 sm:h-8" />
+        </Button>
+      ) : (
+        <Button
+          onClick={() => onSpeak(text, type)}
+          variant="ghost"
+          size="sm"
+          className="text-white p-2"
+          style={{backgroundColor: '#fa1e4e'}}
+        >
+          <Volume2 className="w-6 h-6 sm:w-8 sm:h-8" />
         </Button>
       )}
     </div>
