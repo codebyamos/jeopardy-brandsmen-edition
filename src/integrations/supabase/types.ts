@@ -69,6 +69,7 @@ export type Database = {
           id: number
           selected_voice: string | null
           updated_at: string
+          voice_enabled: boolean | null
         }
         Insert: {
           api_key?: string | null
@@ -76,6 +77,7 @@ export type Database = {
           id?: number
           selected_voice?: string | null
           updated_at?: string
+          voice_enabled?: boolean | null
         }
         Update: {
           api_key?: string | null
@@ -83,6 +85,7 @@ export type Database = {
           id?: number
           selected_voice?: string | null
           updated_at?: string
+          voice_enabled?: boolean | null
         }
         Relationships: []
       }
