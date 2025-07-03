@@ -17,16 +17,16 @@ const ModalHeader: React.FC<ModalHeaderProps> = ({ category, points, onClose }) 
         variant="ghost"
         size="sm"
         className="absolute top-2 right-2 sm:top-4 sm:right-4 text-white hover:text-red-400 p-2 z-10"
-        style={{backgroundColor: '#fa1e4e', color: 'white'}}
+        style={{ backgroundColor: '#2c5b69' }}
       >
         <X className="w-5 h-5 sm:w-6 sm:h-6" />
       </Button>
       
       <div className="text-center mb-4 sm:mb-6 lg:mb-8">
-        <div className="text-2xl sm:text-3xl lg:text-4xl font-semibold mb-2" style={{color: '#fa1e4e'}}>
+        <div className="text-2xl sm:text-3xl lg:text-4xl font-semibold mb-2" style={{ color: '#2c5b69' }}>
           {category.toUpperCase()}
         </div>
-        <div className="text-3xl sm:text-4xl lg:text-5xl font-bold" style={{color: '#fa1e4e'}}>
+        <div className="text-3xl sm:text-4xl lg:text-5xl font-bold" style={{ color: '#2c5b69' }}>
           ${points}
         </div>
       </div>

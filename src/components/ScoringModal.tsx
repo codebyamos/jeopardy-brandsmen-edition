@@ -28,11 +28,11 @@ const ScoringModal: React.FC<ScoringModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-2 sm:p-4">
-      <div className="bg-gray-800 border border-gray-600 rounded-lg max-w-sm w-full p-3 sm:p-4 relative">
+      <div className="bg-white border-2 rounded-lg max-w-sm w-full p-3 sm:p-4 relative" style={{ borderColor: '#2c5b69' }}>
         {/* Close button in top right corner */}
         <button
           onClick={onClose}
-          className="absolute top-3 right-3 text-gray-400 hover:text-red-400 p-1 rounded-sm transition-colors"
+          className="absolute top-3 right-3 text-gray-500 hover:text-red-500 p-1 rounded-sm transition-colors"
           aria-label="Close"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -40,23 +40,25 @@ const ScoringModal: React.FC<ScoringModalProps> = ({
           </svg>
         </button>
 
-        <h3 className="text-lg sm:text-xl font-bold mb-3 text-center pr-8 text-yellow-400">
+        <h3 className="text-lg sm:text-xl font-bold mb-3 text-center pr-8 text-white" style={{ backgroundColor: '#2c5b69', padding: '8px', borderRadius: '4px' }}>
           Award Points
         </h3>
         <div className="grid grid-cols-1 gap-2">
           {players.map((player) => (
             <div 
               key={player.id} 
-              className="flex justify-between items-center bg-gray-700 rounded-lg p-2"
+              className="flex justify-between items-center bg-gray-50 rounded-lg p-2 border"
+              style={{ borderColor: '#2c5b69' }}
             >
-              <span className="text-sm font-medium text-white">
+              <span className="text-sm font-medium" style={{ color: '#2c5b69' }}>
                 {player.name}
               </span>
               <div className="flex gap-1">
                 <Button
                   onClick={() => onScorePlayer(player.id, points)}
                   size="sm"
-                  className="bg-green-600 hover:bg-green-700 text-white font-medium text-xs px-3 py-2 border-0"
+                  className="text-white font-medium text-xs px-3 py-2 border-0 hover:opacity-90"
+                  style={{ backgroundColor: '#2c5b69' }}
                 >
                   +{points}
                 </Button>
@@ -76,7 +78,8 @@ const ScoringModal: React.FC<ScoringModalProps> = ({
             onClick={onClose}
             variant="outline"
             size="sm"
-            className="text-sm font-medium border-gray-500 text-gray-300 hover:bg-gray-700"
+            className="text-sm font-medium text-white hover:opacity-90"
+            style={{ backgroundColor: '#2c5b69', borderColor: '#2c5b69' }}
           >
             Skip
           </Button>

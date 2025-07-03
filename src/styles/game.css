@@ -2,8 +2,8 @@
 /* Game Board Styles */
 .main-title {
     font-size: 18px !important;
-    background: var(--theme-primary) !important;
-    color: var(--theme-button-text) !important;
+    background: #2c5b69 !important;
+    color: white !important;
     border-radius: 8px !important;
     text-shadow: none !important;
     max-width: 95%;
@@ -15,54 +15,44 @@
 }
 
 .category-header {
-    background: var(--theme-category-header) !important;
+    background: #2c5b69 !important;
     font-weight: 600 !important;
-    color: var(--theme-category-header-text) !important;
+    color: white !important;
     font-size: 13px !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
     line-height: 1.3em !important;
     border-radius: 6px 6px 0 0 !important;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    text-shadow: none;
 }
 
 .questions-item {
-    background: var(--theme-question-item) !important;
-    color: var(--theme-button-text) !important;
+    background: white !important;
+    color: #2c5b69 !important;
     font-weight: 600 !important;
     font-size: 18px !important;
-    border: 2px solid rgba(255, 255, 255, 0.2) !important;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    border: 2px solid #2c5b69 !important;
+    text-shadow: none;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .questions-item:hover {
-  background: var(--theme-question-item-hover) !important;
-  color: var(--theme-button-text) !important;
-  border-radius: 6px;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-}
-
-/* Special handling for white question items in Brandsmen theme */
-.questions-item[style*="background: #ffffff"] {
-  color: var(--theme-white-button-text) !important;
-  text-shadow: none !important;
-}
-
-.questions-item[style*="background: #ffffff"]:hover {
-  color: var(--theme-white-button-text) !important;
-  text-shadow: none !important;
+    background: #f8f9fa !important;
+    color: #2c5b69 !important;
+    border-radius: 6px;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    opacity: 0.9;
 }
 
 /* Ensure answered questions remain visible */
 .questions-item.answered {
-  background: var(--theme-secondary) !important;
-  color: var(--theme-button-text) !important;
+    background: #2c5b69 !important;
+    color: white !important;
 }
 
 .questions-item.answered:hover {
-  background: var(--theme-muted) !important;
-  color: var(--theme-button-text) !important;
+    background: #1e4a54 !important;
+    color: white !important;
 }

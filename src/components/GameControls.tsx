@@ -1,9 +1,9 @@
+
 import React, { useState } from 'react';
 import { Button } from './ui/button';
-import { Settings, Save, History, Edit, Calculator, Users, Volume2, Palette, Timer, Key, RotateCcw } from 'lucide-react';
+import { Settings, Save, History, Edit, Calculator, Users, Volume2, Timer, Key, RotateCcw } from 'lucide-react';
 import PlayerManager from './PlayerManager';
 import VoiceSettings from './VoiceSettings';
-import ThemeSettings from './ThemeSettings';
 import TimerSettings from './TimerSettings';
 import NewGameSettings from './NewGameSettings';
 import PasscodeManager from './PasscodeManager';
@@ -33,7 +33,6 @@ const GameControls: React.FC<GameControlsProps> = ({
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showPlayerManager, setShowPlayerManager] = useState(false);
   const [showVoiceSettings, setShowVoiceSettings] = useState(false);
-  const [showThemeSettings, setShowThemeSettings] = useState(false);
   const [showTimerSettings, setShowTimerSettings] = useState(false);
   const [showNewGameSettings, setShowNewGameSettings] = useState(false);
   const [showPasscodeManager, setShowPasscodeManager] = useState(false);
@@ -46,7 +45,6 @@ const GameControls: React.FC<GameControlsProps> = ({
     { icon: Users, label: 'Manage Players', action: () => setShowPlayerManager(true) },
     { icon: Volume2, label: 'Voice Settings', action: () => setShowVoiceSettings(true) },
     { icon: Timer, label: 'Timer Settings', action: () => setShowTimerSettings(true) },
-    { icon: Palette, label: 'Theme Settings', action: () => setShowThemeSettings(true) },
     { icon: Key, label: 'Manage Passcode', action: () => setShowPasscodeManager(true) },
     { icon: RotateCcw, label: 'Start New Game', action: () => setShowNewGameSettings(true) },
   ];
@@ -61,14 +59,15 @@ const GameControls: React.FC<GameControlsProps> = ({
       <div className="fixed bottom-4 right-4 z-40">
         <Button 
           onClick={() => setIsMenuOpen(!isMenuOpen)}
-          className="bg-teal-700 hover:bg-teal-800 text-white border border-teal-600 rounded-full w-12 h-12 p-0 shadow-lg"
+          className="text-white border rounded-full w-12 h-12 p-0 shadow-lg hover:opacity-90"
+          style={{ backgroundColor: '#2c5b69', borderColor: '#2c5b69' }}
         >
           <Settings className="w-6 h-6" />
         </Button>
 
         {/* Menu Items */}
         {isMenuOpen && (
-          <div className="absolute bottom-16 right-0 flex flex-col gap-2 bg-white border border-gray-300 rounded-lg p-2 shadow-xl">
+          <div className="absolute bottom-16 right-0 flex flex-col gap-2 bg-white border-2 rounded-lg p-2 shadow-xl" style={{ borderColor: '#2c5b69' }}>
             {menuItems.map((item, index) => (
               <Button
                 key={index}
@@ -78,7 +77,8 @@ const GameControls: React.FC<GameControlsProps> = ({
                 }}
                 disabled={item.disabled}
                 size="sm"
-                className="bg-teal-600 hover:bg-teal-700 text-white border border-teal-500 justify-start gap-2 min-w-[140px]"
+                className="text-white border justify-start gap-2 min-w-[140px] hover:opacity-90"
+                style={{ backgroundColor: '#2c5b69', borderColor: '#2c5b69' }}
               >
                 <item.icon className="w-4 h-4" />
                 {item.label}
@@ -106,12 +106,6 @@ const GameControls: React.FC<GameControlsProps> = ({
       <TimerSettings
         isVisible={showTimerSettings}
         onClose={() => setShowTimerSettings(false)}
-      />
-
-      {/* Theme Settings Modal */}
-      <ThemeSettings
-        isVisible={showThemeSettings}
-        onClose={() => setShowThemeSettings(false)}
       />
 
       {/* New Game Settings Modal */}

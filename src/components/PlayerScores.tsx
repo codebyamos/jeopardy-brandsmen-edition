@@ -11,19 +11,19 @@ const PlayerScores: React.FC<PlayerScoresProps> = ({ players }) => {
     <div className="mb-4 flex justify-center">
       <div className="flex flex-wrap gap-2 sm:gap-4 lg:gap-8 justify-center">
         {players.map((player) => (
-          <div key={player.id} className="bg-yellow-400 text-black rounded-lg px-3 sm:px-4 lg:px-6 py-2 sm:py-3 lg:py-4 min-w-[100px] sm:min-w-[120px] text-center">
+          <div key={player.id} className="bg-white text-black rounded-lg px-3 sm:px-4 lg:px-6 py-2 sm:py-3 lg:py-4 min-w-[100px] sm:min-w-[120px] text-center border-2 border-gray-200">
             {/* Name with Avatar */}
             <div className="flex items-center justify-center gap-2 mb-1 sm:mb-2">
               {player.avatar && (
                 <img 
                   src={player.avatar} 
                   alt={`${player.name} avatar`}
-                  className="w-5 h-5 sm:w-6 sm:h-6 rounded-full object-cover border border-white/30 flex-shrink-0"
+                  className="w-5 h-5 sm:w-6 sm:h-6 rounded-full object-cover border border-gray-300 flex-shrink-0"
                 />
               )}
-              <div className="font-bold text-sm sm:text-lg">{player.name}</div>
+              <div className="font-bold text-sm sm:text-lg text-gray-800">{player.name}</div>
             </div>
-            <div className="bg-blue-800 text-white rounded px-2 sm:px-4 py-1 sm:py-2 text-base sm:text-xl font-bold">
+            <div className="rounded px-2 sm:px-4 py-1 sm:py-2 text-base sm:text-xl font-bold text-white" style={{ backgroundColor: '#2c5b69' }}>
               {player.score}
             </div>
           </div>

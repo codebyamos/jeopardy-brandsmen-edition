@@ -71,40 +71,20 @@
 
   body {
     @apply bg-background text-foreground;
-    background: linear-gradient(135deg, #000000, #374151);
+    background: linear-gradient(135deg, #2c5b69, #ffffff);
     min-height: 100vh;
   }
 
-  /* Modal background overlay - prevent transparency on hover */
+  /* Modal background overlay */
   .fixed.inset-0.bg-black.bg-opacity-90 {
-    background-color: rgba(0, 0, 0, 0.9) !important;
-  }
-
-  .fixed.inset-0.bg-black.bg-opacity-90:hover {
-    background-color: rgba(0, 0, 0, 0.9) !important;
-  }
-
-  /* Close button hover - proper contrast */
-  button[aria-label="Close"]:hover {
-    color: #ef4444 !important;
-  }
-
-  /* Icon hover fixes */
-  svg.text-white:hover,
-  .text-white svg:hover {
-    color: #ef4444 !important;
-  }
-
-  svg.text-gray-400:hover,
-  .text-gray-400 svg:hover {
-    color: #60a5fa !important;
+    background-color: rgba(44, 91, 105, 0.9) !important;
   }
 
   /* Modal content styling */
   [data-radix-dialog-content] {
-    background-color: #1f2937 !important;
-    border-color: #4b5563 !important;
-    color: #ffffff !important;
+    background-color: #ffffff !important;
+    border: 2px solid #2c5b69 !important;
+    color: #2c5b69 !important;
   }
 
   /* Modal headers */
@@ -112,12 +92,12 @@
   [data-radix-dialog-content] h2,
   [data-radix-dialog-content] h3,
   [data-radix-dialog-content] h4 {
-    color: #fbbf24 !important;
+    color: #2c5b69 !important;
   }
 
   /* Modal close buttons */
   [data-radix-dialog-content] [data-radix-dialog-close] {
-    color: #9ca3af !important;
+    color: #2c5b69 !important;
   }
 
   [data-radix-dialog-content] [data-radix-dialog-close]:hover {
@@ -126,17 +106,21 @@
 
   /* Input fields in modals */
   [data-radix-dialog-content] input {
-    background-color: #374151 !important;
-    border-color: #6b7280 !important;
-    color: #ffffff !important;
+    background-color: #ffffff !important;
+    border: 2px solid #2c5b69 !important;
+    color: #2c5b69 !important;
   }
 
   [data-radix-dialog-content] input::placeholder {
-    color: #9ca3af !important;
+    color: #6b7280 !important;
   }
 
-  /* Timer control visibility */
-  .answer-view .timer-control {
-    display: none !important;
+  /* Button styling */
+  button {
+    transition: opacity 0.2s ease;
+  }
+
+  button:hover {
+    opacity: 0.9;
   }
 }
