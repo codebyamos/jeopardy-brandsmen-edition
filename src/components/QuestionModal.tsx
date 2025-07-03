@@ -163,6 +163,7 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
             category={question.category}
             points={question.points}
             isTimerEnabled={isTimerEnabled}
+            showTimerToggle={!showAnswer}
             onClose={handleClose}
             onTimerToggle={() => setIsTimerEnabled(!isTimerEnabled)}
           />
