@@ -165,7 +165,6 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
             isTimerEnabled={isTimerEnabled}
             onClose={handleClose}
             onTimerToggle={() => setIsTimerEnabled(!isTimerEnabled)}
-            showTimerToggle={!showAnswer}
           />
           
           {showAnswer ? (
