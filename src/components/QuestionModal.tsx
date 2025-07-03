@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { Question, Player } from '../types/game';
-import { speakWithElevenLabs, stopCurrentSpeech, initializeSpeechSystem, preloadAudio } from '../utils/textToSpeech';
+import { speakWithElevenLabs, stopCurrentSpeech, initializeSpeechSystem, preloadAudio, setSpeechCompleteCallback } from '../utils/textToSpeech';
 import { useVoiceSettings } from '../hooks/useVoiceSettings';
 import { useTimerSettings } from '../hooks/useTimerSettings';
 import QuestionModalHeader from './QuestionModalHeader';
@@ -30,6 +30,21 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
   const { settings: voiceSettings } = useVoiceSettings();
   const { settings: timerSettings } = useTimerSettings();
 
+  // Set up speech completion callback
+  useEffect(() => {
+    const handleSpeechComplete = () => {
+      console.log('Speech completed - resetting state');
+      setIsSpeaking(false);
+      setCurrentSpeech(null);
+    };
+
+    setSpeechCompleteCallback(handleSpeechComplete);
+    
+    return () => {
+      setSpeechCompleteCallback(null);
+    };
+  }, []);
+
   const speakText = async (text: string, type: 'question' | 'answer') => {
     if (!voiceSettings.isVoiceEnabled) return;
     
@@ -39,12 +54,10 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
     if (isSpeaking) {
       console.log('Stopping current speech');
       stopCurrentSpeech();
-      setIsSpeaking(false);
-      setCurrentSpeech(null);
       return;
     }
 
-    // Set speaking state immediately and synchronously
+    // Set speaking state immediately
     console.log(`Starting speech for ${type}`);
     setIsSpeaking(true);
     setCurrentSpeech(type);
@@ -54,9 +67,7 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
       console.log(`Speech completed for ${type}`);
     } catch (error) {
       console.error('Speech error:', error);
-    } finally {
-      // Ensure state is reset after speech completes
-      console.log(`Resetting speech state after ${type}`);
+      // Reset state on error
       setIsSpeaking(false);
       setCurrentSpeech(null);
     }
@@ -65,8 +76,7 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
   const stopSpeaking = () => {
     console.log('stopSpeaking called');
     stopCurrentSpeech();
-    setIsSpeaking(false);
-    setCurrentSpeech(null);
+    // State will be reset by the speech completion callback
   };
 
   useEffect(() => {
@@ -98,11 +108,10 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
         
         try {
           await speakWithElevenLabs(question.question);
-          console.log('Auto-play question completed');
+          console.log('Auto-play question completed via promise resolution');
         } catch (error) {
           console.error('Auto-play speech error:', error);
-        } finally {
-          console.log('Resetting state after auto-play');
+          // Reset state on error
           setIsSpeaking(false);
           setCurrentSpeech(null);
         }
@@ -129,11 +138,10 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
       
       try {
         await speakWithElevenLabs(question.answer);
-        console.log('Auto-play answer completed');
+        console.log('Auto-play answer completed via promise resolution');
       } catch (error) {
         console.error('Auto-play answer error:', error);
-      } finally {
-        console.log('Resetting state after answer auto-play');
+        // Reset state on error
         setIsSpeaking(false);
         setCurrentSpeech(null);
       }

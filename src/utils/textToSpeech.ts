@@ -8,9 +8,17 @@ let currentAudio: HTMLAudioElement | null = null;
 let isApiReady = false;
 let apiInitPromise: Promise<void> | null = null;
 
+// Callback for when speech completes
+let onSpeechComplete: (() => void) | null = null;
+
 // Voice settings helpers
 const isVoiceEnabled = () => {
   return localStorage.getItem('voice_enabled') !== 'false';
+};
+
+// Set callback for speech completion
+export const setSpeechCompleteCallback = (callback: (() => void) | null) => {
+  onSpeechComplete = callback;
 };
 
 // Pre-initialize the speech system
@@ -83,22 +91,48 @@ export const speakWithElevenLabs = async (text: string): Promise<void> => {
     
     currentAudio = new Audio(audioUrl);
     
-    // Set up event listeners
-    currentAudio.onended = () => {
-      currentAudio = null;
-    };
-    
-    currentAudio.onerror = () => {
-      console.error('Audio playback error');
-      currentAudio = null;
-    };
-    
-    // Start playing immediately
-    await currentAudio.play();
+    // Return a promise that resolves when audio completes
+    return new Promise<void>((resolve, reject) => {
+      if (!currentAudio) {
+        reject(new Error('Audio not created'));
+        return;
+      }
+
+      currentAudio.onended = () => {
+        console.log('Audio playback completed');
+        currentAudio = null;
+        // Notify parent component that speech is complete
+        if (onSpeechComplete) {
+          onSpeechComplete();
+        }
+        resolve();
+      };
+      
+      currentAudio.onerror = (error) => {
+        console.error('Audio playback error:', error);
+        currentAudio = null;
+        // Notify parent component that speech failed/stopped
+        if (onSpeechComplete) {
+          onSpeechComplete();
+        }
+        reject(error);
+      };
+      
+      // Start playing
+      currentAudio.play().catch((error) => {
+        console.error('Audio play error:', error);
+        currentAudio = null;
+        if (onSpeechComplete) {
+          onSpeechComplete();
+        }
+        reject(error);
+      });
+    });
     
   } catch (error) {
     console.error('ElevenLabs TTS error:', error);
     speakWithBrowser(text);
+    throw error;
   }
 };
 
@@ -106,6 +140,10 @@ export const stopCurrentSpeech = () => {
   if (currentAudio) {
     currentAudio.pause();
     currentAudio = null;
+    // Notify parent component that speech was stopped
+    if (onSpeechComplete) {
+      onSpeechComplete();
+    }
   }
   stopBrowserSpeech();
 };
