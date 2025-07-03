@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import GameBoard from '../components/GameBoard';
 import QuestionModal from '../components/QuestionModal';
@@ -45,7 +44,7 @@ const sampleQuestions: Question[] = [
 ];
 
 const Index = () => {
-  const { isAuthenticated, setPasscode } = usePasscode();
+  const { isAuthenticated, setPasscode, logout } = usePasscode();
   
   const [questions, setQuestions] = useState<Question[]>(sampleQuestions);
   const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(null);
@@ -99,6 +98,9 @@ const Index = () => {
     // Update the passcode if provided
     if (newPasscode) {
       setPasscode(newPasscode);
+      // Log out the user so they need to re-authenticate with the new passcode
+      logout();
+      return; // Exit early as the user will be redirected to the passcode screen
     }
     
     // Reset all game state
