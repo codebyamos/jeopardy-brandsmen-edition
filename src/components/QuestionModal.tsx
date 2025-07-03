@@ -3,9 +3,12 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Question, Player } from '../types/game';
 import { Button } from '../components/ui/button';
 import { speakWithElevenLabs, stopCurrentSpeech, initializeSpeechSystem, preloadAudio } from '../utils/textToSpeech';
+import { useVoiceSettings } from '../hooks/useVoiceSettings';
+import { useTimerSettings } from '../hooks/useTimerSettings';
 import ModalHeader from './ModalHeader';
 import QuestionContent from './QuestionContent';
 import AnswerContent from './AnswerContent';
+import QuestionTimer from './QuestionTimer';
 
 interface QuestionModalProps {
   question: Question;
@@ -24,8 +27,13 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [currentSpeech, setCurrentSpeech] = useState<'question' | 'answer' | null>(null);
   const hasAutoPlayedRef = useRef(false);
+  
+  const { settings: voiceSettings } = useVoiceSettings();
+  const { settings: timerSettings } = useTimerSettings();
 
   const speakText = async (text: string, type: 'question' | 'answer') => {
+    if (!voiceSettings.isVoiceEnabled) return;
+    
     // Stop any current speech first
     stopCurrentSpeech();
     
@@ -58,7 +66,7 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
   useEffect(() => {
     // Initialize speech system and preload audio, then auto-play question immediately
     const initAndPlay = async () => {
-      if (!hasAutoPlayedRef.current) {
+      if (!hasAutoPlayedRef.current && voiceSettings.isVoiceEnabled) {
         hasAutoPlayedRef.current = true;
         
         // Initialize speech system
@@ -89,28 +97,35 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
       // Clean up any ongoing speech when component unmounts
       stopCurrentSpeech();
     };
-  }, [question.question, question.answer]);
+  }, [question.question, question.answer, voiceSettings.isVoiceEnabled]);
 
   const handleShowAnswer = async () => {
     setShowAnswer(true);
     
-    // Start speaking answer immediately
-    setIsSpeaking(true);
-    setCurrentSpeech('answer');
-    
-    try {
-      await speakWithElevenLabs(question.answer);
-    } catch (error) {
-      console.error('Speech error:', error);
-    } finally {
-      setIsSpeaking(false);
-      setCurrentSpeech(null);
+    if (voiceSettings.isVoiceEnabled) {
+      // Start speaking answer immediately
+      setIsSpeaking(true);
+      setCurrentSpeech('answer');
+      
+      try {
+        await speakWithElevenLabs(question.answer);
+      } catch (error) {
+        console.error('Speech error:', error);
+      } finally {
+        setIsSpeaking(false);
+        setCurrentSpeech(null);
+      }
     }
   };
 
   const handleClose = () => {
     stopSpeaking();
     onClose();
+  };
+
+  const handleTimeUp = () => {
+    console.log('Time is up!');
+    // You could add additional logic here like automatically showing the answer
   };
 
   if (showAnswer) {
@@ -145,6 +160,16 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
             points={question.points}
             onClose={handleClose}
           />
+          
+          {timerSettings.isTimerEnabled && (
+            <div className="mb-6 flex justify-center">
+              <QuestionTimer 
+                duration={timerSettings.timerDuration}
+                onTimeUp={handleTimeUp}
+              />
+            </div>
+          )}
+          
           <QuestionContent
             question={question}
             isSpeaking={isSpeaking}

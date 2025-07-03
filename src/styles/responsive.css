@@ -1,0 +1,31 @@
+
+/* Responsive Styles */
+@media (min-width: 640px) {
+  .main-title {
+    font-size: 20px !important;
+    max-width: 600px;
+    padding: 6px 25px;
+  }
+
+  .category-header {
+    font-size: 14px !important;
+  }
+
+  .questions-item {
+    font-size: 20px !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  .main-title {
+    font-size: 25px !important;
+  }
+
+  .category-header {
+    font-size: 16px !important;
+  }
+
+  .questions-item {
+    font-size: 22px !important;
+  }
+}

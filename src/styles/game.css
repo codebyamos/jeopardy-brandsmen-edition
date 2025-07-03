@@ -1,0 +1,38 @@
+
+/* Game Board Styles */
+.main-title {
+    font-size: 16px !important;
+    background-color: var(--theme-primary) !important;
+    color: var(--theme-button-text) !important;
+    border-radius: 5px !important;
+    text-shadow: none !important;
+    max-width: 90%;
+    margin-left: auto;
+    margin-right: auto;
+    font-weight: normal;
+    padding: 6px 15px;
+}
+
+.category-header {
+    background: var(--theme-category-header) !important;
+    font-weight: 500 !important;
+    color: var(--theme-text) !important;
+    font-size: 12px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    line-height: 1.3em !important;
+}
+
+.questions-item {
+    background: var(--theme-question-item) !important;
+    color: var(--theme-button-text) !important;
+    font-weight: 500 !important;
+    font-size: 16px !important;
+    border: #ffffff7a !important;
+}
+
+.questions-item:hover {
+  background: var(--theme-question-item-hover) !important;
+  border-radius: 5px;
+}

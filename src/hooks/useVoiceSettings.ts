@@ -5,12 +5,14 @@ import { supabase } from '@/integrations/supabase/client';
 interface VoiceSettings {
   apiKey: string;
   selectedVoice: string;
+  isVoiceEnabled: boolean;
 }
 
 export const useVoiceSettings = () => {
   const [settings, setSettings] = useState<VoiceSettings>({
     apiKey: '',
-    selectedVoice: ''
+    selectedVoice: '',
+    isVoiceEnabled: true
   });
   const [isLoading, setIsLoading] = useState(true);
 
@@ -24,10 +26,12 @@ export const useVoiceSettings = () => {
       // First check localStorage for immediate access
       const localApiKey = localStorage.getItem('elevenlabs_api_key') || '';
       const localVoice = localStorage.getItem('selected_voice') || '';
+      const localVoiceEnabled = localStorage.getItem('voice_enabled') !== 'false';
       
       setSettings({
         apiKey: localApiKey,
-        selectedVoice: localVoice
+        selectedVoice: localVoice,
+        isVoiceEnabled: localVoiceEnabled
       });
 
       // Then check database for any updates
@@ -46,10 +50,14 @@ export const useVoiceSettings = () => {
         if (data.selected_voice) {
           localStorage.setItem('selected_voice', data.selected_voice);
         }
+        if (data.voice_enabled !== undefined) {
+          localStorage.setItem('voice_enabled', data.voice_enabled.toString());
+        }
         
         setSettings({
           apiKey: data.api_key || localApiKey,
-          selectedVoice: data.selected_voice || localVoice
+          selectedVoice: data.selected_voice || localVoice,
+          isVoiceEnabled: data.voice_enabled !== false
         });
       }
     } catch (error) {
@@ -66,6 +74,7 @@ export const useVoiceSettings = () => {
       // Save to localStorage immediately for fast access
       localStorage.setItem('elevenlabs_api_key', newSettings.apiKey);
       localStorage.setItem('selected_voice', newSettings.selectedVoice);
+      localStorage.setItem('voice_enabled', newSettings.isVoiceEnabled.toString());
       
       // Save to database
       const { error } = await supabase
@@ -74,6 +83,7 @@ export const useVoiceSettings = () => {
           id: 1, // Single row for settings
           api_key: newSettings.apiKey,
           selected_voice: newSettings.selectedVoice,
+          voice_enabled: newSettings.isVoiceEnabled,
           updated_at: new Date().toISOString()
         });
 

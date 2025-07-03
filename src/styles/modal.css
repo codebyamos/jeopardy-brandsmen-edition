@@ -1,0 +1,69 @@
+
+/* Modal Styles */
+.modal-question-text {
+  font-size: clamp(1.5rem, 4vw, 4rem) !important;
+  line-height: 1.2 !important;
+  max-height: 50vh !important;
+  overflow-y: auto !important;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.modal-question-text::-webkit-scrollbar {
+  display: none;
+}
+
+.modal-question-text:hover {
+  scrollbar-width: thin;
+}
+
+.modal-question-text:hover::-webkit-scrollbar {
+  display: block;
+  width: 8px;
+}
+
+.modal-question-text:hover::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+}
+
+.modal-answer-text {
+  font-size: clamp(2rem, 5vw, 5rem) !important;
+  line-height: 1.2 !important;
+  max-height: 50vh !important;
+  overflow-y: auto !important;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.modal-answer-text::-webkit-scrollbar {
+  display: none;
+}
+
+.modal-answer-text:hover {
+  scrollbar-width: thin;
+}
+
+.modal-answer-text:hover::-webkit-scrollbar {
+  display: block;
+  width: 8px;
+}
+
+.modal-answer-text:hover::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+}
+
+.modal-content {
+  max-height: 95vh !important;
+  overflow-y: auto !important;
+}
+
+.modal-text-container {
+  max-height: 60vh !important;
+  overflow-y: auto !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 1rem !important;
+}
