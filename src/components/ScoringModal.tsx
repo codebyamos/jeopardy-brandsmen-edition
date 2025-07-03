@@ -29,15 +29,30 @@ const ScoringModal: React.FC<ScoringModalProps> = ({
   return (
     <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-2 sm:p-4">
       <div 
-        className="border rounded-lg max-w-sm w-full p-3 sm:p-4 contrast-fixed"
+        className="border rounded-lg max-w-sm w-full p-3 sm:p-4 contrast-fixed relative"
         style={{
           backgroundColor: 'var(--theme-secondary)',
           borderColor: 'var(--theme-muted)',
           color: 'var(--theme-text)'
         }}
       >
+        {/* Close button in top right corner */}
+        <button
+          onClick={onClose}
+          className="absolute top-3 right-3 p-1 rounded-sm opacity-70 hover:opacity-100 transition-opacity contrast-fixed"
+          style={{
+            color: 'var(--theme-text)',
+            backgroundColor: 'transparent'
+          }}
+          aria-label="Close"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+
         <h3 
-          className="text-lg sm:text-xl font-bold mb-3 text-center"
+          className="text-lg sm:text-xl font-bold mb-3 text-center pr-8"
           style={{ color: 'var(--theme-accent)' }}
         >
           Award Points
@@ -62,7 +77,7 @@ const ScoringModal: React.FC<ScoringModalProps> = ({
                 <Button
                   onClick={() => onScorePlayer(player.id, points)}
                   size="sm"
-                  className="bg-green-600 hover:bg-green-700 font-medium text-xs px-3 py-2 border-0 contrast-fixed"
+                  className="contrast-fixed font-medium text-xs px-3 py-2 border-0"
                   style={{ 
                     backgroundColor: '#16a34a',
                     color: 'white'
@@ -73,7 +88,7 @@ const ScoringModal: React.FC<ScoringModalProps> = ({
                 <Button
                   onClick={() => onScorePlayer(player.id, -points)}
                   size="sm"
-                  className="bg-red-600 hover:bg-red-700 font-medium text-xs px-3 py-2 border-0 contrast-fixed"
+                  className="contrast-fixed font-medium text-xs px-3 py-2 border-0"
                   style={{ 
                     backgroundColor: '#dc2626',
                     color: 'white'

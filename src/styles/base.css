@@ -114,30 +114,28 @@
     display: none;
   }
 
-  /* ===== COMPREHENSIVE MODAL STYLING ===== */
+  /* ===== UNIVERSAL MODAL STYLING ===== */
   
-  /* All possible modal selectors with forced styling */
+  /* All modal content containers */
   [data-radix-dialog-content],
   [role="dialog"],
   .modal-content,
-  .fixed.inset-0 > div:not(.bg-black),
-  .fixed.inset-0 .border.rounded-lg,
-  .bg-gray-900[role]:not([role="button"]),
-  .bg-gray-800[role]:not([role="button"]) {
+  .fixed.inset-0 > div:not(.bg-black):not(.bg-opacity-90),
+  .fixed.inset-0 .border.rounded-lg {
     background-color: var(--theme-secondary) !important;
     color: var(--theme-text) !important;
     border-color: var(--theme-muted) !important;
   }
 
-  /* Force all text inside modals to be visible */
-  [data-radix-dialog-content] *,
-  [role="dialog"] *:not(button):not([role="button"]),
-  .modal-content *:not(button):not([role="button"]),
-  .fixed.inset-0 .border.rounded-lg *:not(button):not([role="button"]) {
+  /* Force all text inside modals to be theme-aware */
+  [data-radix-dialog-content] *:not(button):not([role="button"]):not(input):not(svg),
+  [role="dialog"] *:not(button):not([role="button"]):not(input):not(svg),
+  .modal-content *:not(button):not([role="button"]):not(input):not(svg),
+  .fixed.inset-0 .border.rounded-lg *:not(button):not([role="button"]):not(input):not(svg) {
     color: var(--theme-text) !important;
   }
 
-  /* Modal headers and titles */
+  /* Modal headers and titles - always accent color */
   [data-radix-dialog-content] [data-radix-dialog-title],
   [data-radix-dialog-content] h1,
   [data-radix-dialog-content] h2,
@@ -150,36 +148,44 @@
   .modal-content h1,
   .modal-content h2,
   .modal-content h3,
-  .modal-content h4 {
+  .modal-content h4,
+  .fixed.inset-0 .border.rounded-lg h1,
+  .fixed.inset-0 .border.rounded-lg h2,
+  .fixed.inset-0 .border.rounded-lg h3,
+  .fixed.inset-0 .border.rounded-lg h4 {
     color: var(--theme-accent) !important;
+  }
+
+  /* Close buttons - always in top right corner */
+  [data-radix-dialog-content] [data-radix-dialog-close],
+  [aria-label="Close"],
+  button:has(svg[aria-hidden="true"]) {
+    position: absolute !important;
+    top: 1rem !important;
+    right: 1rem !important;
+    left: auto !important;
+    bottom: auto !important;
+    color: var(--theme-text) !important;
+    background-color: transparent !important;
+    border: none !important;
+    z-index: 10 !important;
+  }
+
+  [data-radix-dialog-content] [data-radix-dialog-close]:hover,
+  [aria-label="Close"]:hover,
+  button:has(svg[aria-hidden="true"]):hover {
+    color: #ff6b6b !important;
+    background-color: rgba(255, 255, 255, 0.1) !important;
   }
 
   /* ===== COMPREHENSIVE BUTTON STYLING ===== */
   
-  /* Default button styling with proper contrast */
+  /* Default button contrast */
   button:not(.contrast-fixed) {
-    position: relative;
-  }
-
-  button:not(.contrast-fixed)::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    pointer-events: none;
-    z-index: -1;
-  }
-
-  /* Force proper text color on all buttons */
-  button,
-  .button,
-  [role="button"] {
     color: var(--theme-button-text) !important;
   }
 
-  button *,
+  button:not(.contrast-fixed) *,
   .button *,
   [role="button"] * {
     color: inherit !important;
@@ -204,6 +210,17 @@
   button[style*="background: #ffffff"] *,
   button[style*="background-color: #ffffff"] *,
   .bg-white * {
+    color: #1a1a1a !important;
+  }
+
+  /* White button hover - light gray background */
+  button.bg-white:hover,
+  button[style*="background: white"]:hover,
+  button[style*="background-color: white"]:hover,
+  button[style*="background: #ffffff"]:hover,
+  button[style*="background-color: #ffffff"]:hover,
+  .bg-white:hover {
+    background-color: #f5f5f5 !important;
     color: #1a1a1a !important;
   }
 
@@ -267,103 +284,6 @@
     color: white !important;
   }
 
-  /* Purple buttons - always white text */
-  .bg-purple-600,
-  .bg-purple-500,
-  .bg-purple-700,
-  button.bg-purple-600,
-  button.bg-purple-500,
-  button.bg-purple-700 {
-    background-color: #9333ea !important;
-    color: white !important;
-  }
-
-  .bg-purple-600 *,
-  .bg-purple-500 *,
-  .bg-purple-700 *,
-  button.bg-purple-600 *,
-  button.bg-purple-500 *,
-  button.bg-purple-700 * {
-    color: white !important;
-  }
-
-  /* Yellow/Orange buttons - always dark text */
-  .bg-yellow-600,
-  .bg-yellow-500,
-  .bg-yellow-700,
-  .bg-orange-600,
-  .bg-orange-500,
-  .bg-orange-700,
-  button.bg-yellow-600,
-  button.bg-yellow-500,
-  button.bg-yellow-700,
-  button.bg-orange-600,
-  button.bg-orange-500,
-  button.bg-orange-700 {
-    color: #1a1a1a !important;
-  }
-
-  .bg-yellow-600 *,
-  .bg-yellow-500 *,
-  .bg-yellow-700 *,
-  .bg-orange-600 *,
-  .bg-orange-500 *,
-  .bg-orange-700 *,
-  button.bg-yellow-600 *,
-  button.bg-yellow-500 *,
-  button.bg-yellow-700 *,
-  button.bg-orange-600 *,
-  button.bg-orange-500 *,
-  button.bg-orange-700 * {
-    color: #1a1a1a !important;
-  }
-
-  /* ===== THEME-AWARE BUTTONS ===== */
-  
-  /* Gray buttons use theme colors */
-  .bg-gray-900,
-  .bg-gray-800,
-  .bg-gray-700,
-  .bg-gray-600,
-  button.bg-gray-900,
-  button.bg-gray-800,
-  button.bg-gray-700,
-  button.bg-gray-600 {
-    background-color: var(--theme-secondary) !important;
-    color: var(--theme-text) !important;
-  }
-
-  .bg-gray-900 *,
-  .bg-gray-800 *,
-  .bg-gray-700 *,
-  .bg-gray-600 *,
-  button.bg-gray-900 *,
-  button.bg-gray-800 *,
-  button.bg-gray-700 *,
-  button.bg-gray-600 * {
-    color: var(--theme-text) !important;
-  }
-
-  /* Slate buttons */
-  .bg-slate-600,
-  .bg-slate-700,
-  .bg-slate-800,
-  button.bg-slate-600,
-  button.bg-slate-700,
-  button.bg-slate-800 {
-    background-color: var(--theme-secondary) !important;
-    color: var(--theme-text) !important;
-  }
-
-  .bg-slate-600 *,
-  .bg-slate-700 *,
-  .bg-slate-800 *,
-  button.bg-slate-600 *,
-  button.bg-slate-700 *,
-  button.bg-slate-800 * {
-    color: var(--theme-text) !important;
-  }
-
   /* Teal buttons use theme primary */
   .bg-teal-600,
   .bg-teal-700,
@@ -375,12 +295,14 @@
     color: var(--theme-text) !important;
   }
 
-  .bg-teal-600 *,
-  .bg-teal-700 *,
-  .bg-teal-800 *,
-  button.bg-teal-600 *,
-  button.bg-teal-700 *,
-  button.bg-teal-800 * {
+  /* Teal button hover - no black background */
+  .bg-teal-600:hover,
+  .bg-teal-700:hover,
+  .bg-teal-800:hover,
+  button.bg-teal-600:hover,
+  button.bg-teal-700:hover,
+  button.bg-teal-800:hover {
+    background-color: var(--theme-question-item-hover) !important;
     color: var(--theme-text) !important;
   }
 
@@ -401,7 +323,7 @@
     color: var(--theme-text) !important;
   }
 
-  /* ===== HOVER STATES ===== */
+  /* ===== HOVER STATES WITH PROPER CONTRAST ===== */
   
   .hover\:bg-gray-600:hover,
   .hover\:bg-gray-700:hover,
@@ -409,10 +331,7 @@
   .hover\:bg-gray-900:hover,
   .hover\:bg-slate-600:hover,
   .hover\:bg-slate-700:hover,
-  .hover\:bg-slate-800:hover,
-  .hover\:bg-teal-600:hover,
-  .hover\:bg-teal-700:hover,
-  .hover\:bg-teal-800:hover {
+  .hover\:bg-slate-800:hover {
     background-color: var(--theme-question-item-hover) !important;
     color: var(--theme-text) !important;
   }
@@ -435,6 +354,24 @@
     color: white !important;
   }
 
+  /* ===== ICON HOVER FIXES ===== */
+  
+  /* White icons should have dark hover */
+  svg[style*="color: white"]:hover,
+  .text-white svg:hover,
+  button:has(svg.text-white):hover svg {
+    color: #666666 !important;
+  }
+
+  /* Dark icons should have light hover */
+  svg[style*="color: #"],
+  .text-gray-600 svg:hover,
+  .text-gray-700 svg:hover,
+  button:has(svg.text-gray-600):hover svg,
+  button:has(svg.text-gray-700):hover svg {
+    color: #cccccc !important;
+  }
+
   /* ===== INPUT FIELDS IN MODALS ===== */
   
   [data-radix-dialog-content] input,
@@ -453,8 +390,9 @@
     color: rgba(255, 255, 255, 0.6) !important;
   }
 
-  /* ===== SPECIAL BRANDSMEN THEME HANDLING ===== */
+  /* ===== BRANDSMEN THEME SPECIFIC FIXES ===== */
   
+  /* Brandsmen theme detection based on white question items */
   .questions-item[style*="background: #ffffff"],
   .questions-item[style*="background: white"] {
     color: var(--theme-white-button-text) !important;
@@ -465,11 +403,20 @@
   .questions-item[style*="background: white"]:hover {
     color: var(--theme-white-button-text) !important;
     text-shadow: none !important;
+    background-color: #f0f0f0 !important;
   }
 
+  /* Remove shadows from points and checkmarks in Brandsmen theme */
+  .questions-item[style*="background: #ffffff"] *,
+  .questions-item[style*="background: white"] * {
+    text-shadow: none !important;
+  }
+
+  /* Answered questions styling */
   .questions-item.answered {
     background: var(--theme-secondary) !important;
     color: var(--theme-text) !important;
+    text-shadow: none !important;
   }
 
   .questions-item.answered:hover {
@@ -477,17 +424,8 @@
     color: var(--theme-text) !important;
   }
 
-  /* ===== TEXT VISIBILITY FIXES ===== */
-  
-  .text-gray-300,
-  .text-gray-400,
-  .text-gray-200,
-  .text-gray-100 {
-    color: var(--theme-text) !important;
-  }
-
-  .text-white {
-    color: var(--theme-text) !important;
+  .questions-item.answered * {
+    text-shadow: none !important;
   }
 
   /* ===== SCORING MODAL SPECIFIC FIXES ===== */
@@ -505,24 +443,42 @@
     color: var(--theme-accent) !important;
   }
 
-  /* ===== ENSURE BUTTON VISIBILITY IN ALL CONTEXTS ===== */
+  /* ===== TEXT VISIBILITY UNIVERSAL FIXES ===== */
   
-  button:not([class*="bg-"]):not([style*="background"]) {
-    background-color: var(--theme-secondary) !important;
+  .text-gray-300,
+  .text-gray-400,
+  .text-gray-200,
+  .text-gray-100 {
     color: var(--theme-text) !important;
   }
 
-  /* ===== CLOSE BUTTON FIXES ===== */
-  
-  button[aria-label="Close"],
-  button:has(svg[aria-hidden="true"]) {
+  .text-white {
     color: var(--theme-text) !important;
-    background-color: var(--theme-secondary) !important;
   }
 
-  button[aria-label="Close"]:hover,
-  button:has(svg[aria-hidden="true"]):hover {
-    color: #ff6b6b !important;
-    background-color: var(--theme-muted) !important;
+  /* ===== CATEGORY HEADERS - NO ROUNDED CORNERS EXCEPT FIRST/LAST ===== */
+  
+  .category-header {
+    border-radius: 0 !important;
+  }
+
+  .category-header:first-child {
+    border-radius: 6px 0 0 0 !important;
+  }
+
+  .category-header:last-child {
+    border-radius: 0 6px 0 0 !important;
+  }
+
+  /* ===== REDUCED BORDER STYLING FOR GAME BOARD ===== */
+  
+  .questions-item {
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  }
+
+  /* ===== TIMER CONTROL VISIBILITY ===== */
+  
+  .answer-view .timer-control {
+    display: none !important;
   }
 }
