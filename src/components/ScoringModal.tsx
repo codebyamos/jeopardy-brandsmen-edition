@@ -28,22 +28,11 @@ const ScoringModal: React.FC<ScoringModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-2 sm:p-4">
-      <div 
-        className="border rounded-lg max-w-sm w-full p-3 sm:p-4 contrast-fixed relative"
-        style={{
-          backgroundColor: 'var(--theme-secondary)',
-          borderColor: 'var(--theme-muted)',
-          color: 'var(--theme-text)'
-        }}
-      >
+      <div className="bg-gray-800 border border-gray-600 rounded-lg max-w-sm w-full p-3 sm:p-4 relative">
         {/* Close button in top right corner */}
         <button
           onClick={onClose}
-          className="absolute top-3 right-3 p-1 rounded-sm opacity-70 hover:opacity-100 transition-opacity contrast-fixed"
-          style={{
-            color: 'var(--theme-text)',
-            backgroundColor: 'transparent'
-          }}
+          className="absolute top-3 right-3 text-gray-400 hover:text-red-400 p-1 rounded-sm transition-colors"
           aria-label="Close"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -51,48 +40,30 @@ const ScoringModal: React.FC<ScoringModalProps> = ({
           </svg>
         </button>
 
-        <h3 
-          className="text-lg sm:text-xl font-bold mb-3 text-center pr-8"
-          style={{ color: 'var(--theme-accent)' }}
-        >
+        <h3 className="text-lg sm:text-xl font-bold mb-3 text-center pr-8 text-yellow-400">
           Award Points
         </h3>
         <div className="grid grid-cols-1 gap-2">
           {players.map((player) => (
             <div 
               key={player.id} 
-              className="flex justify-between items-center rounded-lg p-2"
-              style={{
-                backgroundColor: 'var(--theme-muted)',
-                color: 'var(--theme-text)'
-              }}
+              className="flex justify-between items-center bg-gray-700 rounded-lg p-2"
             >
-              <span 
-                className="text-sm font-medium"
-                style={{ color: 'var(--theme-text)' }}
-              >
+              <span className="text-sm font-medium text-white">
                 {player.name}
               </span>
               <div className="flex gap-1">
                 <Button
                   onClick={() => onScorePlayer(player.id, points)}
                   size="sm"
-                  className="contrast-fixed font-medium text-xs px-3 py-2 border-0"
-                  style={{ 
-                    backgroundColor: '#16a34a',
-                    color: 'white'
-                  }}
+                  className="bg-green-600 hover:bg-green-700 text-white font-medium text-xs px-3 py-2 border-0"
                 >
                   +{points}
                 </Button>
                 <Button
                   onClick={() => onScorePlayer(player.id, -points)}
                   size="sm"
-                  className="contrast-fixed font-medium text-xs px-3 py-2 border-0"
-                  style={{ 
-                    backgroundColor: '#dc2626',
-                    color: 'white'
-                  }}
+                  className="bg-red-600 hover:bg-red-700 text-white font-medium text-xs px-3 py-2 border-0"
                 >
                   -{points}
                 </Button>
@@ -105,12 +76,7 @@ const ScoringModal: React.FC<ScoringModalProps> = ({
             onClick={onClose}
             variant="outline"
             size="sm"
-            className="text-sm font-medium contrast-fixed"
-            style={{
-              backgroundColor: 'transparent',
-              borderColor: 'var(--theme-muted)',
-              color: 'var(--theme-text)'
-            }}
+            className="text-sm font-medium border-gray-500 text-gray-300 hover:bg-gray-700"
           >
             Skip
           </Button>

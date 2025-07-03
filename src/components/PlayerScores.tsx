@@ -21,9 +21,9 @@ const PlayerScores: React.FC<PlayerScoresProps> = ({ players }) => {
                   className="w-5 h-5 sm:w-6 sm:h-6 rounded-full object-cover border border-white/30 flex-shrink-0"
                 />
               )}
-              <div className="font-bold text-sm sm:text-lg" style={{fontWeight: '400'}}>{player.name}</div>
+              <div className="font-bold text-sm sm:text-lg">{player.name}</div>
             </div>
-            <div className="bg-blue-800 text-white rounded px-2 sm:px-4 py-1 sm:py-2 text-base sm:text-xl font-bold" style={{fontWeight:'400', fontSize: '14px', padding: '3px 3px'}}>
+            <div className="bg-blue-800 text-white rounded px-2 sm:px-4 py-1 sm:py-2 text-base sm:text-xl font-bold">
               {player.score}
             </div>
           </div>

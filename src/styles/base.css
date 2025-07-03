@@ -33,23 +33,6 @@
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
-
-    /* Theme colors - Default */
-    --theme-primary: #4A90A4;
-    --theme-secondary: #2C5F6F;
-    --theme-background: linear-gradient(135deg, #87CEEB, #4A90A4);
-    --theme-board-background: linear-gradient(135deg, #87CEEBcc, #4A90A4cc);
-    --theme-category-header: #2C5F6F;
-    --theme-category-header-text: #ffffff;
-    --theme-question-item: #4A90A4;
-    --theme-question-item-hover: #3a7a8a;
-    --theme-text: #ffffff;
-    --theme-button-text: #ffffff;
-    --theme-white-button-text: #2C5F6F;
-    --theme-accent: #6badbe;
-    --theme-muted: #244955;
-    --theme-background-image: none;
-    --theme-background-opacity: 0.8;
   }
 
   .dark {
@@ -88,445 +71,71 @@
 
   body {
     @apply bg-background text-foreground;
-    background: var(--theme-background) !important;
+    background: linear-gradient(135deg, #000000, #374151);
     min-height: 100vh;
-    position: relative;
   }
 
-  /* Background image overlay */
-  body::before {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-image: var(--theme-background-image);
-    background-size: cover;
-    background-position: center top;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-    opacity: var(--theme-background-opacity, 0.15);
-    z-index: -1;
+  /* Modal background overlay - prevent transparency on hover */
+  .fixed.inset-0.bg-black.bg-opacity-90 {
+    background-color: rgba(0, 0, 0, 0.9) !important;
   }
 
-  body[data-no-background]::before {
-    display: none;
+  .fixed.inset-0.bg-black.bg-opacity-90:hover {
+    background-color: rgba(0, 0, 0, 0.9) !important;
   }
 
-  /* ===== UNIVERSAL MODAL STYLING ===== */
-  
-  /* Modal overlays - prevent transparency on hover */
-  [data-radix-dialog-overlay],
-  .fixed.inset-0.bg-black {
-    background-color: rgba(0, 0, 0, 0.8) !important;
-  }
-
-  [data-radix-dialog-overlay]:hover,
-  .fixed.inset-0.bg-black:hover {
-    background-color: rgba(0, 0, 0, 0.8) !important;
-  }
-
-  /* All modal content containers */
-  [data-radix-dialog-content],
-  [role="dialog"],
-  .modal-content,
-  .fixed.inset-0 > div:not(.bg-black):not(.bg-opacity-90),
-  .fixed.inset-0 .border.rounded-lg {
-    background-color: var(--theme-secondary) !important;
-    color: var(--theme-text) !important;
-    border-color: var(--theme-muted) !important;
-  }
-
-  /* Force all text inside modals to be theme-aware */
-  [data-radix-dialog-content] *:not(button):not([role="button"]):not(input):not(svg),
-  [role="dialog"] *:not(button):not([role="button"]):not(input):not(svg),
-  .modal-content *:not(button):not([role="button"]):not(input):not(svg),
-  .fixed.inset-0 .border.rounded-lg *:not(button):not([role="button"]):not(input):not(svg) {
-    color: var(--theme-text) !important;
-  }
-
-  /* Modal headers and titles - always accent color */
-  [data-radix-dialog-content] [data-radix-dialog-title],
-  [data-radix-dialog-content] h1,
-  [data-radix-dialog-content] h2,
-  [data-radix-dialog-content] h3,
-  [data-radix-dialog-content] h4,
-  [role="dialog"] h1,
-  [role="dialog"] h2,
-  [role="dialog"] h3,
-  [role="dialog"] h4,
-  .modal-content h1,
-  .modal-content h2,
-  .modal-content h3,
-  .modal-content h4,
-  .fixed.inset-0 .border.rounded-lg h1,
-  .fixed.inset-0 .border.rounded-lg h2,
-  .fixed.inset-0 .border.rounded-lg h3,
-  .fixed.inset-0 .border.rounded-lg h4 {
-    color: var(--theme-accent) !important;
-  }
-
-  /* Close buttons - always in top right corner with proper hover */
-  [data-radix-dialog-content] [data-radix-dialog-close],
-  [aria-label="Close"],
-  button:has(svg[aria-hidden="true"]) {
-    position: absolute !important;
-    top: 1rem !important;
-    right: 1rem !important;
-    left: auto !important;
-    bottom: auto !important;
-    color: var(--theme-text) !important;
-    background-color: transparent !important;
-    border: none !important;
-    z-index: 10 !important;
-  }
-
-  [data-radix-dialog-content] [data-radix-dialog-close]:hover,
-  [aria-label="Close"]:hover,
-  button:has(svg[aria-hidden="true"]):hover {
-    color: #ff6b6b !important;
-    background-color: rgba(255, 107, 107, 0.1) !important;
-  }
-
-  /* ===== COMPREHENSIVE BUTTON STYLING ===== */
-  
-  /* Default button contrast */
-  button:not(.contrast-fixed) {
-    color: var(--theme-button-text) !important;
-  }
-
-  button:not(.contrast-fixed) *,
-  .button *,
-  [role="button"] * {
-    color: inherit !important;
-  }
-
-  /* ===== SPECIFIC COLOR BUTTON OVERRIDES ===== */
-  
-  /* White buttons - always dark text */
-  button.bg-white,
-  button[style*="background: white"],
-  button[style*="background-color: white"],
-  button[style*="background: #ffffff"],
-  button[style*="background-color: #ffffff"],
-  .bg-white {
-    background-color: white !important;
-    color: #1a1a1a !important;
-  }
-
-  button.bg-white *,
-  button[style*="background: white"] *,
-  button[style*="background-color: white"] *,
-  button[style*="background: #ffffff"] *,
-  button[style*="background-color: #ffffff"] *,
-  .bg-white * {
-    color: #1a1a1a !important;
-  }
-
-  /* White button hover - light gray background */
-  button.bg-white:hover,
-  button[style*="background: white"]:hover,
-  button[style*="background-color: white"]:hover,
-  button[style*="background: #ffffff"]:hover,
-  button[style*="background-color: #ffffff"]:hover,
-  .bg-white:hover {
-    background-color: #f5f5f5 !important;
-    color: #1a1a1a !important;
-  }
-
-  /* Green buttons - always white text */
-  .bg-green-600,
-  .bg-green-500,
-  .bg-green-700,
-  button.bg-green-600,
-  button.bg-green-500,
-  button.bg-green-700 {
-    background-color: #16a34a !important;
-    color: white !important;
-  }
-
-  .bg-green-600 *,
-  .bg-green-500 *,
-  .bg-green-700 *,
-  button.bg-green-600 *,
-  button.bg-green-500 *,
-  button.bg-green-700 * {
-    color: white !important;
-  }
-
-  /* Red buttons - always white text */
-  .bg-red-600,
-  .bg-red-500,
-  .bg-red-700,
-  button.bg-red-600,
-  button.bg-red-500,
-  button.bg-red-700 {
-    background-color: #dc2626 !important;
-    color: white !important;
-  }
-
-  .bg-red-600 *,
-  .bg-red-500 *,
-  .bg-red-700 *,
-  button.bg-red-600 *,
-  button.bg-red-500 *,
-  button.bg-red-700 * {
-    color: white !important;
-  }
-
-  /* Blue buttons - always white text */
-  .bg-blue-600,
-  .bg-blue-500,
-  .bg-blue-700,
-  button.bg-blue-600,
-  button.bg-blue-500,
-  button.bg-blue-700 {
-    background-color: #2563eb !important;
-    color: white !important;
-  }
-
-  .bg-blue-600 *,
-  .bg-blue-500 *,
-  .bg-blue-700 *,
-  button.bg-blue-600 *,
-  button.bg-blue-500 *,
-  button.bg-blue-700 * {
-    color: white !important;
-  }
-
-  /* Teal buttons use theme primary */
-  .bg-teal-600,
-  .bg-teal-700,
-  .bg-teal-800,
-  button.bg-teal-600,
-  button.bg-teal-700,
-  button.bg-teal-800 {
-    background-color: var(--theme-primary) !important;
-    color: var(--theme-text) !important;
-  }
-
-  /* Teal button hover - no black background */
-  .bg-teal-600:hover,
-  .bg-teal-700:hover,
-  .bg-teal-800:hover,
-  button.bg-teal-600:hover,
-  button.bg-teal-700:hover,
-  button.bg-teal-800:hover {
-    background-color: var(--theme-question-item-hover) !important;
-    color: var(--theme-text) !important;
-  }
-
-  /* ===== OUTLINE BUTTONS ===== */
-  
-  button[variant="outline"],
-  .border-gray-600,
-  .border-gray-700 {
-    background-color: transparent !important;
-    border: 1px solid var(--theme-muted) !important;
-    color: var(--theme-text) !important;
-  }
-
-  button[variant="outline"]:hover,
-  .border-gray-600:hover,
-  .border-gray-700:hover {
-    background-color: var(--theme-muted) !important;
-    color: var(--theme-text) !important;
-  }
-
-  /* ===== HOVER STATES WITH PROPER CONTRAST ===== */
-  
-  .hover\:bg-gray-600:hover,
-  .hover\:bg-gray-700:hover,
-  .hover\:bg-gray-800:hover,
-  .hover\:bg-gray-900:hover,
-  .hover\:bg-slate-600:hover,
-  .hover\:bg-slate-700:hover,
-  .hover\:bg-slate-800:hover {
-    background-color: var(--theme-question-item-hover) !important;
-    color: var(--theme-text) !important;
-  }
-
-  .hover\:bg-green-700:hover,
-  .hover\:bg-green-600:hover {
-    background-color: #15803d !important;
-    color: white !important;
-  }
-
-  .hover\:bg-red-700:hover,
-  .hover\:bg-red-600:hover {
-    background-color: #b91c1c !important;
-    color: white !important;
-  }
-
-  .hover\:bg-blue-700:hover,
-  .hover\:bg-blue-600:hover {
-    background-color: #1d4ed8 !important;
-    color: white !important;
-  }
-
-  /* ===== ICON HOVER FIXES ===== */
-  
-  /* White icons should have contrasting hover */
-  svg.text-white:hover,
-  .text-white svg:hover,
-  button:has(svg.text-white):hover svg,
-  svg[style*="color: white"]:hover,
-  svg[style*="color: #ffffff"]:hover,
-  svg[style*="color: #fff"]:hover {
-    color: #ff6b6b !important;
-  }
-
-  /* Light colored icons should have contrasting hover */
-  svg.text-gray-300:hover,
-  svg.text-gray-400:hover,
-  svg.text-gray-200:hover,
-  svg.text-gray-100:hover,
-  .text-gray-300 svg:hover,
-  .text-gray-400 svg:hover,
-  .text-gray-200 svg:hover,
-  .text-gray-100 svg:hover {
+  /* Close button hover - proper contrast */
+  button[aria-label="Close"]:hover {
     color: #ef4444 !important;
   }
 
-  /* Dark icons should have light hover */
-  svg.text-gray-600:hover,
-  svg.text-gray-700:hover,
-  svg.text-gray-800:hover,
-  .text-gray-600 svg:hover,
-  .text-gray-700 svg:hover,
-  .text-gray-800 svg:hover {
+  /* Icon hover fixes */
+  svg.text-white:hover,
+  .text-white svg:hover {
+    color: #ef4444 !important;
+  }
+
+  svg.text-gray-400:hover,
+  .text-gray-400 svg:hover {
     color: #60a5fa !important;
   }
 
-  /* ===== INPUT FIELDS IN MODALS ===== */
-  
-  [data-radix-dialog-content] input,
-  [role="dialog"] input,
-  .modal-content input,
-  .fixed.inset-0 input {
-    background-color: var(--theme-muted) !important;
-    color: var(--theme-text) !important;
-    border-color: var(--theme-accent) !important;
-  }
-
-  [data-radix-dialog-content] input::placeholder,
-  [role="dialog"] input::placeholder,
-  .modal-content input::placeholder,
-  .fixed.inset-0 input::placeholder {
-    color: rgba(255, 255, 255, 0.6) !important;
-  }
-
-  /* ===== BRANDSMEN THEME SPECIFIC FIXES ===== */
-  
-  /* Brandsmen theme detection based on white question items */
-  .questions-item[style*="background: #ffffff"],
-  .questions-item[style*="background: white"] {
-    color: var(--theme-white-button-text) !important;
-    text-shadow: none !important;
-  }
-
-  .questions-item[style*="background: #ffffff"]:hover,
-  .questions-item[style*="background: white"]:hover {
-    color: var(--theme-white-button-text) !important;
-    text-shadow: none !important;
-    background-color: #f0f0f0 !important;
-  }
-
-  /* Remove shadows from points and checkmarks in Brandsmen theme */
-  .questions-item[style*="background: #ffffff"] *,
-  .questions-item[style*="background: white"] * {
-    text-shadow: none !important;
-  }
-
-  /* Brandsmen theme player scores */
-  body:has(.questions-item[style*="background: #ffffff"]) .bg-yellow-400 {
-    background-color: #ffffff !important;
-    color: #2C5F6F !important;
-    border: 2px solid #2C5F6F !important;
-  }
-
-  body:has(.questions-item[style*="background: #ffffff"]) .bg-blue-800 {
-    background-color: #2C5F6F !important;
+  /* Modal content styling */
+  [data-radix-dialog-content] {
+    background-color: #1f2937 !important;
+    border-color: #4b5563 !important;
     color: #ffffff !important;
   }
 
-  /* Answered questions styling */
-  .questions-item.answered {
-    background: var(--theme-secondary) !important;
-    color: var(--theme-text) !important;
-    text-shadow: none !important;
+  /* Modal headers */
+  [data-radix-dialog-content] h1,
+  [data-radix-dialog-content] h2,
+  [data-radix-dialog-content] h3,
+  [data-radix-dialog-content] h4 {
+    color: #fbbf24 !important;
   }
 
-  .questions-item.answered:hover {
-    background: var(--theme-muted) !important;
-    color: var(--theme-text) !important;
+  /* Modal close buttons */
+  [data-radix-dialog-content] [data-radix-dialog-close] {
+    color: #9ca3af !important;
   }
 
-  .questions-item.answered * {
-    text-shadow: none !important;
+  [data-radix-dialog-content] [data-radix-dialog-close]:hover {
+    color: #ef4444 !important;
   }
 
-  /* ===== SCORING MODAL SPECIFIC FIXES ===== */
-  
-  .fixed.inset-0.bg-black.bg-opacity-90 .border.rounded-lg {
-    background-color: var(--theme-secondary) !important;
-    border-color: var(--theme-muted) !important;
+  /* Input fields in modals */
+  [data-radix-dialog-content] input {
+    background-color: #374151 !important;
+    border-color: #6b7280 !important;
+    color: #ffffff !important;
   }
 
-  .fixed.inset-0.bg-black.bg-opacity-90 .border.rounded-lg * {
-    color: var(--theme-text) !important;
+  [data-radix-dialog-content] input::placeholder {
+    color: #9ca3af !important;
   }
 
-  .fixed.inset-0.bg-black.bg-opacity-90 .border.rounded-lg h3 {
-    color: var(--theme-accent) !important;
-  }
-
-  /* ===== TEXT VISIBILITY UNIVERSAL FIXES ===== */
-  
-  .text-gray-300,
-  .text-gray-400,
-  .text-gray-200,
-  .text-gray-100 {
-    color: var(--theme-text) !important;
-  }
-
-  .text-white {
-    color: var(--theme-text) !important;
-  }
-
-  /* ===== CATEGORY HEADERS - NO ROUNDED CORNERS EXCEPT FIRST/LAST ===== */
-  
-  .category-header {
-    border-radius: 0 !important;
-    border-right: none !important;
-  }
-
-  .category-header:first-child {
-    border-radius: 6px 0 0 0 !important;
-  }
-
-  .category-header:last-child {
-    border-radius: 0 6px 0 0 !important;
-  }
-
-  /* ===== REDUCED BORDER STYLING FOR GAME BOARD ===== */
-  
-  .questions-item {
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    text-shadow: none !important;
-  }
-
-  /* Remove text shadows from all game board items */
-  .questions-item,
-  .questions-item *,
-  .category-header,
-  .category-header * {
-    text-shadow: none !important;
-  }
-
-  /* ===== TIMER CONTROL VISIBILITY ===== */
-  
+  /* Timer control visibility */
   .answer-view .timer-control {
     display: none !important;
   }
