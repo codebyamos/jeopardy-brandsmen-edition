@@ -4,7 +4,6 @@ import { Button } from './ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
-import { Switch } from './ui/switch';
 import { useTimerSettings } from '../hooks/useTimerSettings';
 
 interface TimerSettingsProps {
@@ -14,12 +13,10 @@ interface TimerSettingsProps {
 
 const TimerSettings: React.FC<TimerSettingsProps> = ({ isVisible, onClose }) => {
   const { settings, updateSettings } = useTimerSettings();
-  const [localTimerEnabled, setLocalTimerEnabled] = useState(settings.isTimerEnabled);
   const [localTimerDuration, setLocalTimerDuration] = useState(settings.timerDuration.toString());
 
   useEffect(() => {
     if (isVisible) {
-      setLocalTimerEnabled(settings.isTimerEnabled);
       setLocalTimerDuration(settings.timerDuration.toString());
     }
   }, [isVisible, settings]);
@@ -28,7 +25,6 @@ const TimerSettings: React.FC<TimerSettingsProps> = ({ isVisible, onClose }) => 
     const duration = parseInt(localTimerDuration);
     if (duration > 0) {
       updateSettings({
-        isTimerEnabled: localTimerEnabled,
         timerDuration: duration
       });
       onClose();
@@ -43,17 +39,6 @@ const TimerSettings: React.FC<TimerSettingsProps> = ({ isVisible, onClose }) => 
         </DialogHeader>
         
         <div className="space-y-6">
-          <div className="flex items-center justify-between">
-            <Label htmlFor="timer-enabled" className="text-white">
-              Enable Question Timer
-            </Label>
-            <Switch
-              id="timer-enabled"
-              checked={localTimerEnabled}
-              onCheckedChange={setLocalTimerEnabled}
-            />
-          </div>
-
           <div>
             <Label htmlFor="timer-duration" className="text-white">
               Timer Duration (seconds)
