@@ -13,3 +13,9 @@ export interface Player {
   score: number;
   avatar?: string;
 }
+
+export interface GameData {
+  players: Player[];
+  questions: Question[];
+  answeredQuestions: number[];
+}

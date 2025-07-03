@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { Player } from '@/types/game';
+import { Player, Question } from '@/types/game';
 import { useToast } from '@/hooks/use-toast';
 
 export const useGameData = () => {
@@ -9,13 +9,14 @@ export const useGameData = () => {
   const [currentGameId, setCurrentGameId] = useState<string | null>(null);
   const { toast } = useToast();
 
-  const saveGame = async (players: Player[], gameDate?: string) => {
+  const saveGame = async (players: Player[], questions?: Question[], answeredQuestions?: number[], gameDate?: string, isManual: boolean = false) => {
     setIsLoading(true);
     try {
       const today = gameDate || new Date().toISOString().split('T')[0];
       let gameId = currentGameId;
 
       console.log('Saving game with players:', players);
+      console.log('Saving questions:', questions?.length || 0);
       console.log('Current game ID:', gameId);
       console.log('Game date:', today);
 
@@ -84,20 +85,52 @@ export const useGameData = () => {
 
       if (playersError) throw playersError;
 
+      // Save questions and answered questions if provided
+      if (questions && questions.length > 0) {
+        // Delete existing questions for this game
+        await supabase
+          .from('game_questions')
+          .delete()
+          .eq('game_id', gameId);
+
+        // Save all questions for this game
+        const gameQuestionsData = questions.map(question => ({
+          game_id: gameId,
+          question_id: question.id,
+          category: question.category,
+          points: question.points,
+          question: question.question,
+          answer: question.answer,
+          is_answered: answeredQuestions?.includes(question.id) || false
+        }));
+
+        const { error: questionsError } = await supabase
+          .from('game_questions')
+          .insert(gameQuestionsData);
+
+        if (questionsError) throw questionsError;
+      }
+
       console.log('Game saved successfully to database');
-      toast({
-        title: "Game Saved!",
-        description: "Your game has been successfully saved to the database.",
-      });
+      
+      // Only show toast for manual saves
+      if (isManual) {
+        toast({
+          title: "Game Saved!",
+          description: "Your game has been successfully saved to the database.",
+        });
+      }
 
       return gameId;
     } catch (error) {
       console.error('Error saving game:', error);
-      toast({
-        title: "Error",
-        description: "Failed to save the game. Please try again.",
-        variant: "destructive",
-      });
+      if (isManual) {
+        toast({
+          title: "Error",
+          description: "Failed to save the game. Please try again.",
+          variant: "destructive",
+        });
+      }
       throw error;
     } finally {
       setIsLoading(false);
@@ -107,7 +140,13 @@ export const useGameData = () => {
   const deleteGame = async (gameId: string) => {
     setIsLoading(true);
     try {
-      // Delete game players first (due to foreign key constraint)
+      // Delete game questions first
+      await supabase
+        .from('game_questions')
+        .delete()
+        .eq('game_id', gameId);
+
+      // Delete game players
       const { error: playersError } = await supabase
         .from('game_players')
         .delete()
@@ -161,6 +200,14 @@ export const useGameData = () => {
             player_name,
             player_score,
             avatar_url
+          ),
+          game_questions (
+            question_id,
+            category,
+            points,
+            question,
+            answer,
+            is_answered
           )
         `)
         .order('game_date', { ascending: false })

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
 import GameBoard from '../components/GameBoard';
 import QuestionModal from '../components/QuestionModal';
@@ -94,22 +95,44 @@ const Index = () => {
           
           console.log('Todays game found:', todaysGame);
           
-          if (todaysGame && todaysGame.game_players && todaysGame.game_players.length > 0) {
+          if (todaysGame) {
             // Load players from the database
-            const loadedPlayers: Player[] = todaysGame.game_players.map((player, index) => ({
-              id: index + 1, // Use index + 1 for consistent ID
-              name: player.player_name,
-              score: player.player_score,
-              avatar: player.avatar_url || undefined
-            }));
-            console.log('Loaded players from database:', loadedPlayers);
-            setPlayers(loadedPlayers);
+            if (todaysGame.game_players && todaysGame.game_players.length > 0) {
+              const loadedPlayers: Player[] = todaysGame.game_players.map((player, index) => ({
+                id: index + 1,
+                name: player.player_name,
+                score: player.player_score,
+                avatar: player.avatar_url || undefined
+              }));
+              console.log('Loaded players from database:', loadedPlayers);
+              setPlayers(loadedPlayers);
+            }
+
+            // Load questions from the database
+            if (todaysGame.game_questions && todaysGame.game_questions.length > 0) {
+              const loadedQuestions: Question[] = todaysGame.game_questions.map(q => ({
+                id: q.question_id,
+                category: q.category,
+                points: q.points,
+                question: q.question,
+                answer: q.answer
+              }));
+              console.log('Loaded questions from database:', loadedQuestions);
+              setQuestions(loadedQuestions);
+
+              // Load answered questions
+              const answeredIds = todaysGame.game_questions
+                .filter(q => q.is_answered)
+                .map(q => q.question_id);
+              console.log('Loaded answered questions:', answeredIds);
+              setAnsweredQuestions(new Set(answeredIds));
+            }
             setHasDataLoaded(true);
           }
         }
       } catch (error) {
         console.error('Failed to load game state:', error);
-        // Continue with default players if loading fails
+        // Continue with default data if loading fails
       } finally {
         setIsLoadingGameState(false);
         if (!hasDataLoaded) {
@@ -121,36 +144,26 @@ const Index = () => {
     loadGameState();
   }, [isAuthenticated, stableLoadRecentGames, hasDataLoaded]);
 
-  // Auto-save game state whenever players change (with debouncing)
+  // Auto-save game state every 20 minutes
   useEffect(() => {
     if (!isAuthenticated || isLoadingGameState || !hasDataLoaded) {
-      console.log('Skipping auto-save:', { isAuthenticated, isLoadingGameState, hasDataLoaded });
+      console.log('Skipping auto-save setup:', { isAuthenticated, isLoadingGameState, hasDataLoaded });
       return;
     }
 
-    // Don't auto-save if players are still default values
-    const isDefaultState = players.length === 2 && 
-      players[0].name === 'Team 1' && players[0].score === 0 &&
-      players[1].name === 'Team 2' && players[1].score === 0 &&
-      !players[0].avatar && !players[1].avatar;
-
-    if (isDefaultState) {
-      console.log('Skipping auto-save for default state');
-      return;
-    }
-
-    const timeoutId = setTimeout(async () => {
+    // Set up auto-save every 20 minutes (1200000 ms)
+    const autoSaveInterval = setInterval(async () => {
       try {
-        console.log('Auto-saving game state...', players);
-        await saveGame(players);
+        console.log('Auto-saving game state...');
+        await saveGame(players, questions, Array.from(answeredQuestions), undefined, false);
         console.log('Game state auto-saved successfully');
       } catch (error) {
         console.error('Failed to auto-save game state:', error);
       }
-    }, 2000); // Debounce for 2 seconds
+    }, 1200000); // 20 minutes
 
-    return () => clearTimeout(timeoutId);
-  }, [players, saveGame, isAuthenticated, isLoadingGameState, hasDataLoaded]);
+    return () => clearInterval(autoSaveInterval);
+  }, [players, questions, answeredQuestions, saveGame, isAuthenticated, isLoadingGameState, hasDataLoaded]);
 
   const handleQuestionSelect = (category: string, points: number) => {
     const question = questions.find(q => q.category === category && q.points === points);
@@ -177,7 +190,7 @@ const Index = () => {
   const handleSaveGame = async () => {
     try {
       console.log('Manual save triggered');
-      await saveGame(players);
+      await saveGame(players, questions, Array.from(answeredQuestions), undefined, true);
     } catch (error) {
       console.error('Failed to save game:', error);
     }
