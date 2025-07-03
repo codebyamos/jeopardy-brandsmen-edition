@@ -29,7 +29,7 @@ const ScoringModal: React.FC<ScoringModalProps> = ({
   return (
     <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-2 sm:p-4">
       <div 
-        className="border rounded-lg max-w-sm w-full p-3 sm:p-4"
+        className="border rounded-lg max-w-sm w-full p-3 sm:p-4 contrast-fixed"
         style={{
           backgroundColor: 'var(--theme-secondary)',
           borderColor: 'var(--theme-muted)',
@@ -62,14 +62,22 @@ const ScoringModal: React.FC<ScoringModalProps> = ({
                 <Button
                   onClick={() => onScorePlayer(player.id, points)}
                   size="sm"
-                  className="bg-green-600 hover:bg-green-700 font-medium text-xs px-3 py-2 border-0"
+                  className="bg-green-600 hover:bg-green-700 font-medium text-xs px-3 py-2 border-0 contrast-fixed"
+                  style={{ 
+                    backgroundColor: '#16a34a',
+                    color: 'white'
+                  }}
                 >
                   +{points}
                 </Button>
                 <Button
                   onClick={() => onScorePlayer(player.id, -points)}
                   size="sm"
-                  className="bg-red-600 hover:bg-red-700 font-medium text-xs px-3 py-2 border-0"
+                  className="bg-red-600 hover:bg-red-700 font-medium text-xs px-3 py-2 border-0 contrast-fixed"
+                  style={{ 
+                    backgroundColor: '#dc2626',
+                    color: 'white'
+                  }}
                 >
                   -{points}
                 </Button>
@@ -82,7 +90,12 @@ const ScoringModal: React.FC<ScoringModalProps> = ({
             onClick={onClose}
             variant="outline"
             size="sm"
-            className="text-sm font-medium"
+            className="text-sm font-medium contrast-fixed"
+            style={{
+              backgroundColor: 'transparent',
+              borderColor: 'var(--theme-muted)',
+              color: 'var(--theme-text)'
+            }}
           >
             Skip
           </Button>

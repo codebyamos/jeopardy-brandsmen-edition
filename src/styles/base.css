@@ -34,7 +34,7 @@
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
 
-    /* Theme colors - Default (can be overridden) */
+    /* Theme colors - Default */
     --theme-primary: #4A90A4;
     --theme-secondary: #2C5F6F;
     --theme-background: linear-gradient(135deg, #87CEEB, #4A90A4);
@@ -93,7 +93,7 @@
     position: relative;
   }
 
-  /* Background image overlay - with variable opacity */
+  /* Background image overlay */
   body::before {
     content: '';
     position: fixed;
@@ -110,26 +110,30 @@
     z-index: -1;
   }
 
-  /* Hide background when no image is set */
   body[data-no-background]::before {
     display: none;
   }
 
-  /* ===== UNIVERSAL MODAL STYLING ===== */
-  /* All modals get theme-aware styling */
-  [data-radix-dialog-content], 
-  .modal-content, 
-  .bg-gray-900[role="dialog"],
-  .bg-gray-800[role="dialog"] {
+  /* ===== COMPREHENSIVE MODAL STYLING ===== */
+  
+  /* All possible modal selectors with forced styling */
+  [data-radix-dialog-content],
+  [role="dialog"],
+  .modal-content,
+  .fixed.inset-0 > div:not(.bg-black),
+  .fixed.inset-0 .border.rounded-lg,
+  .bg-gray-900[role]:not([role="button"]),
+  .bg-gray-800[role]:not([role="button"]) {
     background-color: var(--theme-secondary) !important;
     color: var(--theme-text) !important;
     border-color: var(--theme-muted) !important;
   }
 
-  /* All modal text uses theme text color */
+  /* Force all text inside modals to be visible */
   [data-radix-dialog-content] *,
-  .modal-content *,
-  [role="dialog"] * {
+  [role="dialog"] *:not(button):not([role="button"]),
+  .modal-content *:not(button):not([role="button"]),
+  .fixed.inset-0 .border.rounded-lg *:not(button):not([role="button"]) {
     color: var(--theme-text) !important;
   }
 
@@ -139,6 +143,10 @@
   [data-radix-dialog-content] h2,
   [data-radix-dialog-content] h3,
   [data-radix-dialog-content] h4,
+  [role="dialog"] h1,
+  [role="dialog"] h2,
+  [role="dialog"] h3,
+  [role="dialog"] h4,
   .modal-content h1,
   .modal-content h2,
   .modal-content h3,
@@ -146,224 +154,307 @@
     color: var(--theme-accent) !important;
   }
 
-  /* ===== UNIVERSAL BUTTON STYLING ===== */
+  /* ===== COMPREHENSIVE BUTTON STYLING ===== */
   
-  /* Default button text color */
-  button {
+  /* Default button styling with proper contrast */
+  button:not(.contrast-fixed) {
+    position: relative;
+  }
+
+  button:not(.contrast-fixed)::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  /* Force proper text color on all buttons */
+  button,
+  .button,
+  [role="button"] {
     color: var(--theme-button-text) !important;
   }
 
-  button:hover {
-    color: var(--theme-button-text) !important;
-  }
-
-  /* Force visibility for all button content */
-  button span, 
-  button div, 
-  button p,
-  button svg {
+  button *,
+  .button *,
+  [role="button"] * {
     color: inherit !important;
   }
 
-  /* ===== WHITE BUTTON CONTRAST FIXES ===== */
-  /* White buttons need dark text for visibility */
-  .bg-white, 
+  /* ===== SPECIFIC COLOR BUTTON OVERRIDES ===== */
+  
+  /* White buttons - always dark text */
   button.bg-white,
-  button[style*="background: white"], 
+  button[style*="background: white"],
   button[style*="background-color: white"],
   button[style*="background: #ffffff"],
-  button[style*="background:#ffffff"] {
-    color: var(--theme-white-button-text) !important;
+  button[style*="background-color: #ffffff"],
+  .bg-white {
     background-color: white !important;
+    color: #1a1a1a !important;
   }
 
-  .bg-white *, 
   button.bg-white *,
-  button[style*="background: white"] *, 
+  button[style*="background: white"] *,
   button[style*="background-color: white"] *,
   button[style*="background: #ffffff"] *,
-  button[style*="background:#ffffff"] * {
-    color: var(--theme-white-button-text) !important;
+  button[style*="background-color: #ffffff"] *,
+  .bg-white * {
+    color: #1a1a1a !important;
   }
 
-  /* White button hover states */
-  .bg-white:hover, 
-  button.bg-white:hover,
-  button[style*="background: white"]:hover, 
-  button[style*="background-color: white"]:hover,
-  button[style*="background: #ffffff"]:hover,
-  button[style*="background:#ffffff"]:hover {
-    color: var(--theme-white-button-text) !important;
-    background-color: #f0f0f0 !important;
-  }
-
-  /* ===== COLORED BUTTON CONTRAST FIXES ===== */
-  
-  /* Green buttons */
-  .bg-green-600, .bg-green-500, .bg-green-700,
-  button.bg-green-600, button.bg-green-500, button.bg-green-700 {
+  /* Green buttons - always white text */
+  .bg-green-600,
+  .bg-green-500,
+  .bg-green-700,
+  button.bg-green-600,
+  button.bg-green-500,
+  button.bg-green-700 {
     background-color: #16a34a !important;
     color: white !important;
   }
 
-  .bg-green-600 *, .bg-green-500 *, .bg-green-700 *,
-  button.bg-green-600 *, button.bg-green-500 *, button.bg-green-700 * {
+  .bg-green-600 *,
+  .bg-green-500 *,
+  .bg-green-700 *,
+  button.bg-green-600 *,
+  button.bg-green-500 *,
+  button.bg-green-700 * {
     color: white !important;
   }
 
-  /* Red buttons */
-  .bg-red-600, .bg-red-500, .bg-red-700,
-  button.bg-red-600, button.bg-red-500, button.bg-red-700 {
+  /* Red buttons - always white text */
+  .bg-red-600,
+  .bg-red-500,
+  .bg-red-700,
+  button.bg-red-600,
+  button.bg-red-500,
+  button.bg-red-700 {
     background-color: #dc2626 !important;
     color: white !important;
   }
 
-  .bg-red-600 *, .bg-red-500 *, .bg-red-700 *,
-  button.bg-red-600 *, button.bg-red-500 *, button.bg-red-700 * {
+  .bg-red-600 *,
+  .bg-red-500 *,
+  .bg-red-700 *,
+  button.bg-red-600 *,
+  button.bg-red-500 *,
+  button.bg-red-700 * {
     color: white !important;
   }
 
-  /* Blue buttons */
-  .bg-blue-600, .bg-blue-500, .bg-blue-700,
-  button.bg-blue-600, button.bg-blue-500, button.bg-blue-700 {
+  /* Blue buttons - always white text */
+  .bg-blue-600,
+  .bg-blue-500,
+  .bg-blue-700,
+  button.bg-blue-600,
+  button.bg-blue-500,
+  button.bg-blue-700 {
     background-color: #2563eb !important;
     color: white !important;
   }
 
-  .bg-blue-600 *, .bg-blue-500 *, .bg-blue-700 *,
-  button.bg-blue-600 *, button.bg-blue-500 *, button.bg-blue-700 * {
+  .bg-blue-600 *,
+  .bg-blue-500 *,
+  .bg-blue-700 *,
+  button.bg-blue-600 *,
+  button.bg-blue-500 *,
+  button.bg-blue-700 * {
     color: white !important;
   }
 
-  /* Purple buttons */
-  .bg-purple-600, .bg-purple-500, .bg-purple-700,
-  button.bg-purple-600, button.bg-purple-500, button.bg-purple-700 {
+  /* Purple buttons - always white text */
+  .bg-purple-600,
+  .bg-purple-500,
+  .bg-purple-700,
+  button.bg-purple-600,
+  button.bg-purple-500,
+  button.bg-purple-700 {
     background-color: #9333ea !important;
     color: white !important;
   }
 
-  .bg-purple-600 *, .bg-purple-500 *, .bg-purple-700 *,
-  button.bg-purple-600 *, button.bg-purple-500 *, button.bg-purple-700 * {
+  .bg-purple-600 *,
+  .bg-purple-500 *,
+  .bg-purple-700 *,
+  button.bg-purple-600 *,
+  button.bg-purple-500 *,
+  button.bg-purple-700 * {
     color: white !important;
   }
 
-  /* Yellow/Orange buttons */
-  .bg-yellow-600, .bg-yellow-500, .bg-yellow-700,
-  .bg-orange-600, .bg-orange-500, .bg-orange-700,
-  button.bg-yellow-600, button.bg-yellow-500, button.bg-yellow-700,
-  button.bg-orange-600, button.bg-orange-500, button.bg-orange-700 {
-    color: black !important;
+  /* Yellow/Orange buttons - always dark text */
+  .bg-yellow-600,
+  .bg-yellow-500,
+  .bg-yellow-700,
+  .bg-orange-600,
+  .bg-orange-500,
+  .bg-orange-700,
+  button.bg-yellow-600,
+  button.bg-yellow-500,
+  button.bg-yellow-700,
+  button.bg-orange-600,
+  button.bg-orange-500,
+  button.bg-orange-700 {
+    color: #1a1a1a !important;
   }
 
-  .bg-yellow-600 *, .bg-yellow-500 *, .bg-yellow-700 *,
-  .bg-orange-600 *, .bg-orange-500 *, .bg-orange-700 *,
-  button.bg-yellow-600 *, button.bg-yellow-500 *, button.bg-yellow-700 *,
-  button.bg-orange-600 *, button.bg-orange-500 *, button.bg-orange-700 * {
-    color: black !important;
+  .bg-yellow-600 *,
+  .bg-yellow-500 *,
+  .bg-yellow-700 *,
+  .bg-orange-600 *,
+  .bg-orange-500 *,
+  .bg-orange-700 *,
+  button.bg-yellow-600 *,
+  button.bg-yellow-500 *,
+  button.bg-yellow-700 *,
+  button.bg-orange-600 *,
+  button.bg-orange-500 *,
+  button.bg-orange-700 * {
+    color: #1a1a1a !important;
   }
 
-  /* ===== THEME-AWARE BUTTON COLORS ===== */
+  /* ===== THEME-AWARE BUTTONS ===== */
   
-  /* Gray/Theme buttons use theme colors */
-  .bg-gray-900, .bg-gray-800, .bg-gray-700, .bg-gray-600,
-  button.bg-gray-900, button.bg-gray-800, button.bg-gray-700, button.bg-gray-600 {
+  /* Gray buttons use theme colors */
+  .bg-gray-900,
+  .bg-gray-800,
+  .bg-gray-700,
+  .bg-gray-600,
+  button.bg-gray-900,
+  button.bg-gray-800,
+  button.bg-gray-700,
+  button.bg-gray-600 {
     background-color: var(--theme-secondary) !important;
-    color: var(--theme-button-text) !important;
+    color: var(--theme-text) !important;
   }
 
-  .bg-gray-900 *, .bg-gray-800 *, .bg-gray-700 *, .bg-gray-600 *,
-  button.bg-gray-900 *, button.bg-gray-800 *, button.bg-gray-700 *, button.bg-gray-600 * {
-    color: var(--theme-button-text) !important;
+  .bg-gray-900 *,
+  .bg-gray-800 *,
+  .bg-gray-700 *,
+  .bg-gray-600 *,
+  button.bg-gray-900 *,
+  button.bg-gray-800 *,
+  button.bg-gray-700 *,
+  button.bg-gray-600 * {
+    color: var(--theme-text) !important;
   }
 
   /* Slate buttons */
-  .bg-slate-600, .bg-slate-700, .bg-slate-800,
-  button.bg-slate-600, button.bg-slate-700, button.bg-slate-800 {
+  .bg-slate-600,
+  .bg-slate-700,
+  .bg-slate-800,
+  button.bg-slate-600,
+  button.bg-slate-700,
+  button.bg-slate-800 {
     background-color: var(--theme-secondary) !important;
-    color: var(--theme-button-text) !important;
+    color: var(--theme-text) !important;
   }
 
-  .bg-slate-600 *, .bg-slate-700 *, .bg-slate-800 *,
-  button.bg-slate-600 *, button.bg-slate-700 *, button.bg-slate-800 * {
-    color: var(--theme-button-text) !important;
+  .bg-slate-600 *,
+  .bg-slate-700 *,
+  .bg-slate-800 *,
+  button.bg-slate-600 *,
+  button.bg-slate-700 *,
+  button.bg-slate-800 * {
+    color: var(--theme-text) !important;
   }
 
-  /* Teal/Theme primary buttons */
-  .bg-teal-600, .bg-teal-700, .bg-teal-800,
-  button.bg-teal-600, button.bg-teal-700, button.bg-teal-800 {
+  /* Teal buttons use theme primary */
+  .bg-teal-600,
+  .bg-teal-700,
+  .bg-teal-800,
+  button.bg-teal-600,
+  button.bg-teal-700,
+  button.bg-teal-800 {
     background-color: var(--theme-primary) !important;
-    color: var(--theme-button-text) !important;
+    color: var(--theme-text) !important;
   }
 
-  .bg-teal-600 *, .bg-teal-700 *, .bg-teal-800 *,
-  button.bg-teal-600 *, button.bg-teal-700 *, button.bg-teal-800 * {
-    color: var(--theme-button-text) !important;
+  .bg-teal-600 *,
+  .bg-teal-700 *,
+  .bg-teal-800 *,
+  button.bg-teal-600 *,
+  button.bg-teal-700 *,
+  button.bg-teal-800 * {
+    color: var(--theme-text) !important;
   }
 
-  /* ===== OUTLINE BUTTON STYLING ===== */
+  /* ===== OUTLINE BUTTONS ===== */
   
-  [variant="outline"], 
   button[variant="outline"],
   .border-gray-600,
   .border-gray-700 {
     background-color: transparent !important;
     border: 1px solid var(--theme-muted) !important;
-    color: var(--theme-button-text) !important;
+    color: var(--theme-text) !important;
   }
 
-  [variant="outline"]:hover, 
-  button[variant="outline"]:hover {
+  button[variant="outline"]:hover,
+  .border-gray-600:hover,
+  .border-gray-700:hover {
     background-color: var(--theme-muted) !important;
-    color: var(--theme-button-text) !important;
+    color: var(--theme-text) !important;
   }
 
   /* ===== HOVER STATES ===== */
   
-  /* Theme button hover states */
-  .hover\:bg-gray-600:hover, .hover\:bg-gray-700:hover, 
-  .hover\:bg-gray-800:hover, .hover\:bg-gray-900:hover,
-  .hover\:bg-slate-600:hover, .hover\:bg-slate-700:hover, .hover\:bg-slate-800:hover,
-  .hover\:bg-teal-600:hover, .hover\:bg-teal-700:hover, .hover\:bg-teal-800:hover {
+  .hover\:bg-gray-600:hover,
+  .hover\:bg-gray-700:hover,
+  .hover\:bg-gray-800:hover,
+  .hover\:bg-gray-900:hover,
+  .hover\:bg-slate-600:hover,
+  .hover\:bg-slate-700:hover,
+  .hover\:bg-slate-800:hover,
+  .hover\:bg-teal-600:hover,
+  .hover\:bg-teal-700:hover,
+  .hover\:bg-teal-800:hover {
     background-color: var(--theme-question-item-hover) !important;
-    color: var(--theme-button-text) !important;
+    color: var(--theme-text) !important;
   }
 
-  /* Colored button hover states */
-  .hover\:bg-green-700:hover, .hover\:bg-green-600:hover {
+  .hover\:bg-green-700:hover,
+  .hover\:bg-green-600:hover {
     background-color: #15803d !important;
     color: white !important;
   }
 
-  .hover\:bg-red-700:hover, .hover\:bg-red-600:hover {
+  .hover\:bg-red-700:hover,
+  .hover\:bg-red-600:hover {
     background-color: #b91c1c !important;
     color: white !important;
   }
 
-  .hover\:bg-blue-700:hover, .hover\:bg-blue-600:hover {
+  .hover\:bg-blue-700:hover,
+  .hover\:bg-blue-600:hover {
     background-color: #1d4ed8 !important;
     color: white !important;
   }
 
-  /* ===== SPECIAL CASES ===== */
+  /* ===== INPUT FIELDS IN MODALS ===== */
   
-  /* Close buttons and icon buttons */
-  button[aria-label="Close"], 
-  button:has(svg[aria-hidden="true"]) {
-    color: var(--theme-button-text) !important;
-  }
-
-  /* Input fields in modals */
   [data-radix-dialog-content] input,
+  [role="dialog"] input,
   .modal-content input,
-  [role="dialog"] input {
+  .fixed.inset-0 input {
     background-color: var(--theme-muted) !important;
     color: var(--theme-text) !important;
     border-color: var(--theme-accent) !important;
   }
 
-  /* ===== BRANDSMEN THEME OVERRIDES ===== */
+  [data-radix-dialog-content] input::placeholder,
+  [role="dialog"] input::placeholder,
+  .modal-content input::placeholder,
+  .fixed.inset-0 input::placeholder {
+    color: rgba(255, 255, 255, 0.6) !important;
+  }
+
+  /* ===== SPECIAL BRANDSMEN THEME HANDLING ===== */
   
-  /* Special handling for Brandsmen theme white elements */
   .questions-item[style*="background: #ffffff"],
   .questions-item[style*="background: white"] {
     color: var(--theme-white-button-text) !important;
@@ -376,21 +467,22 @@
     text-shadow: none !important;
   }
 
-  /* Ensure answered questions remain visible */
   .questions-item.answered {
     background: var(--theme-secondary) !important;
-    color: var(--theme-button-text) !important;
+    color: var(--theme-text) !important;
   }
 
   .questions-item.answered:hover {
     background: var(--theme-muted) !important;
-    color: var(--theme-button-text) !important;
+    color: var(--theme-text) !important;
   }
 
   /* ===== TEXT VISIBILITY FIXES ===== */
   
-  /* Force visibility of specific text elements */
-  .text-gray-300, .text-gray-400, .text-gray-200, .text-gray-100 {
+  .text-gray-300,
+  .text-gray-400,
+  .text-gray-200,
+  .text-gray-100 {
     color: var(--theme-text) !important;
   }
 
@@ -398,11 +490,39 @@
     color: var(--theme-text) !important;
   }
 
-  /* Ensure all modal content is visible */
-  [data-radix-dialog-content] label,
-  [data-radix-dialog-content] p,
-  [data-radix-dialog-content] span,
-  [data-radix-dialog-content] div {
+  /* ===== SCORING MODAL SPECIFIC FIXES ===== */
+  
+  .fixed.inset-0.bg-black.bg-opacity-90 .border.rounded-lg {
+    background-color: var(--theme-secondary) !important;
+    border-color: var(--theme-muted) !important;
+  }
+
+  .fixed.inset-0.bg-black.bg-opacity-90 .border.rounded-lg * {
     color: var(--theme-text) !important;
+  }
+
+  .fixed.inset-0.bg-black.bg-opacity-90 .border.rounded-lg h3 {
+    color: var(--theme-accent) !important;
+  }
+
+  /* ===== ENSURE BUTTON VISIBILITY IN ALL CONTEXTS ===== */
+  
+  button:not([class*="bg-"]):not([style*="background"]) {
+    background-color: var(--theme-secondary) !important;
+    color: var(--theme-text) !important;
+  }
+
+  /* ===== CLOSE BUTTON FIXES ===== */
+  
+  button[aria-label="Close"],
+  button:has(svg[aria-hidden="true"]) {
+    color: var(--theme-text) !important;
+    background-color: var(--theme-secondary) !important;
+  }
+
+  button[aria-label="Close"]:hover,
+  button:has(svg[aria-hidden="true"]):hover {
+    color: #ff6b6b !important;
+    background-color: var(--theme-muted) !important;
   }
 }
