@@ -17,6 +17,15 @@ const defaultTheme: ThemeColors = {
   opacity: 0.8
 };
 
+// Brandsmen theme colors from the website
+const brandsmenTheme: ThemeColors = {
+  primaryColor: '#4A90A4',
+  secondaryColor: '#2C5F6F',
+  gradientStart: '#87CEEB',
+  gradientEnd: '#4A90A4',
+  opacity: 0.9
+};
+
 // Auto-generate theme variations from primary colors
 const generateThemeVariations = (theme: ThemeColors) => {
   const { primaryColor, secondaryColor, gradientStart, gradientEnd, opacity } = theme;
@@ -61,10 +70,13 @@ const generateThemeVariations = (theme: ThemeColors) => {
 
 export const useTheme = () => {
   const [theme, setTheme] = useState<ThemeColors>(defaultTheme);
+  const [backgroundImage, setBackgroundImage] = useState<string>('');
 
-  // Load theme from localStorage on mount
+  // Load theme and background from localStorage on mount
   useEffect(() => {
     const savedTheme = localStorage.getItem('game_theme');
+    const savedBackground = localStorage.getItem('game_background_image');
+    
     if (savedTheme) {
       try {
         setTheme(JSON.parse(savedTheme));
@@ -72,12 +84,21 @@ export const useTheme = () => {
         console.error('Error loading theme:', error);
       }
     }
+    
+    if (savedBackground) {
+      setBackgroundImage(savedBackground);
+    }
   }, []);
 
   // Apply theme whenever it changes
   useEffect(() => {
     applyThemeToDOM(theme);
   }, [theme]);
+
+  // Apply background image whenever it changes
+  useEffect(() => {
+    applyBackgroundImage(backgroundImage);
+  }, [backgroundImage]);
 
   const applyThemeToDOM = (themeColors: ThemeColors) => {
     const variations = generateThemeVariations(themeColors);
@@ -97,9 +118,19 @@ export const useTheme = () => {
     root.style.setProperty('--theme-muted', variations.muted);
   };
 
+  const applyBackgroundImage = (imageUrl: string) => {
+    const root = document.documentElement;
+    root.style.setProperty('--theme-background-image', imageUrl ? `url(${imageUrl})` : 'none');
+  };
+
   const updateTheme = (newTheme: ThemeColors) => {
     setTheme(newTheme);
     localStorage.setItem('game_theme', JSON.stringify(newTheme));
+  };
+
+  const updateBackgroundImage = (imageUrl: string) => {
+    setBackgroundImage(imageUrl);
+    localStorage.setItem('game_background_image', imageUrl);
   };
 
   const previewTheme = (previewTheme: ThemeColors) => {
@@ -110,11 +141,19 @@ export const useTheme = () => {
     updateTheme(defaultTheme);
   };
 
+  const applyBrandsmenTheme = () => {
+    updateTheme(brandsmenTheme);
+  };
+
   return {
     theme,
+    backgroundImage,
     updateTheme,
+    updateBackgroundImage,
     previewTheme,
     resetTheme,
-    generatePreview: generateThemeVariations
+    applyBrandsmenTheme,
+    generatePreview: generateThemeVariations,
+    brandsmenTheme
   };
 };
