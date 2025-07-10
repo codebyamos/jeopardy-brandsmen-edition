@@ -5,6 +5,10 @@
   margin-top: 0px !important;
 }
 
+.score-players {
+  margin-top: calc(1.5rem* calc(1 - var(--tw-space-y-reverse))) !important;
+}
+
 .modal-question-text {
   font-size: clamp(1.2rem, 2.5vw, 2.5rem) !important;
   line-height: 1.2 !important;
