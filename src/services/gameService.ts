@@ -227,43 +227,63 @@ export const deleteGameData = async (gameId: string) => {
 
 export const loadRecentGamesData = async (limit = 10) => {
   console.log('Attempting to load recent games from database...');
+  console.log('Supabase URL:', supabase.supabaseUrl);
+  console.log('Environment:', window.location.origin);
   
-  const { data: games, error } = await supabase
-    .from('games')
-    .select(`
-      id,
-      game_date,
-      created_at,
-      game_players (
+  try {
+    const { data: games, error } = await supabase
+      .from('games')
+      .select(`
         id,
-        player_name,
-        player_score,
-        avatar_url
-      ),
-      game_questions (
-        question_id,
-        category,
-        points,
-        question,
-        answer,
-        bonus_points,
-        image_url,
-        video_url,
-        is_answered
-      ),
-      game_categories (
-        category_name,
-        description
-      )
-    `)
-    .order('game_date', { ascending: false })
-    .limit(limit);
+        game_date,
+        created_at,
+        game_players (
+          id,
+          player_name,
+          player_score,
+          avatar_url
+        ),
+        game_questions (
+          question_id,
+          category,
+          points,
+          question,
+          answer,
+          bonus_points,
+          image_url,
+          video_url,
+          is_answered
+        ),
+        game_categories (
+          category_name,
+          description
+        )
+      `)
+      .order('game_date', { ascending: false })
+      .limit(limit);
 
-  if (error) {
-    console.error('Supabase error:', error);
+    if (error) {
+      console.error('Supabase error details:', {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code
+      });
+      throw error;
+    }
+
+    console.log('Successfully loaded games:', games?.length || 0);
+    return games || [];
+  } catch (error) {
+    console.error('Detailed error in loadRecentGamesData:', error);
+    
+    // Log additional context for debugging
+    if (error instanceof Error) {
+      console.error('Error name:', error.name);
+      console.error('Error message:', error.message);
+      console.error('Error stack:', error.stack);
+    }
+    
     throw error;
   }
-
-  console.log('Successfully loaded games:', games?.length || 0);
-  return games || [];
 };
