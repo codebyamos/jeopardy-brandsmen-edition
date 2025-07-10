@@ -7,6 +7,8 @@ import CategoryGrid from './CategoryGrid';
 import GameEditorHeader from './GameEditorHeader';
 import { useGameEditorState } from '../hooks/useGameEditorState';
 import { useGameEditorActions } from '../hooks/useGameEditorActions';
+import { useLocalStorage } from '../hooks/useLocalStorage';
+import { usePeriodicSave } from '../hooks/usePeriodicSave';
 
 interface GameEditorProps {
   questions: Question[];
@@ -40,7 +42,10 @@ const GameEditor: React.FC<GameEditorProps> = ({
     resetEditingState
   } = useGameEditorState();
 
+  const { hasUnsavedChanges } = useLocalStorage();
+
   const {
+    triggerDatabaseSave,
     saveQuestionEdit,
     deleteQuestion,
     saveCategoryEdit,
@@ -53,6 +58,15 @@ const GameEditor: React.FC<GameEditorProps> = ({
     onQuestionsUpdate,
     onCategoryDescriptionsUpdate,
     setIsSaving
+  });
+
+  // Set up periodic saves every 15 minutes
+  usePeriodicSave({
+    questions,
+    categoryDescriptions,
+    onSave: triggerDatabaseSave,
+    intervalMinutes: 15,
+    enabled: hasUnsavedChanges
   });
 
   const categories = Array.from(new Set(questions.map(q => q.category)));
@@ -113,6 +127,14 @@ const GameEditor: React.FC<GameEditorProps> = ({
     }
   };
 
+  const handleManualSave = async () => {
+    try {
+      await triggerDatabaseSave();
+    } catch (error) {
+      console.error('Manual save failed:', error);
+    }
+  };
+
   const getCategoryDescription = (category: string) => {
     return categoryDescriptions.find(desc => desc.category === category)?.description || '';
   };
@@ -126,7 +148,9 @@ const GameEditor: React.FC<GameEditorProps> = ({
           <GameEditorHeader
             isSaving={isSaving}
             isMainView={isMainView}
+            hasUnsavedChanges={hasUnsavedChanges}
             onAddCategory={handleAddCategory}
+            onManualSave={handleManualSave}
             onClose={onClose}
           />
 

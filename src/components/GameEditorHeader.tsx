@@ -1,19 +1,23 @@
 
 import React from 'react';
 import { Button } from './ui/button';
-import { X, FolderPlus } from 'lucide-react';
+import { X, FolderPlus, Save, Clock } from 'lucide-react';
 
 interface GameEditorHeaderProps {
   isSaving: boolean;
   isMainView: boolean;
+  hasUnsavedChanges: boolean;
   onAddCategory: () => void;
+  onManualSave: () => void;
   onClose: () => void;
 }
 
 const GameEditorHeader: React.FC<GameEditorHeaderProps> = ({
   isSaving,
   isMainView,
+  hasUnsavedChanges,
   onAddCategory,
+  onManualSave,
   onClose
 }) => {
   return (
@@ -26,8 +30,26 @@ const GameEditorHeader: React.FC<GameEditorHeaderProps> = ({
             Saving...
           </div>
         )}
+        {hasUnsavedChanges && !isSaving && (
+          <div className="text-sm text-orange-600 flex items-center gap-1">
+            <Clock className="w-4 h-4" />
+            Unsaved changes
+          </div>
+        )}
       </div>
       <div className="flex gap-2">
+        {hasUnsavedChanges && (
+          <Button
+            onClick={onManualSave}
+            size="sm"
+            className="text-white"
+            style={{ backgroundColor: '#0f766e' }}
+            disabled={isSaving}
+          >
+            <Save className="w-4 h-4 mr-1" />
+            Save Now
+          </Button>
+        )}
         {isMainView && (
           <Button
             onClick={onAddCategory}

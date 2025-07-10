@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Button } from './ui/button';
-import { Save, X } from 'lucide-react';
+import { Save, ArrowLeft } from 'lucide-react';
 import { Question } from '../types/game';
 import ImageUpload from './ImageUpload';
 
@@ -40,10 +40,11 @@ const QuestionEditForm: React.FC<QuestionEditFormProps> = ({
           onClick={handleCancel}
           variant="ghost"
           size="sm"
-          className="text-gray-500 hover:text-gray-700 p-1"
-          title="Close question editor"
+          className="text-gray-600 hover:text-gray-800 flex items-center gap-1"
+          title="Back to categories"
         >
-          <X className="w-5 h-5" />
+          <ArrowLeft className="w-4 h-4" />
+          Back
         </Button>
       </div>
       
@@ -163,7 +164,8 @@ const QuestionEditForm: React.FC<QuestionEditFormProps> = ({
             className="border-2"
             style={{ borderColor: '#2c5b69', color: '#2c5b69' }}
           >
-            Cancel
+            <ArrowLeft className="w-4 h-4 mr-1" />
+            Back to Categories
           </Button>
         </div>
       </div>

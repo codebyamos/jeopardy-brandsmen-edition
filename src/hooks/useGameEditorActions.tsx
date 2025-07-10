@@ -1,6 +1,7 @@
 
 import { useToast } from '../hooks/use-toast';
 import { useGameData } from '../hooks/useGameData';
+import { useLocalStorage } from '../hooks/useLocalStorage';
 import { Question, CategoryDescription } from '../types/game';
 
 interface UseGameEditorActionsProps {
@@ -19,15 +20,19 @@ export const useGameEditorActions = ({
   setIsSaving
 }: UseGameEditorActionsProps) => {
   const { saveGame } = useGameData();
+  const { saveToLocalStorage } = useLocalStorage();
   const { toast } = useToast();
 
-  const triggerAutoSave = async (updatedQuestions?: Question[], updatedDescriptions?: CategoryDescription[]) => {
+  const saveToLocal = (updatedQuestions?: Question[], updatedDescriptions?: CategoryDescription[]) => {
+    const questionsToSave = updatedQuestions || questions;
+    const descriptionsToSave = updatedDescriptions || categoryDescriptions;
+    saveToLocalStorage(questionsToSave, descriptionsToSave);
+  };
+
+  const triggerDatabaseSave = async (updatedQuestions?: Question[], updatedDescriptions?: CategoryDescription[]) => {
     setIsSaving(true);
     try {
-      console.log('GameEditor: Starting auto-save with:', {
-        questionsCount: updatedQuestions?.length || questions.length,
-        descriptionsCount: updatedDescriptions?.length || categoryDescriptions.length
-      });
+      console.log('GameEditor: Starting database save');
       
       // Use empty players array since we're only saving content changes
       const players = [{ id: 1, name: 'Team 1', score: 0 }, { id: 2, name: 'Team 2', score: 0 }];
@@ -37,22 +42,13 @@ export const useGameEditorActions = ({
         [],
         updatedDescriptions || categoryDescriptions,
         undefined,
-        false // Auto-save, not manual
+        true // Manual save
       );
       
-      console.log('GameEditor: Auto-save completed successfully');
-      // Removed toast notification for auto-saves to reduce UI noise
+      console.log('GameEditor: Database save completed successfully');
     } catch (error) {
-      console.error('GameEditor: Auto-save failed:', error);
-      // Only show error toast for critical save failures
-      if (error instanceof Error && error.message.includes('critical')) {
-        toast({
-          title: "Save Error",
-          description: `Failed to save changes: ${error.message}`,
-          variant: "destructive",
-          duration: 4000,
-        });
-      }
+      console.error('GameEditor: Database save failed:', error);
+      throw error;
     } finally {
       setIsSaving(false);
     }
@@ -74,8 +70,8 @@ export const useGameEditorActions = ({
       // Update state immediately
       onQuestionsUpdate(updatedQuestions);
       
-      // Auto-save after question edit
-      await triggerAutoSave(updatedQuestions);
+      // Save to local storage only
+      saveToLocal(updatedQuestions);
     }
   };
 
@@ -85,8 +81,8 @@ export const useGameEditorActions = ({
     // Update state immediately
     onQuestionsUpdate(updatedQuestions);
     
-    // Auto-save after question delete
-    await triggerAutoSave(updatedQuestions);
+    // Save to local storage only
+    saveToLocal(updatedQuestions);
   };
 
   const saveCategoryEdit = async (oldName: string, newName: string) => {
@@ -106,8 +102,8 @@ export const useGameEditorActions = ({
       onQuestionsUpdate(updatedQuestions);
       onCategoryDescriptionsUpdate(updatedDescriptions);
       
-      // Auto-save after category edit
-      await triggerAutoSave(updatedQuestions, updatedDescriptions);
+      // Save to local storage only
+      saveToLocal(updatedQuestions, updatedDescriptions);
     }
   };
 
@@ -120,8 +116,8 @@ export const useGameEditorActions = ({
       onQuestionsUpdate(updatedQuestions);
       onCategoryDescriptionsUpdate(updatedDescriptions);
       
-      // Auto-save after category delete
-      await triggerAutoSave(updatedQuestions, updatedDescriptions);
+      // Save to local storage only
+      saveToLocal(updatedQuestions, updatedDescriptions);
     }
   };
 
@@ -141,8 +137,8 @@ export const useGameEditorActions = ({
       // Update state immediately
       onQuestionsUpdate(updatedQuestions);
       
-      // Auto-save after adding new category
-      await triggerAutoSave(updatedQuestions);
+      // Save to local storage only
+      saveToLocal(updatedQuestions);
     }
   };
 
@@ -163,12 +159,12 @@ export const useGameEditorActions = ({
     // Update state immediately
     onCategoryDescriptionsUpdate(updatedDescriptions);
     
-    // Auto-save after description update
-    await triggerAutoSave(undefined, updatedDescriptions);
+    // Save to local storage only
+    saveToLocal(undefined, updatedDescriptions);
   };
 
   return {
-    triggerAutoSave,
+    triggerDatabaseSave,
     saveQuestionEdit,
     deleteQuestion,
     saveCategoryEdit,
