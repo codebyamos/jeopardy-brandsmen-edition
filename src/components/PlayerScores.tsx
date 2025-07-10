@@ -8,7 +8,7 @@ interface PlayerScoresProps {
 
 const PlayerScores: React.FC<PlayerScoresProps> = ({ players }) => {
   return (
-    <div className="mb-4 flex justify-center">
+    <div className="mb-4 flex justify-center score-players">
       <div className="flex flex-wrap gap-2 sm:gap-4 lg:gap-8 justify-center">
         {players.map((player) => (
           <div key={player.id} className="bg-white text-black rounded-lg px-3 sm:px-4 lg:px-6 py-2 sm:py-3 lg:py-4 min-w-[100px] sm:min-w-[120px] text-center border-2 border-gray-200">
