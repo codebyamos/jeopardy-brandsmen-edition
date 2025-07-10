@@ -274,7 +274,8 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#f1f5f9' }}>
+    <div className="min-h-screen bg-cover bg-top bg-no-repeat" 
+         style={{ backgroundImage: 'url(/lovable-uploads/d1647a56-db6d-4277-aeb4-395f4275273b.png)' }}>
       <div className="container mx-auto p-4 space-y-6">
         <div className="text-center mb-4 sm:mb-6 lg:mb-8">
           <h1 className="main-title font-bold mb-2 tracking-wider text-lg sm:text-xl lg:text-2xl" 
