@@ -15,6 +15,7 @@ export const useQuestionModalLogic = ({ question }: QuestionModalLogicProps) => 
   const [isTimerEnabled, setIsTimerEnabled] = useState(false);
   const [showBonusPoints, setShowBonusPoints] = useState(false);
   const hasAutoPlayedRef = useRef(false);
+  const bonusAnimationCompleteRef = useRef(false);
   
   const { settings: voiceSettings } = useVoiceSettings();
 
@@ -23,10 +24,17 @@ export const useQuestionModalLogic = ({ question }: QuestionModalLogicProps) => 
     if (question.bonusPoints && question.bonusPoints > 0) {
       console.log('Showing bonus points animation:', question.bonusPoints);
       setShowBonusPoints(true);
+      bonusAnimationCompleteRef.current = false;
+      
       const timer = setTimeout(() => {
         setShowBonusPoints(false);
+        bonusAnimationCompleteRef.current = true;
+        console.log('Bonus animation complete, ready for question auto-play');
       }, 4000); // Show for 4 seconds to make it more visible
       return () => clearTimeout(timer);
+    } else {
+      // No bonus points, mark as complete immediately
+      bonusAnimationCompleteRef.current = true;
     }
   }, [question.bonusPoints]);
 
@@ -78,10 +86,10 @@ export const useQuestionModalLogic = ({ question }: QuestionModalLogicProps) => 
     // State will be reset by the speech completion callback
   };
 
+  // Auto-play question after initialization and bonus animation completes
   useEffect(() => {
-    // Initialize speech system and preload audio, then auto-play question immediately
     const initAndPlay = async () => {
-      if (!hasAutoPlayedRef.current && voiceSettings.isVoiceEnabled) {
+      if (!hasAutoPlayedRef.current && voiceSettings.isVoiceEnabled && bonusAnimationCompleteRef.current) {
         hasAutoPlayedRef.current = true;
         
         console.log('Initializing speech system and auto-playing question');
@@ -118,7 +126,7 @@ export const useQuestionModalLogic = ({ question }: QuestionModalLogicProps) => 
       // Clean up any ongoing speech when component unmounts
       stopCurrentSpeech();
     };
-  }, [question.question, question.answer, voiceSettings.isVoiceEnabled]);
+  }, [question.question, question.answer, voiceSettings.isVoiceEnabled, bonusAnimationCompleteRef.current]);
 
   const handleShowAnswer = async () => {
     console.log('Show answer clicked');
