@@ -52,18 +52,18 @@ export const useGameData = () => {
 
       // Always save players
       await saveGamePlayers(gameId, players);
-      console.log('Players saved');
+      console.log('Players saved successfully');
 
       // Save questions and answered questions if provided
       if (questions && questions.length > 0) {
         await saveGameQuestions(gameId, questions, answeredQuestions);
-        console.log('Questions saved');
+        console.log('Questions saved successfully');
       }
 
       // Save category descriptions if provided
       if (categoryDescriptions && categoryDescriptions.length > 0) {
         await saveGameCategories(gameId, categoryDescriptions);
-        console.log('Categories saved');
+        console.log('Category descriptions saved successfully');
       }
 
       console.log('=== GAME SAVED SUCCESSFULLY ===');
@@ -79,15 +79,20 @@ export const useGameData = () => {
       return gameId;
     } catch (error) {
       console.error('=== SAVE GAME FAILED ===');
-      console.error('Error saving game:', error);
+      console.error('Error details:', {
+        error,
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined
+      });
       
-      if (isManual) {
-        toast({
-          title: "Error",
-          description: `Failed to save the game: ${error instanceof Error ? error.message : 'Unknown error'}`,
-          variant: "destructive",
-        });
-      }
+      // Show error toast for both manual and auto saves
+      toast({
+        title: "Save Error",
+        description: `Failed to save the game: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        variant: "destructive",
+        duration: 5000,
+      });
+      
       throw error;
     } finally {
       // Always reset loading state for manual saves

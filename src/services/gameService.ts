@@ -1,8 +1,26 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { Player, Question, CategoryDescription } from '@/types/game';
 
+// Test database connection
+const testConnection = async () => {
+  try {
+    const { data, error } = await supabase.from('games').select('id').limit(1);
+    if (error) {
+      console.error('Database connection test failed:', error);
+      throw new Error(`Database connection failed: ${error.message}`);
+    }
+    console.log('Database connection test passed');
+    return true;
+  } catch (error) {
+    console.error('Database connection test error:', error);
+    throw error;
+  }
+};
+
 export const createOrFindGame = async (gameDate: string, currentGameId: string | null) => {
+  // Test connection first
+  await testConnection();
+  
   let gameId = currentGameId;
 
   // If currentGameId is set, check if it still exists in the database
@@ -32,6 +50,7 @@ export const createOrFindGame = async (gameDate: string, currentGameId: string |
 
     if (findError) {
       console.error('Error finding existing game:', findError);
+      throw new Error(`Failed to find existing game: ${findError.message}`);
     } else if (existingGame) {
       gameId = existingGame.id;
       console.log('Found existing game for today:', gameId);
@@ -49,7 +68,7 @@ export const createOrFindGame = async (gameDate: string, currentGameId: string |
 
     if (gameError) {
       console.error('Error creating game:', gameError);
-      throw gameError;
+      throw new Error(`Failed to create game: ${gameError.message}`);
     }
     
     gameId = gameData.id;
@@ -62,117 +81,132 @@ export const createOrFindGame = async (gameDate: string, currentGameId: string |
 export const saveGamePlayers = async (gameId: string, players: Player[]) => {
   console.log('Saving players for game:', gameId, players);
   
-  // Delete existing players for this game
-  const { error: deletePlayersError } = await supabase
-    .from('game_players')
-    .delete()
-    .eq('game_id', gameId);
-
-  if (deletePlayersError) {
-    console.error('Error deleting existing players:', deletePlayersError);
-    throw deletePlayersError;
-  }
-
-  // Save all players for this game
-  if (players && players.length > 0) {
-    const gamePlayersData = players.map(player => ({
-      game_id: gameId,
-      player_name: player.name,
-      player_score: player.score,
-      avatar_url: player.avatar || null
-    }));
-
-    console.log('Inserting players data:', gamePlayersData);
-
-    const { error: playersError } = await supabase
+  try {
+    // Delete existing players for this game
+    const { error: deletePlayersError } = await supabase
       .from('game_players')
-      .insert(gamePlayersData);
+      .delete()
+      .eq('game_id', gameId);
 
-    if (playersError) {
-      console.error('Error saving players:', playersError);
-      throw playersError;
+    if (deletePlayersError) {
+      console.error('Error deleting existing players:', deletePlayersError);
+      throw new Error(`Failed to delete existing players: ${deletePlayersError.message}`);
     }
-    
-    console.log('Players saved successfully');
+
+    // Save all players for this game
+    if (players && players.length > 0) {
+      const gamePlayersData = players.map(player => ({
+        game_id: gameId,
+        player_name: player.name,
+        player_score: player.score,
+        avatar_url: player.avatar || null
+      }));
+
+      console.log('Inserting players data:', gamePlayersData);
+
+      const { error: playersError } = await supabase
+        .from('game_players')
+        .insert(gamePlayersData);
+
+      if (playersError) {
+        console.error('Error saving players:', playersError);
+        throw new Error(`Failed to save players: ${playersError.message}`);
+      }
+      
+      console.log('Players saved successfully');
+    }
+  } catch (error) {
+    console.error('saveGamePlayers failed:', error);
+    throw error;
   }
 };
 
 export const saveGameQuestions = async (gameId: string, questions: Question[], answeredQuestions?: number[]) => {
   console.log('Saving questions for game:', gameId, 'Questions count:', questions.length);
   
-  // Delete existing questions for this game
-  const { error: deleteQuestionsError } = await supabase
-    .from('game_questions')
-    .delete()
-    .eq('game_id', gameId);
+  try {
+    // Delete existing questions for this game
+    const { error: deleteQuestionsError } = await supabase
+      .from('game_questions')
+      .delete()
+      .eq('game_id', gameId);
 
-  if (deleteQuestionsError) {
-    console.error('Error deleting existing questions:', deleteQuestionsError);
-    throw deleteQuestionsError;
+    if (deleteQuestionsError) {
+      console.error('Error deleting existing questions:', deleteQuestionsError);
+      throw new Error(`Failed to delete existing questions: ${deleteQuestionsError.message}`);
+    }
+
+    // Save all questions for this game
+    const gameQuestionsData = questions.map(question => ({
+      game_id: gameId,
+      question_id: question.id,
+      category: question.category,
+      points: question.points,
+      question: question.question,
+      answer: question.answer,
+      bonus_points: question.bonusPoints || 0,
+      image_url: question.imageUrl || null,
+      video_url: question.videoUrl || null,
+      is_answered: answeredQuestions?.includes(question.id) || false
+    }));
+
+    console.log('Inserting questions data:', gameQuestionsData.slice(0, 2)); // Log first 2 for brevity
+
+    const { error: questionsError } = await supabase
+      .from('game_questions')
+      .insert(gameQuestionsData);
+
+    if (questionsError) {
+      console.error('Error saving questions:', questionsError);
+      throw new Error(`Failed to save questions: ${questionsError.message}`);
+    }
+    
+    console.log('Questions saved successfully');
+  } catch (error) {
+    console.error('saveGameQuestions failed:', error);
+    throw error;
   }
-
-  // Save all questions for this game
-  const gameQuestionsData = questions.map(question => ({
-    game_id: gameId,
-    question_id: question.id,
-    category: question.category,
-    points: question.points,
-    question: question.question,
-    answer: question.answer,
-    bonus_points: question.bonusPoints || 0,
-    image_url: question.imageUrl || null,
-    video_url: question.videoUrl || null,
-    is_answered: answeredQuestions?.includes(question.id) || false
-  }));
-
-  console.log('Inserting questions data:', gameQuestionsData.slice(0, 2)); // Log first 2 for brevity
-
-  const { error: questionsError } = await supabase
-    .from('game_questions')
-    .insert(gameQuestionsData);
-
-  if (questionsError) {
-    console.error('Error saving questions:', questionsError);
-    throw questionsError;
-  }
-  
-  console.log('Questions saved successfully');
 };
 
 export const saveGameCategories = async (gameId: string, categoryDescriptions: CategoryDescription[]) => {
   console.log('Saving categories for game:', gameId, categoryDescriptions);
   
-  // Delete existing category descriptions for this game
-  const { error: deleteCategoriesError } = await supabase
-    .from('game_categories')
-    .delete()
-    .eq('game_id', gameId);
-
-  if (deleteCategoriesError) {
-    console.error('Error deleting existing categories:', deleteCategoriesError);
-    throw deleteCategoriesError;
-  }
-
-  // Save all category descriptions for this game
-  if (categoryDescriptions && categoryDescriptions.length > 0) {
-    const gameCategoriesData = categoryDescriptions.map(desc => ({
-      game_id: gameId,
-      category_name: desc.category,
-      description: desc.description
-    }));
-
-    console.log('Inserting categories data:', gameCategoriesData);
-
-    const { error: categoriesError } = await supabase
+  try {
+    // Delete existing category descriptions for this game
+    const { error: deleteCategoriesError } = await supabase
       .from('game_categories')
-      .insert(gameCategoriesData);
+      .delete()
+      .eq('game_id', gameId);
 
-    if (categoriesError) {
-      console.error('Error saving categories:', categoriesError);
-      throw categoriesError;
+    if (deleteCategoriesError) {
+      console.error('Error deleting existing categories:', deleteCategoriesError);
+      throw new Error(`Failed to delete existing categories: ${deleteCategoriesError.message}`);
     }
-    
-    console.log('Categories saved successfully');
+
+    // Save all category descriptions for this game
+    if (categoryDescriptions && categoryDescriptions.length > 0) {
+      const gameCategoriesData = categoryDescriptions.map(desc => ({
+        game_id: gameId,
+        category_name: desc.category,
+        description: desc.description
+      }));
+
+      console.log('Inserting categories data:', gameCategoriesData);
+
+      const { error: categoriesError } = await supabase
+        .from('game_categories')
+        .insert(gameCategoriesData);
+
+      if (categoriesError) {
+        console.error('Error saving categories:', categoriesError);
+        throw new Error(`Failed to save categories: ${categoriesError.message}`);
+      }
+      
+      console.log('Categories saved successfully');
+    }
+  } catch (error) {
+    console.error('saveGameCategories failed:', error);
+    throw error;
   }
 };
 
