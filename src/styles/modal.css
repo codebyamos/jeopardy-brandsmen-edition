@@ -1,7 +1,7 @@
 
 /* Modal Styles */
 .modal-question-text {
-  font-size: clamp(1.5rem, 4vw, 4rem) !important;
+  font-size: clamp(1.8rem, 4.5vw, 4.5rem) !important;
   line-height: 1.2 !important;
   max-height: 50vh !important;
   overflow-y: auto !important;

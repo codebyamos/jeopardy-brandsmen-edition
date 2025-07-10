@@ -8,6 +8,7 @@ import QuestionModalHeader from './QuestionModalHeader';
 import QuestionView from './QuestionView';
 import AnswerView from './AnswerView';
 import BonusPointsDisplay from './BonusPointsDisplay';
+import MediaSection from './MediaSection';
 
 interface QuestionModalProps {
   question: Question;
@@ -163,13 +164,6 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
     console.log('Time is up!');
   };
 
-  // Function to extract YouTube video ID from URL
-  const getYouTubeVideoId = (url: string) => {
-    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-    const match = url.match(regExp);
-    return (match && match[2].length === 11) ? match[2] : null;
-  };
-
   // Debug logging for state changes
   useEffect(() => {
     console.log(`QuestionModal state updated: isSpeaking=${isSpeaking}, currentSpeech=${currentSpeech}`);
@@ -196,52 +190,10 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
             />
             
             {/* Media Section */}
-            {(question.imageUrl || question.videoUrl) && (
-              <div className="mb-4 flex flex-col items-center gap-4">
-                {question.imageUrl && (
-                  <div className="max-w-md">
-                    <img 
-                      src={question.imageUrl} 
-                      alt="Question image" 
-                      className="w-full h-auto rounded-lg shadow-md"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.style.display = 'none';
-                      }}
-                    />
-                  </div>
-                )}
-                
-                {question.videoUrl && (
-                  <div className="max-w-2xl w-full">
-                    {getYouTubeVideoId(question.videoUrl) ? (
-                      <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
-                        <iframe
-                          className="absolute top-0 left-0 w-full h-full rounded-lg"
-                          src={`https://www.youtube.com/embed/${getYouTubeVideoId(question.videoUrl)}`}
-                          title="Question video"
-                          frameBorder="0"
-                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                          allowFullScreen
-                        />
-                      </div>
-                    ) : (
-                      <video 
-                        controls 
-                        className="w-full rounded-lg shadow-md"
-                        onError={(e) => {
-                          const target = e.target as HTMLVideoElement;
-                          target.style.display = 'none';
-                        }}
-                      >
-                        <source src={question.videoUrl} type="video/mp4" />
-                        Your browser does not support the video tag.
-                      </video>
-                    )}
-                  </div>
-                )}
-              </div>
-            )}
+            <MediaSection 
+              imageUrl={question.imageUrl}
+              videoUrl={question.videoUrl}
+            />
             
             {showAnswer ? (
               <AnswerView

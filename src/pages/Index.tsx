@@ -235,6 +235,21 @@ const Index = () => {
     setHasDataLoaded(false); // Reset this so new data can be loaded
   };
 
+  const handleCategoryDescriptionUpdate = (category: string, description: string) => {
+    const existingIndex = categoryDescriptions.findIndex(desc => desc.category === category);
+    let updatedDescriptions;
+    
+    if (existingIndex >= 0) {
+      updatedDescriptions = categoryDescriptions.map(desc =>
+        desc.category === category ? { ...desc, description } : desc
+      );
+    } else {
+      updatedDescriptions = [...categoryDescriptions, { category, description }];
+    }
+    
+    setCategoryDescriptions(updatedDescriptions);
+  };
+
   // Initialize speech system on app load
   useEffect(() => {
     initializeSpeechSystem();
@@ -259,13 +274,8 @@ const Index = () => {
   }
 
   return (
-    <div 
-      className="min-h-screen bg-cover bg-top bg-no-repeat"
-      style={{ 
-        backgroundImage: 'url(/lovable-uploads/d1647a56-db6d-4277-aeb4-395f4275273b.png)'
-      }}
-    >
-      <div className="container mx-auto p-2 sm:p-4 lg:p-8">
+    <div className="min-h-screen" style={{ backgroundColor: '#f1f5f9' }}>
+      <div className="container mx-auto p-4 space-y-6">
         <div className="text-center mb-4 sm:mb-6 lg:mb-8">
           <h1 className="main-title font-bold mb-2 tracking-wider text-lg sm:text-xl lg:text-2xl" 
               style={{ fontFamily: 'arial', textShadow: '2px 2px 4px rgba(0,0,0,0.8)' }}>
@@ -273,16 +283,16 @@ const Index = () => {
           </h1>
         </div>
         
-        <div className="mb-4 sm:mb-6 lg:mb-8">
-          <GameBoard
-            categories={categories}
-            pointValues={pointValues}
-            questions={questions}
-            answeredQuestions={answeredQuestions}
-            onQuestionSelect={handleQuestionSelect}
-          />
-        </div>
-        
+        <GameBoard
+          categories={categories}
+          pointValues={pointValues}
+          questions={questions}
+          answeredQuestions={answeredQuestions}
+          categoryDescriptions={categoryDescriptions}
+          onQuestionSelect={handleQuestionSelect}
+          onCategoryDescriptionUpdate={handleCategoryDescriptionUpdate}
+        />
+
         <PlayerScores players={players} />
 
         <GameControls
