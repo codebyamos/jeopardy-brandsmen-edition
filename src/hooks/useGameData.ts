@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Player, Question, CategoryDescription } from '@/types/game';
@@ -65,7 +64,11 @@ export const useGameData = () => {
     gameDate?: string, 
     isManual: boolean = false
   ) => {
-    setIsLoading(true);
+    // Don't set loading for auto-saves to avoid blocking the UI
+    if (isManual) {
+      setIsLoading(true);
+    }
+    
     try {
       const today = gameDate || new Date().toISOString().split('T')[0];
       let gameId = currentGameId;
@@ -255,7 +258,10 @@ export const useGameData = () => {
       }
       throw error;
     } finally {
-      setIsLoading(false);
+      // Always reset loading state for manual saves
+      if (isManual) {
+        setIsLoading(false);
+      }
     }
   };
 
