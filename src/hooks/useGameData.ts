@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { Player, Question } from '@/types/game';
+import { Player, Question, CategoryDescription } from '@/types/game';
 import { useToast } from '@/hooks/use-toast';
 
 export const useGameData = () => {
@@ -9,7 +9,14 @@ export const useGameData = () => {
   const [currentGameId, setCurrentGameId] = useState<string | null>(null);
   const { toast } = useToast();
 
-  const saveGame = async (players: Player[], questions?: Question[], answeredQuestions?: number[], gameDate?: string, isManual: boolean = false) => {
+  const saveGame = async (
+    players: Player[], 
+    questions?: Question[], 
+    answeredQuestions?: number[], 
+    categoryDescriptions?: CategoryDescription[],
+    gameDate?: string, 
+    isManual: boolean = false
+  ) => {
     setIsLoading(true);
     try {
       const today = gameDate || new Date().toISOString().split('T')[0];
@@ -17,6 +24,7 @@ export const useGameData = () => {
 
       console.log('Saving game with players:', players);
       console.log('Saving questions:', questions?.length || 0);
+      console.log('Saving category descriptions:', categoryDescriptions?.length || 0);
       console.log('Current game ID:', gameId);
       console.log('Game date:', today);
 
@@ -101,6 +109,9 @@ export const useGameData = () => {
           points: question.points,
           question: question.question,
           answer: question.answer,
+          bonus_points: question.bonusPoints || 0,
+          image_url: question.imageUrl || null,
+          video_url: question.videoUrl || null,
           is_answered: answeredQuestions?.includes(question.id) || false
         }));
 
@@ -109,6 +120,28 @@ export const useGameData = () => {
           .insert(gameQuestionsData);
 
         if (questionsError) throw questionsError;
+      }
+
+      // Save category descriptions if provided
+      if (categoryDescriptions && categoryDescriptions.length > 0) {
+        // Delete existing category descriptions for this game
+        await supabase
+          .from('game_categories')
+          .delete()
+          .eq('game_id', gameId);
+
+        // Save all category descriptions for this game
+        const gameCategoriesData = categoryDescriptions.map(desc => ({
+          game_id: gameId,
+          category_name: desc.category,
+          description: desc.description
+        }));
+
+        const { error: categoriesError } = await supabase
+          .from('game_categories')
+          .insert(gameCategoriesData);
+
+        if (categoriesError) throw categoriesError;
       }
 
       console.log('Game saved successfully to database');
@@ -207,7 +240,14 @@ export const useGameData = () => {
             points,
             question,
             answer,
+            bonus_points,
+            image_url,
+            video_url,
             is_answered
+          ),
+          game_categories (
+            category_name,
+            description
           )
         `)
         .order('game_date', { ascending: false })

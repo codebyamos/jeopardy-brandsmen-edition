@@ -1,19 +1,23 @@
 
 import React, { useState } from 'react';
 import { Button } from './ui/button';
-import { Edit2, Plus, Trash2, Save, X, FolderPlus } from 'lucide-react';
-import { Question } from '../types/game';
+import { Edit2, Plus, Trash2, Save, X, FolderPlus, Image, Video } from 'lucide-react';
+import { Question, CategoryDescription } from '../types/game';
 
 interface GameEditorProps {
   questions: Question[];
+  categoryDescriptions: CategoryDescription[];
   onQuestionsUpdate: (questions: Question[]) => void;
+  onCategoryDescriptionsUpdate: (descriptions: CategoryDescription[]) => void;
   isVisible: boolean;
   onClose: () => void;
 }
 
 const GameEditor: React.FC<GameEditorProps> = ({ 
   questions, 
+  categoryDescriptions,
   onQuestionsUpdate, 
+  onCategoryDescriptionsUpdate,
   isVisible, 
   onClose 
 }) => {
@@ -37,17 +41,18 @@ const GameEditor: React.FC<GameEditorProps> = ({
   };
 
   const addQuestion = (category: string, points: number) => {
-    // Always create a new question when + is clicked, regardless of existing questions
     const newId = Date.now() + Math.floor(Math.random() * 1000);
     const newQuestion: Question = {
       id: newId,
       category,
       points,
       question: '',
-      answer: ''
+      answer: '',
+      bonusPoints: 0,
+      imageUrl: '',
+      videoUrl: ''
     };
     
-    // Set up the editing state for the new question
     setEditingQuestion(newQuestion);
     setTempQuestion({ ...newQuestion });
     setEditingCategory(null);
@@ -56,14 +61,11 @@ const GameEditor: React.FC<GameEditorProps> = ({
 
   const saveEdit = () => {
     if (editingQuestion && tempQuestion.category && tempQuestion.question && tempQuestion.answer && tempQuestion.points) {
-      // Check if this is a new question (not in the questions array yet)
       const existingQuestionIndex = questions.findIndex(q => q.id === editingQuestion.id);
       
       if (existingQuestionIndex === -1) {
-        // This is a new question, add it to the array
         onQuestionsUpdate([...questions, { ...tempQuestion } as Question]);
       } else {
-        // This is an existing question, update it
         const updatedQuestions = questions.map(q => 
           q.id === editingQuestion.id ? { ...q, ...tempQuestion } as Question : q
         );
@@ -102,6 +104,12 @@ const GameEditor: React.FC<GameEditorProps> = ({
         q.category === editingCategory ? { ...q, category: tempCategoryName.trim() } : q
       );
       onQuestionsUpdate(updatedQuestions);
+
+      // Update category descriptions
+      const updatedDescriptions = categoryDescriptions.map(desc =>
+        desc.category === editingCategory ? { ...desc, category: tempCategoryName.trim() } : desc
+      );
+      onCategoryDescriptionsUpdate(updatedDescriptions);
     }
     setEditingCategory(null);
     setTempCategoryName('');
@@ -111,24 +119,46 @@ const GameEditor: React.FC<GameEditorProps> = ({
     if (confirm(`Are you sure you want to delete the category "${category}" and all its questions?`)) {
       const updatedQuestions = questions.filter(q => q.category !== category);
       onQuestionsUpdate(updatedQuestions);
+      
+      const updatedDescriptions = categoryDescriptions.filter(desc => desc.category !== category);
+      onCategoryDescriptionsUpdate(updatedDescriptions);
     }
   };
 
   const addNewCategory = () => {
     if (newCategoryName.trim() && !categories.includes(newCategoryName.trim())) {
-      // Create a placeholder question for the new category
       const newId = Date.now() + Math.floor(Math.random() * 1000);
       const newQuestion: Question = {
         id: newId,
         category: newCategoryName.trim(),
         points: 100,
         question: 'New Question - Click edit to modify',
-        answer: 'What is the answer?'
+        answer: 'What is the answer?',
+        bonusPoints: 0
       };
       onQuestionsUpdate([...questions, newQuestion]);
       setShowAddCategory(false);
       setNewCategoryName('');
     }
+  };
+
+  const updateCategoryDescription = (category: string, description: string) => {
+    const existingIndex = categoryDescriptions.findIndex(desc => desc.category === category);
+    let updatedDescriptions;
+    
+    if (existingIndex >= 0) {
+      updatedDescriptions = categoryDescriptions.map(desc =>
+        desc.category === category ? { ...desc, description } : desc
+      );
+    } else {
+      updatedDescriptions = [...categoryDescriptions, { category, description }];
+    }
+    
+    onCategoryDescriptionsUpdate(updatedDescriptions);
+  };
+
+  const getCategoryDescription = (category: string) => {
+    return categoryDescriptions.find(desc => desc.category === category)?.description || '';
   };
 
   if (!isVisible) return null;
@@ -246,20 +276,34 @@ const GameEditor: React.FC<GameEditorProps> = ({
                     placeholder="Enter category name"
                   />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium mb-2" style={{ color: '#2c5b69' }}>Points</label>
-                  <select
-                    value={tempQuestion.points || 100}
-                    onChange={(e) => setTempQuestion({...tempQuestion, points: Number(e.target.value)})}
-                    className="w-full px-3 py-2 rounded text-sm sm:text-base border-2"
-                    style={{ borderColor: '#2c5b69', color: '#2c5b69' }}
-                  >
-                    <option value={100}>100</option>
-                    <option value={200}>200</option>
-                    <option value={300}>300</option>
-                    <option value={400}>400</option>
-                    <option value={500}>500</option>
-                  </select>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-2" style={{ color: '#2c5b69' }}>Points</label>
+                    <select
+                      value={tempQuestion.points || 100}
+                      onChange={(e) => setTempQuestion({...tempQuestion, points: Number(e.target.value)})}
+                      className="w-full px-3 py-2 rounded text-sm sm:text-base border-2"
+                      style={{ borderColor: '#2c5b69', color: '#2c5b69' }}
+                    >
+                      <option value={100}>100</option>
+                      <option value={200}>200</option>
+                      <option value={300}>300</option>
+                      <option value={400}>400</option>
+                      <option value={500}>500</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-2" style={{ color: '#2c5b69' }}>Bonus Points</label>
+                    <input
+                      type="number"
+                      value={tempQuestion.bonusPoints || 0}
+                      onChange={(e) => setTempQuestion({...tempQuestion, bonusPoints: Number(e.target.value)})}
+                      className="w-full px-3 py-2 rounded text-sm sm:text-base border-2"
+                      style={{ borderColor: '#2c5b69', color: '#2c5b69' }}
+                      placeholder="0"
+                      min="0"
+                    />
+                  </div>
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-2" style={{ color: '#2c5b69' }}>Question</label>
@@ -280,6 +324,36 @@ const GameEditor: React.FC<GameEditorProps> = ({
                     style={{ borderColor: '#2c5b69', color: '#2c5b69' }}
                     placeholder="Enter the answer (e.g., What is...?)"
                   />
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-2" style={{ color: '#2c5b69' }}>
+                      <Image className="w-4 h-4 inline mr-1" />
+                      Image URL (optional)
+                    </label>
+                    <input
+                      type="url"
+                      value={tempQuestion.imageUrl || ''}
+                      onChange={(e) => setTempQuestion({...tempQuestion, imageUrl: e.target.value})}
+                      className="w-full px-3 py-2 rounded text-sm sm:text-base border-2"
+                      style={{ borderColor: '#2c5b69', color: '#2c5b69' }}
+                      placeholder="https://example.com/image.jpg"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-2" style={{ color: '#2c5b69' }}>
+                      <Video className="w-4 h-4 inline mr-1" />
+                      YouTube URL (optional)
+                    </label>
+                    <input
+                      type="url"
+                      value={tempQuestion.videoUrl || ''}
+                      onChange={(e) => setTempQuestion({...tempQuestion, videoUrl: e.target.value})}
+                      className="w-full px-3 py-2 rounded text-sm sm:text-base border-2"
+                      style={{ borderColor: '#2c5b69', color: '#2c5b69' }}
+                      placeholder="https://youtube.com/watch?v=..."
+                    />
+                  </div>
                 </div>
                 <div className="flex gap-2">
                   <Button 
@@ -332,12 +406,42 @@ const GameEditor: React.FC<GameEditorProps> = ({
                       </Button>
                     </div>
                   </div>
+                  
+                  <div className="text-xs text-gray-600 mb-3 min-h-[40px]">
+                    {getCategoryDescription(category) || (
+                      <span 
+                        className="text-gray-400 italic cursor-pointer hover:bg-gray-100 p-1 rounded"
+                        onClick={() => updateCategoryDescription(category, 'Add category description...')}
+                      >
+                        + Add description
+                      </span>
+                    )}
+                    {getCategoryDescription(category) && (
+                      <div 
+                        className="cursor-pointer hover:bg-gray-100 p-1 rounded"
+                        onClick={() => {
+                          const newDesc = prompt('Edit description:', getCategoryDescription(category));
+                          if (newDesc !== null) updateCategoryDescription(category, newDesc);
+                        }}
+                      >
+                        {getCategoryDescription(category)}
+                      </div>
+                    )}
+                  </div>
+
                   <div className="space-y-2">
                     {[100, 200, 300, 400, 500].map(points => {
                       const question = questions.find(q => q.category === category && q.points === points);
                       return (
                         <div key={points} className="flex items-center justify-between rounded px-2 py-1" style={{ backgroundColor: '#e2e8f0' }}>
-                          <span className="text-sm font-medium" style={{ color: '#2c5b69' }}>${points}</span>
+                          <span className="text-sm font-medium flex items-center gap-1" style={{ color: '#2c5b69' }}>
+                            ${points}
+                            {question?.bonusPoints ? (
+                              <span className="text-xs bg-yellow-400 text-yellow-800 px-1 rounded">
+                                +{question.bonusPoints}
+                              </span>
+                            ) : null}
+                          </span>
                           <div className="flex gap-1">
                             {question ? (
                               <>

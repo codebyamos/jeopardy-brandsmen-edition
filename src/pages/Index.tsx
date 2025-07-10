@@ -8,7 +8,7 @@ import GameHistory from '../components/GameHistory';
 import PlayerScores from '../components/PlayerScores';
 import ScoringModal from '../components/ScoringModal';
 import PasscodeScreen from '../components/PasscodeScreen';
-import { Question, Player } from '../types/game';
+import { Question, Player, CategoryDescription } from '../types/game';
 import { useGameData } from '../hooks/useGameData';
 import { initializeSpeechSystem } from '../utils/textToSpeech';
 import { useTheme } from '../hooks/useTheme';
@@ -47,6 +47,7 @@ const Index = () => {
   const { isAuthenticated, setPasscode, logout } = usePasscode();
   
   const [questions, setQuestions] = useState<Question[]>(sampleQuestions);
+  const [categoryDescriptions, setCategoryDescriptions] = useState<CategoryDescription[]>([]);
   const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(null);
   const [answeredQuestions, setAnsweredQuestions] = useState<Set<number>>(new Set());
   const [showScoring, setShowScoring] = useState(false);
@@ -114,7 +115,10 @@ const Index = () => {
                 category: q.category,
                 points: q.points,
                 question: q.question,
-                answer: q.answer
+                answer: q.answer,
+                bonusPoints: q.bonus_points || 0,
+                imageUrl: q.image_url || undefined,
+                videoUrl: q.video_url || undefined
               }));
               console.log('Loaded questions from database:', loadedQuestions);
               setQuestions(loadedQuestions);
@@ -126,6 +130,17 @@ const Index = () => {
               console.log('Loaded answered questions:', answeredIds);
               setAnsweredQuestions(new Set(answeredIds));
             }
+
+            // Load category descriptions from the database
+            if (todaysGame.game_categories && todaysGame.game_categories.length > 0) {
+              const loadedDescriptions: CategoryDescription[] = todaysGame.game_categories.map(cat => ({
+                category: cat.category_name,
+                description: cat.description || ''
+              }));
+              console.log('Loaded category descriptions:', loadedDescriptions);
+              setCategoryDescriptions(loadedDescriptions);
+            }
+            
             setHasDataLoaded(true);
           }
         }
@@ -154,7 +169,7 @@ const Index = () => {
     const autoSaveInterval = setInterval(async () => {
       try {
         console.log('Auto-saving game state...');
-        await saveGame(players, questions, Array.from(answeredQuestions), undefined, false);
+        await saveGame(players, questions, Array.from(answeredQuestions), categoryDescriptions, undefined, false);
         console.log('Game state auto-saved successfully');
       } catch (error) {
         console.error('Failed to auto-save game state:', error);
@@ -162,7 +177,7 @@ const Index = () => {
     }, 1200000); // 20 minutes
 
     return () => clearInterval(autoSaveInterval);
-  }, [players, questions, answeredQuestions, saveGame, isAuthenticated, isLoadingGameState, hasDataLoaded]);
+  }, [players, questions, answeredQuestions, categoryDescriptions, saveGame, isAuthenticated, isLoadingGameState, hasDataLoaded]);
 
   const handleQuestionSelect = (category: string, points: number) => {
     const question = questions.find(q => q.category === category && q.points === points);
@@ -183,13 +198,13 @@ const Index = () => {
     setPlayers(prev => prev.map(p => 
       p.id === playerId ? { ...p, score: p.score + points } : p
     ));
-    setShowScoring(false);
+    // Don't close scoring modal automatically
   };
 
   const handleSaveGame = async () => {
     try {
       console.log('Manual save triggered');
-      await saveGame(players, questions, Array.from(answeredQuestions), undefined, true);
+      await saveGame(players, questions, Array.from(answeredQuestions), categoryDescriptions, undefined, true);
     } catch (error) {
       console.error('Failed to save game:', error);
     }
@@ -207,6 +222,7 @@ const Index = () => {
     // Reset all game state
     setQuestions(sampleQuestions);
     setAnsweredQuestions(new Set());
+    setCategoryDescriptions([]);
     setPlayers([
       { id: 1, name: 'Team 1', score: 0 },
       { id: 2, name: 'Team 2', score: 0 }
@@ -292,7 +308,9 @@ const Index = () => {
 
         <GameEditor
           questions={questions}
+          categoryDescriptions={categoryDescriptions}
           onQuestionsUpdate={setQuestions}
+          onCategoryDescriptionsUpdate={setCategoryDescriptions}
           isVisible={showGameEditor}
           onClose={() => setShowGameEditor(false)}
         />

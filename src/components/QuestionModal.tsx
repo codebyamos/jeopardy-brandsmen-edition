@@ -7,6 +7,7 @@ import { useTimerSettings } from '../hooks/useTimerSettings';
 import QuestionModalHeader from './QuestionModalHeader';
 import QuestionView from './QuestionView';
 import AnswerView from './AnswerView';
+import BonusPointsDisplay from './BonusPointsDisplay';
 
 interface QuestionModalProps {
   question: Question;
@@ -25,10 +26,22 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [currentSpeech, setCurrentSpeech] = useState<'question' | 'answer' | null>(null);
   const [isTimerEnabled, setIsTimerEnabled] = useState(false);
+  const [showBonusPoints, setShowBonusPoints] = useState(false);
   const hasAutoPlayedRef = useRef(false);
   
   const { settings: voiceSettings } = useVoiceSettings();
   const { settings: timerSettings } = useTimerSettings();
+
+  // Show bonus points display when question loads if there are bonus points
+  useEffect(() => {
+    if (question.bonusPoints && question.bonusPoints > 0) {
+      setShowBonusPoints(true);
+      const timer = setTimeout(() => {
+        setShowBonusPoints(false);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [question.bonusPoints]);
 
   // Set up speech completion callback
   useEffect(() => {
@@ -150,48 +163,111 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
     console.log('Time is up!');
   };
 
+  // Function to extract YouTube video ID from URL
+  const getYouTubeVideoId = (url: string) => {
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11) ? match[2] : null;
+  };
+
   // Debug logging for state changes
   useEffect(() => {
     console.log(`QuestionModal state updated: isSpeaking=${isSpeaking}, currentSpeech=${currentSpeech}`);
   }, [isSpeaking, currentSpeech]);
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-2 sm:p-4">
-      <div className="bg-white border-2 rounded-lg w-full max-w-6xl shadow-2xl" style={{ borderColor: '#2c5b69' }}>
-        <div className="p-4 sm:p-6 lg:p-8 relative">
-          <QuestionModalHeader 
-            category={question.category}
-            points={question.points}
-            isTimerEnabled={isTimerEnabled}
-            showTimerToggle={!showAnswer}
-            onClose={handleClose}
-            onTimerToggle={() => setIsTimerEnabled(!isTimerEnabled)}
-          />
-          
-          {showAnswer ? (
-            <AnswerView
-              question={question}
-              isSpeaking={isSpeaking}
-              currentSpeech={currentSpeech}
-              onSpeak={speakText}
-              onStop={stopSpeaking}
-            />
-          ) : (
-            <QuestionView
-              question={question}
-              isSpeaking={isSpeaking}
-              currentSpeech={currentSpeech}
+    <>
+      <BonusPointsDisplay 
+        bonusPoints={question.bonusPoints || 0} 
+        isVisible={showBonusPoints} 
+      />
+      
+      <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-2 sm:p-4">
+        <div className="bg-white border-2 rounded-lg w-full max-w-6xl max-h-[95vh] overflow-auto shadow-2xl" style={{ borderColor: '#2c5b69' }}>
+          <div className="p-4 sm:p-6 lg:p-8 relative">
+            <QuestionModalHeader 
+              category={question.category}
+              points={question.points}
+              bonusPoints={question.bonusPoints}
               isTimerEnabled={isTimerEnabled}
-              timerDuration={timerSettings.timerDuration}
-              onSpeak={speakText}
-              onStop={stopSpeaking}
-              onShowAnswer={handleShowAnswer}
-              onTimeUp={handleTimeUp}
+              showTimerToggle={!showAnswer}
+              onClose={handleClose}
+              onTimerToggle={() => setIsTimerEnabled(!isTimerEnabled)}
             />
-          )}
+            
+            {/* Media Section */}
+            {(question.imageUrl || question.videoUrl) && (
+              <div className="mb-4 flex flex-col items-center gap-4">
+                {question.imageUrl && (
+                  <div className="max-w-md">
+                    <img 
+                      src={question.imageUrl} 
+                      alt="Question image" 
+                      className="w-full h-auto rounded-lg shadow-md"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = 'none';
+                      }}
+                    />
+                  </div>
+                )}
+                
+                {question.videoUrl && (
+                  <div className="max-w-2xl w-full">
+                    {getYouTubeVideoId(question.videoUrl) ? (
+                      <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+                        <iframe
+                          className="absolute top-0 left-0 w-full h-full rounded-lg"
+                          src={`https://www.youtube.com/embed/${getYouTubeVideoId(question.videoUrl)}`}
+                          title="Question video"
+                          frameBorder="0"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                        />
+                      </div>
+                    ) : (
+                      <video 
+                        controls 
+                        className="w-full rounded-lg shadow-md"
+                        onError={(e) => {
+                          const target = e.target as HTMLVideoElement;
+                          target.style.display = 'none';
+                        }}
+                      >
+                        <source src={question.videoUrl} type="video/mp4" />
+                        Your browser does not support the video tag.
+                      </video>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+            
+            {showAnswer ? (
+              <AnswerView
+                question={question}
+                isSpeaking={isSpeaking}
+                currentSpeech={currentSpeech}
+                onSpeak={speakText}
+                onStop={stopSpeaking}
+              />
+            ) : (
+              <QuestionView
+                question={question}
+                isSpeaking={isSpeaking}
+                currentSpeech={currentSpeech}
+                isTimerEnabled={isTimerEnabled}
+                timerDuration={timerSettings.timerDuration}
+                onSpeak={speakText}
+                onStop={stopSpeaking}
+                onShowAnswer={handleShowAnswer}
+                onTimeUp={handleTimeUp}
+              />
+            )}
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

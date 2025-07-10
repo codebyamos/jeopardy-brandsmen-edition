@@ -5,6 +5,9 @@ export interface Question {
   points: number;
   question: string;
   answer: string;
+  bonusPoints?: number;
+  imageUrl?: string;
+  videoUrl?: string;
 }
 
 export interface Player {
@@ -14,8 +17,14 @@ export interface Player {
   avatar?: string;
 }
 
+export interface CategoryDescription {
+  category: string;
+  description: string;
+}
+
 export interface GameData {
   players: Player[];
   questions: Question[];
   answeredQuestions: number[];
+  categoryDescriptions: CategoryDescription[];
 }

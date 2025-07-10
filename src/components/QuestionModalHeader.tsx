@@ -1,13 +1,14 @@
 
 import React from 'react';
 import { Button } from './ui/button';
-import { Timer, X } from 'lucide-react';
+import { X, Timer, TimerOff } from 'lucide-react';
 
 interface QuestionModalHeaderProps {
   category: string;
   points: number;
+  bonusPoints?: number;
   isTimerEnabled: boolean;
-  showTimerToggle?: boolean;
+  showTimerToggle: boolean;
   onClose: () => void;
   onTimerToggle: () => void;
 }
@@ -15,46 +16,52 @@ interface QuestionModalHeaderProps {
 const QuestionModalHeader: React.FC<QuestionModalHeaderProps> = ({
   category,
   points,
+  bonusPoints,
   isTimerEnabled,
-  showTimerToggle = true,
+  showTimerToggle,
   onClose,
   onTimerToggle
 }) => {
   return (
-    <>
-      <Button
-        onClick={onClose}
-        variant="ghost"
-        size="sm"
-        className="absolute top-2 right-2 sm:top-4 sm:right-4 text-white hover:text-red-400 p-2 z-10"
-        style={{backgroundColor: '#2c5b69', color: 'white'}}
-      >
-        <X className="w-5 h-5 sm:w-6 sm:h-6" />
-      </Button>
-      
-      <div className="text-center mb-4 sm:mb-6 lg:mb-8">
-        <div className="text-2xl sm:text-3xl lg:text-4xl font-semibold mb-2" style={{color: '#2c5b69'}}>
-          {category.toUpperCase()}
-        </div>
-        <div className="text-3xl sm:text-4xl lg:text-5xl font-bold" style={{color: '#2c5b69'}}>
-          ${points}
+    <div className="flex justify-between items-center mb-4 sm:mb-6">
+      <div>
+        <h2 className="text-lg sm:text-xl font-bold" style={{ color: '#2c5b69' }}>
+          {category}
+        </h2>
+        <div className="flex items-center gap-2">
+          <p className="text-base sm:text-lg font-semibold" style={{ color: '#0f766e' }}>
+            ${points}
+          </p>
+          {bonusPoints && bonusPoints > 0 && (
+            <span className="bg-yellow-400 text-yellow-800 px-2 py-1 rounded-full text-sm font-bold">
+              +{bonusPoints} Bonus!
+            </span>
+          )}
         </div>
       </div>
-
-      {showTimerToggle && (
-        <div className="mb-6 flex justify-center items-center gap-4">
+      <div className="flex gap-2">
+        {showTimerToggle && (
           <Button
             onClick={onTimerToggle}
-            variant="ghost"
+            variant="outline"
             size="sm"
-            className={`flex items-center gap-2 ${isTimerEnabled ? 'text-blue-400' : 'text-gray-400'}`}
+            className="border-2 hover:opacity-80"
+            style={{ borderColor: '#2c5b69', color: '#2c5b69' }}
           >
-            <Timer className="w-4 h-4" />
-            Timer {isTimerEnabled ? 'ON' : 'OFF'}
+            {isTimerEnabled ? <TimerOff className="w-4 h-4" /> : <Timer className="w-4 h-4" />}
           </Button>
-        </div>
-      )}
-    </>
+        )}
+        <Button
+          onClick={onClose}
+          variant="ghost"
+          size="sm"
+          className="text-white hover:text-red-400"
+          style={{ backgroundColor: '#2c5b69' }}
+        >
+          <X className="w-5 h-5" />
+        </Button>
+      </div>
+    </div>
   );
 };
 
