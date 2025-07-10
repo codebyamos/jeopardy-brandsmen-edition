@@ -87,6 +87,9 @@ const ScoringModal: React.FC<ScoringModalProps> = ({
                 <span className="text-sm font-medium" style={{ color: '#2c5b69' }}>
                   {player.name}
                 </span>
+                <span className="text-sm font-bold text-gray-600">
+                  Current: {player.score} pts
+                </span>
               </div>
               
               {/* Quick action buttons */}

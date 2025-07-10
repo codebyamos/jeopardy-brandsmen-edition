@@ -13,8 +13,8 @@ const BonusPointsDisplay: React.FC<BonusPointsDisplayProps> = ({ bonusPoints, is
 
   useEffect(() => {
     if (isVisible && bonusPoints > 0 && voiceSettings.isVoiceEnabled) {
-      // Say "Bonus points!" with excitement
-      speakWithElevenLabs("Bonus points!!").catch(error => {
+      // Say "Bonus points!" with excitement and shouting
+      speakWithElevenLabs("BONUS POINTS!!! YES!!! GET READY FOR EXTRA POINTS!!!").catch(error => {
         console.log('Bonus points speech failed:', error);
       });
     }
