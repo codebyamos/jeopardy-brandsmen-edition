@@ -37,7 +37,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
 
   return (
     <div className="flex justify-center">
-      <div className="border-2 rounded-lg overflow-hidden shadow-2xl bg-white bg-opacity-95 max-w-4xl w-full" style={{ borderColor: '#2c5b69' }}>
+      <div className="border-2 rounded-lg overflow-hidden shadow-2xl bg-white bg-opacity-95 max-w-7xl w-full" style={{ borderColor: '#2c5b69' }}>
         {/* Header row with categories */}
         <div className="grid grid-cols-5 gap-px" style={{ backgroundColor: '#2c5b69' }}>
           {categories.map((category, index) => (
