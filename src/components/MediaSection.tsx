@@ -17,7 +17,7 @@ const MediaSection: React.FC<MediaSectionProps> = ({ imageUrl, videoUrl }) => {
   if (!imageUrl && !videoUrl) return null;
 
   return (
-    <div className="mb-4 flex flex-col items-center gap-4">
+    <div className="flex flex-col items-center gap-4">
       {imageUrl && (
         <div className="max-w-sm">
           <img 
@@ -33,9 +33,9 @@ const MediaSection: React.FC<MediaSectionProps> = ({ imageUrl, videoUrl }) => {
       )}
       
       {videoUrl && (
-        <div className="max-w-lg w-full">
+        <div className="w-full max-w-md lg:max-w-lg">
           {getYouTubeVideoId(videoUrl) ? (
-            <div className="relative w-full" style={{ paddingBottom: '42.25%' }}>
+            <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
               <iframe
                 className="absolute top-0 left-0 w-full h-full rounded-lg"
                 src={`https://www.youtube.com/embed/${getYouTubeVideoId(videoUrl)}`}
@@ -48,7 +48,8 @@ const MediaSection: React.FC<MediaSectionProps> = ({ imageUrl, videoUrl }) => {
           ) : (
             <video 
               controls 
-              className="w-full rounded-lg shadow-md max-h-48"
+              className="w-full rounded-lg shadow-md"
+              style={{ maxHeight: '400px' }}
               onError={(e) => {
                 const target = e.target as HTMLVideoElement;
                 target.style.display = 'none';

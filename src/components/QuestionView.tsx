@@ -4,6 +4,7 @@ import { Question } from '../types/game';
 import { Button } from './ui/button';
 import QuestionContent from './QuestionContent';
 import QuestionTimer from './QuestionTimer';
+import MediaSection from './MediaSection';
 
 interface QuestionViewProps {
   question: Question;
@@ -39,13 +40,45 @@ const QuestionView: React.FC<QuestionViewProps> = ({
         </div>
       )}
       
-      <QuestionContent
-        question={question}
-        isSpeaking={isSpeaking}
-        currentSpeech={currentSpeech}
-        onSpeak={onSpeak}
-        onStop={onStop}
-      />
+      {/* Desktop layout: side by side for video, stacked for mobile */}
+      {question.videoUrl ? (
+        <div className="flex flex-col lg:flex-row gap-6 mb-6">
+          <div className="flex-1 order-1 lg:order-1">
+            <QuestionContent
+              question={question}
+              isSpeaking={isSpeaking}
+              currentSpeech={currentSpeech}
+              onSpeak={onSpeak}
+              onStop={onStop}
+            />
+          </div>
+          <div className="flex-1 order-2 lg:order-2">
+            <MediaSection 
+              videoUrl={question.videoUrl}
+            />
+          </div>
+        </div>
+      ) : (
+        <>
+          {/* Question first */}
+          <QuestionContent
+            question={question}
+            isSpeaking={isSpeaking}
+            currentSpeech={currentSpeech}
+            onSpeak={onSpeak}
+            onStop={onStop}
+          />
+          
+          {/* Then image if exists */}
+          {question.imageUrl && (
+            <div className="mb-4">
+              <MediaSection 
+                imageUrl={question.imageUrl}
+              />
+            </div>
+          )}
+        </>
+      )}
       
       <div className="mt-4 sm:mt-6 text-center">
         <Button

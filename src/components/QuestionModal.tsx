@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Question, Player } from '../types/game';
 import { speakWithElevenLabs, stopCurrentSpeech, initializeSpeechSystem, preloadAudio, setSpeechCompleteCallback } from '../utils/textToSpeech';
@@ -8,7 +7,6 @@ import QuestionModalHeader from './QuestionModalHeader';
 import QuestionView from './QuestionView';
 import AnswerView from './AnswerView';
 import BonusPointsDisplay from './BonusPointsDisplay';
-import MediaSection from './MediaSection';
 
 interface QuestionModalProps {
   question: Question;
@@ -187,12 +185,6 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
               showTimerToggle={!showAnswer}
               onClose={handleClose}
               onTimerToggle={() => setIsTimerEnabled(!isTimerEnabled)}
-            />
-            
-            {/* Media Section */}
-            <MediaSection 
-              imageUrl={question.imageUrl}
-              videoUrl={question.videoUrl}
             />
             
             {showAnswer ? (
