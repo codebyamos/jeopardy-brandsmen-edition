@@ -5,7 +5,7 @@
   margin-top: 0px !important;
 }
 
-.score-players {
+.score-players > :not([hidden]) ~ :not([hidden]) {
   margin-top: calc(1.5rem* calc(1 - var(--tw-space-y-reverse))) !important;
 }
 
