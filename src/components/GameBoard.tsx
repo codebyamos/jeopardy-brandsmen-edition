@@ -52,7 +52,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
               {/* Category description - display only */}
               <div className="mt-1">
                 {getCategoryDescription(category) && (
-                  <div className="text-xs text-gray-200 italic">
+                  <div className="text-xs text-gray-200 italic categories-about">
                     {getCategoryDescription(category)}
                   </div>
                 )}
