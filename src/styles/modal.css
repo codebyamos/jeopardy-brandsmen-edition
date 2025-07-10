@@ -1,5 +1,10 @@
 
 /* Modal Styles */
+
+.space-y-6 > :not([hidden]) ~ :not([hidden]) {
+  margin-top: 0px !important;
+}
+
 .modal-question-text {
   font-size: clamp(1.2rem, 2.5vw, 2.5rem) !important;
   line-height: 1.2 !important;
