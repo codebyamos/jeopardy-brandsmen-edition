@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { Player, Question, CategoryDescription } from '@/types/game';
 
@@ -227,7 +226,6 @@ export const deleteGameData = async (gameId: string) => {
 
 export const loadRecentGamesData = async (limit = 10) => {
   console.log('Attempting to load recent games from database...');
-  console.log('Supabase URL:', supabase.supabaseUrl);
   console.log('Environment:', window.location.origin);
   
   try {
