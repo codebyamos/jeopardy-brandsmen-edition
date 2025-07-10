@@ -59,7 +59,6 @@ const Index = () => {
     { id: 2, name: 'Team 2', score: 0 }
   ]);
   const [isLoadingGameState, setIsLoadingGameState] = useState(true);
-  const [hasDataLoaded, setHasDataLoaded] = useState(false);
 
   const { saveGame, loadRecentGames, isLoading } = useGameData();
   const { theme } = useTheme();
@@ -70,7 +69,7 @@ const Index = () => {
   // Create a stable loadRecentGames function to avoid infinite loops
   const stableLoadRecentGames = useCallback(() => {
     return loadRecentGames(1);
-  }, []);
+  }, [loadRecentGames]);
 
   // Load existing game state on component mount
   useEffect(() => {
@@ -140,8 +139,6 @@ const Index = () => {
               console.log('Loaded category descriptions:', loadedDescriptions);
               setCategoryDescriptions(loadedDescriptions);
             }
-            
-            setHasDataLoaded(true);
           }
         }
       } catch (error) {
@@ -149,19 +146,16 @@ const Index = () => {
         // Continue with default data if loading fails
       } finally {
         setIsLoadingGameState(false);
-        if (!hasDataLoaded) {
-          setHasDataLoaded(true);
-        }
       }
     };
 
     loadGameState();
-  }, [isAuthenticated, stableLoadRecentGames, hasDataLoaded]);
+  }, [isAuthenticated, stableLoadRecentGames]);
 
   // Auto-save game state every 20 minutes
   useEffect(() => {
-    if (!isAuthenticated || isLoadingGameState || !hasDataLoaded) {
-      console.log('Skipping auto-save setup:', { isAuthenticated, isLoadingGameState, hasDataLoaded });
+    if (!isAuthenticated || isLoadingGameState) {
+      console.log('Skipping auto-save setup:', { isAuthenticated, isLoadingGameState });
       return;
     }
 
@@ -177,7 +171,7 @@ const Index = () => {
     }, 1200000); // 20 minutes
 
     return () => clearInterval(autoSaveInterval);
-  }, [players, questions, answeredQuestions, categoryDescriptions, saveGame, isAuthenticated, isLoadingGameState, hasDataLoaded]);
+  }, [players, questions, answeredQuestions, categoryDescriptions, saveGame, isAuthenticated, isLoadingGameState]);
 
   const handleQuestionSelect = (category: string, points: number) => {
     const question = questions.find(q => q.category === category && q.points === points);
@@ -232,7 +226,6 @@ const Index = () => {
     setShowGameEditor(false);
     setShowScoreManager(false);
     setShowGameHistory(false);
-    setHasDataLoaded(false); // Reset this so new data can be loaded
   };
 
   const handleCategoryDescriptionUpdate = (category: string, description: string) => {
