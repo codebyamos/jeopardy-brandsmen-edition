@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Button } from './ui/button';
-import { Save } from 'lucide-react';
+import { Save, X } from 'lucide-react';
 import { Question } from '../types/game';
 import ImageUpload from './ImageUpload';
 
@@ -22,13 +22,31 @@ const QuestionEditForm: React.FC<QuestionEditFormProps> = ({
     onSave(tempQuestion);
   };
 
+  const handleCancel = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onCancel();
+  };
+
   const handleImageSelect = (imageUrl: string) => {
     setTempQuestion({ ...tempQuestion, imageUrl });
   };
 
   return (
     <div className="border rounded-lg p-4 sm:p-6 mb-4" style={{ backgroundColor: '#f8fafc', borderColor: '#2c5b69' }}>
-      <h4 className="text-lg font-semibold mb-4" style={{ color: '#2c5b69' }}>Edit Question</h4>
+      <div className="flex items-center justify-between mb-4">
+        <h4 className="text-lg font-semibold" style={{ color: '#2c5b69' }}>Edit Question</h4>
+        <Button
+          onClick={handleCancel}
+          variant="ghost"
+          size="sm"
+          className="text-gray-500 hover:text-gray-700 p-1"
+          title="Close question editor"
+        >
+          <X className="w-5 h-5" />
+        </Button>
+      </div>
+      
       <div className="grid grid-cols-1 gap-4">
         <div>
           <label className="block text-sm font-medium mb-2" style={{ color: '#2c5b69' }}>Category</label>
@@ -140,7 +158,7 @@ const QuestionEditForm: React.FC<QuestionEditFormProps> = ({
             Save Changes
           </Button>
           <Button 
-            onClick={onCancel} 
+            onClick={handleCancel} 
             variant="outline" 
             className="border-2"
             style={{ borderColor: '#2c5b69', color: '#2c5b69' }}

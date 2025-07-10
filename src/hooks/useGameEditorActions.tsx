@@ -41,19 +41,18 @@ export const useGameEditorActions = ({
       );
       
       console.log('GameEditor: Auto-save completed successfully');
-      toast({
-        title: "Saved",
-        description: "Changes saved successfully",
-        duration: 2000,
-      });
+      // Removed toast notification for auto-saves to reduce UI noise
     } catch (error) {
       console.error('GameEditor: Auto-save failed:', error);
-      toast({
-        title: "Save Error",
-        description: `Failed to save changes: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        variant: "destructive",
-        duration: 4000,
-      });
+      // Only show error toast for critical save failures
+      if (error instanceof Error && error.message.includes('critical')) {
+        toast({
+          title: "Save Error",
+          description: `Failed to save changes: ${error.message}`,
+          variant: "destructive",
+          duration: 4000,
+        });
+      }
     } finally {
       setIsSaving(false);
     }
