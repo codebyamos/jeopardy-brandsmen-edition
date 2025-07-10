@@ -47,10 +47,22 @@ const CategoryGrid: React.FC<CategoryGridProps> = ({
     setEditingDescriptionCategory(null);
   };
 
+  // Create a stable sort for categories to maintain order
+  // First, get the order from the first occurrence of each category in questions
+  const categoryOrder = Array.from(new Set(questions.map(q => q.category)));
+  
+  // Add any categories that might not have questions yet
+  const allCategories = [...categoryOrder];
+  categories.forEach(cat => {
+    if (!allCategories.includes(cat)) {
+      allCategories.push(cat);
+    }
+  });
+
   return (
     <>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
-        {categories.map(category => (
+        {allCategories.map(category => (
           <div key={category} className="border rounded-lg p-3 sm:p-4" style={{ backgroundColor: '#f8fafc', borderColor: '#2c5b69' }}>
             <div className="flex items-center justify-between mb-3">
               <h4 className="font-semibold text-sm sm:text-base" style={{color: '#2c5b69'}}>

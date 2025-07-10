@@ -89,11 +89,12 @@ export const useGameEditorActions = ({
     if (oldName && newName.trim() && newName !== oldName) {
       console.log('GameEditor: Saving category edit:', { oldName, newName });
       
+      // Preserve the order of questions by updating them in the same order
       const updatedQuestions = questions.map(q => 
         q.category === oldName ? { ...q, category: newName.trim() } : q
       );
 
-      // Update category descriptions
+      // Update category descriptions while preserving order
       const updatedDescriptions = categoryDescriptions.map(desc =>
         desc.category === oldName ? { ...desc, category: newName.trim() } : desc
       );
@@ -132,6 +133,7 @@ export const useGameEditorActions = ({
         answer: 'What is the answer?',
         bonusPoints: 0
       };
+      // Add new question at the end to maintain order
       const updatedQuestions = [...questions, newQuestion];
       
       // Update state immediately
@@ -149,10 +151,12 @@ export const useGameEditorActions = ({
     let updatedDescriptions;
     
     if (existingIndex >= 0) {
+      // Update existing description in place to preserve order
       updatedDescriptions = categoryDescriptions.map(desc =>
         desc.category === category ? { ...desc, description } : desc
       );
     } else {
+      // Add new description at the end to maintain order
       updatedDescriptions = [...categoryDescriptions, { category, description }];
     }
     
