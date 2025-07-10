@@ -34,10 +34,11 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
   // Show bonus points display when question loads if there are bonus points
   useEffect(() => {
     if (question.bonusPoints && question.bonusPoints > 0) {
+      console.log('Showing bonus points animation:', question.bonusPoints);
       setShowBonusPoints(true);
       const timer = setTimeout(() => {
         setShowBonusPoints(false);
-      }, 3000);
+      }, 4000); // Show for 4 seconds to make it more visible
       return () => clearTimeout(timer);
     }
   }, [question.bonusPoints]);

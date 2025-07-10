@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from './ui/button';
 import { Player, Question } from '../types/game';
 
@@ -18,6 +18,8 @@ const ScoringModal: React.FC<ScoringModalProps> = ({
   onScorePlayer,
   onClose
 }) => {
+  const [customPoints, setCustomPoints] = useState<{ [playerId: number]: string }>({});
+
   const getLastQuestionPoints = () => {
     if (answeredQuestions.size === 0) return 0;
     const lastQuestionId = Array.from(answeredQuestions).slice(-1)[0];
@@ -38,9 +40,27 @@ const ScoringModal: React.FC<ScoringModalProps> = ({
     // Don't close the modal automatically - let users continue scoring
   };
 
+  const handleCustomPointsChange = (playerId: number, value: string) => {
+    // Only allow numbers and negative sign
+    if (value === '' || /^-?\d+$/.test(value)) {
+      setCustomPoints(prev => ({ ...prev, [playerId]: value }));
+    }
+  };
+
+  const handleCustomPointsSubmit = (playerId: number) => {
+    const pointsValue = customPoints[playerId];
+    if (pointsValue && pointsValue !== '') {
+      const numPoints = parseInt(pointsValue, 10);
+      if (!isNaN(numPoints)) {
+        handleScoreClick(playerId, numPoints);
+        setCustomPoints(prev => ({ ...prev, [playerId]: '' }));
+      }
+    }
+  };
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-2 sm:p-4">
-      <div className="bg-white border-2 rounded-lg max-w-sm w-full p-3 sm:p-4 relative" style={{ borderColor: '#2c5b69' }}>
+      <div className="bg-white border-2 rounded-lg max-w-md w-full p-3 sm:p-4 relative" style={{ borderColor: '#2c5b69' }}>
         {/* Close button in top right corner */}
         <button
           onClick={onClose}
@@ -56,17 +76,21 @@ const ScoringModal: React.FC<ScoringModalProps> = ({
           Award Points
         </h3>
         
-        <div className="grid grid-cols-1 gap-2">
+        <div className="grid grid-cols-1 gap-3">
           {players.map((player) => (
             <div 
               key={player.id} 
-              className="flex justify-between items-center bg-gray-50 rounded-lg p-2 border"
+              className="bg-gray-50 rounded-lg p-3 border"
               style={{ borderColor: '#2c5b69' }}
             >
-              <span className="text-sm font-medium" style={{ color: '#2c5b69' }}>
-                {player.name}
-              </span>
-              <div className="flex gap-1 flex-wrap">
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-sm font-medium" style={{ color: '#2c5b69' }}>
+                  {player.name}
+                </span>
+              </div>
+              
+              {/* Quick action buttons */}
+              <div className="flex gap-1 flex-wrap mb-2">
                 <Button
                   onClick={() => handleScoreClick(player.id, points)}
                   size="sm"
@@ -102,6 +126,32 @@ const ScoringModal: React.FC<ScoringModalProps> = ({
                     </Button>
                   </>
                 )}
+              </div>
+
+              {/* Custom points input */}
+              <div className="flex gap-1 items-center">
+                <input
+                  type="text"
+                  placeholder="Custom points"
+                  value={customPoints[player.id] || ''}
+                  onChange={(e) => handleCustomPointsChange(player.id, e.target.value)}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      handleCustomPointsSubmit(player.id);
+                    }
+                  }}
+                  className="flex-1 px-2 py-1 text-xs border rounded focus:outline-none focus:border-blue-400"
+                  style={{ borderColor: '#2c5b69' }}
+                />
+                <Button
+                  onClick={() => handleCustomPointsSubmit(player.id)}
+                  size="sm"
+                  className="text-white font-medium text-xs px-2 py-1 border-0 hover:opacity-90"
+                  style={{ backgroundColor: '#2c5b69' }}
+                  disabled={!customPoints[player.id] || customPoints[player.id] === ''}
+                >
+                  Add
+                </Button>
               </div>
             </div>
           ))}
