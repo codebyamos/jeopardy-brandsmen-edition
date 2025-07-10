@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { Player, Question, CategoryDescription } from '@/types/game';
 
@@ -59,6 +60,8 @@ export const createOrFindGame = async (gameDate: string, currentGameId: string |
 };
 
 export const saveGamePlayers = async (gameId: string, players: Player[]) => {
+  console.log('Saving players for game:', gameId, players);
+  
   // Delete existing players for this game
   const { error: deletePlayersError } = await supabase
     .from('game_players')
@@ -79,6 +82,8 @@ export const saveGamePlayers = async (gameId: string, players: Player[]) => {
       avatar_url: player.avatar || null
     }));
 
+    console.log('Inserting players data:', gamePlayersData);
+
     const { error: playersError } = await supabase
       .from('game_players')
       .insert(gamePlayersData);
@@ -87,10 +92,14 @@ export const saveGamePlayers = async (gameId: string, players: Player[]) => {
       console.error('Error saving players:', playersError);
       throw playersError;
     }
+    
+    console.log('Players saved successfully');
   }
 };
 
 export const saveGameQuestions = async (gameId: string, questions: Question[], answeredQuestions?: number[]) => {
+  console.log('Saving questions for game:', gameId, 'Questions count:', questions.length);
+  
   // Delete existing questions for this game
   const { error: deleteQuestionsError } = await supabase
     .from('game_questions')
@@ -116,6 +125,8 @@ export const saveGameQuestions = async (gameId: string, questions: Question[], a
     is_answered: answeredQuestions?.includes(question.id) || false
   }));
 
+  console.log('Inserting questions data:', gameQuestionsData.slice(0, 2)); // Log first 2 for brevity
+
   const { error: questionsError } = await supabase
     .from('game_questions')
     .insert(gameQuestionsData);
@@ -124,9 +135,13 @@ export const saveGameQuestions = async (gameId: string, questions: Question[], a
     console.error('Error saving questions:', questionsError);
     throw questionsError;
   }
+  
+  console.log('Questions saved successfully');
 };
 
 export const saveGameCategories = async (gameId: string, categoryDescriptions: CategoryDescription[]) => {
+  console.log('Saving categories for game:', gameId, categoryDescriptions);
+  
   // Delete existing category descriptions for this game
   const { error: deleteCategoriesError } = await supabase
     .from('game_categories')
@@ -139,19 +154,25 @@ export const saveGameCategories = async (gameId: string, categoryDescriptions: C
   }
 
   // Save all category descriptions for this game
-  const gameCategoriesData = categoryDescriptions.map(desc => ({
-    game_id: gameId,
-    category_name: desc.category,
-    description: desc.description
-  }));
+  if (categoryDescriptions && categoryDescriptions.length > 0) {
+    const gameCategoriesData = categoryDescriptions.map(desc => ({
+      game_id: gameId,
+      category_name: desc.category,
+      description: desc.description
+    }));
 
-  const { error: categoriesError } = await supabase
-    .from('game_categories')
-    .insert(gameCategoriesData);
+    console.log('Inserting categories data:', gameCategoriesData);
 
-  if (categoriesError) {
-    console.error('Error saving categories:', categoriesError);
-    throw categoriesError;
+    const { error: categoriesError } = await supabase
+      .from('game_categories')
+      .insert(gameCategoriesData);
+
+    if (categoriesError) {
+      console.error('Error saving categories:', categoriesError);
+      throw categoriesError;
+    }
+    
+    console.log('Categories saved successfully');
   }
 };
 
@@ -225,10 +246,13 @@ export const deleteGameData = async (gameId: string) => {
 };
 
 export const loadRecentGamesData = async (limit = 10) => {
-  console.log('Attempting to load recent games from database...');
+  console.log('=== LOADING RECENT GAMES ===');
   console.log('Environment:', window.location.origin);
+  console.log('Limit:', limit);
   
   try {
+    console.log('Making Supabase query...');
+    
     const { data: games, error } = await supabase
       .from('games')
       .select(`
@@ -260,6 +284,10 @@ export const loadRecentGamesData = async (limit = 10) => {
       .order('game_date', { ascending: false })
       .limit(limit);
 
+    console.log('Supabase query completed');
+    console.log('Error:', error);
+    console.log('Games returned:', games?.length || 0);
+
     if (error) {
       console.error('Supabase error details:', {
         message: error.message,
@@ -270,9 +298,20 @@ export const loadRecentGamesData = async (limit = 10) => {
       throw error;
     }
 
-    console.log('Successfully loaded games:', games?.length || 0);
+    if (games && games.length > 0) {
+      console.log('First game sample:', {
+        id: games[0].id,
+        date: games[0].game_date,
+        playersCount: games[0].game_players?.length || 0,
+        questionsCount: games[0].game_questions?.length || 0,
+        categoriesCount: games[0].game_categories?.length || 0
+      });
+    }
+
+    console.log('=== LOAD COMPLETE ===');
     return games || [];
   } catch (error) {
+    console.error('=== LOAD FAILED ===');
     console.error('Detailed error in loadRecentGamesData:', error);
     
     // Log additional context for debugging
@@ -280,6 +319,11 @@ export const loadRecentGamesData = async (limit = 10) => {
       console.error('Error name:', error.name);
       console.error('Error message:', error.message);
       console.error('Error stack:', error.stack);
+    }
+    
+    // Check if it's a network error
+    if (error instanceof TypeError && error.message.includes('fetch')) {
+      console.error('Network error - check internet connection and Supabase URL');
     }
     
     throw error;

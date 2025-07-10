@@ -33,33 +33,40 @@ export const useGameData = () => {
     try {
       const today = gameDate || new Date().toISOString().split('T')[0];
 
-      console.log('Saving game with players:', players);
-      console.log('Saving questions:', questions?.length || 0);
-      console.log('Saving category descriptions:', categoryDescriptions?.length || 0);
+      console.log('=== SAVING GAME ===');
+      console.log('Players:', players?.length || 0);
+      console.log('Questions:', questions?.length || 0);
+      console.log('Category descriptions:', categoryDescriptions?.length || 0);
       console.log('Current game ID:', currentGameId);
       console.log('Game date:', today);
+      console.log('Is manual save:', isManual);
 
       const gameId = await createOrFindGame(today, currentGameId);
       setCurrentGameId(gameId);
+      console.log('Using game ID:', gameId);
 
       // Clean up unused media files when starting a new game
       if (questions && questions.length > 0 && !currentGameId) {
         await cleanupUnusedMedia(questions);
       }
 
+      // Always save players
       await saveGamePlayers(gameId, players);
+      console.log('Players saved');
 
       // Save questions and answered questions if provided
       if (questions && questions.length > 0) {
         await saveGameQuestions(gameId, questions, answeredQuestions);
+        console.log('Questions saved');
       }
 
       // Save category descriptions if provided
       if (categoryDescriptions && categoryDescriptions.length > 0) {
         await saveGameCategories(gameId, categoryDescriptions);
+        console.log('Categories saved');
       }
 
-      console.log('Game saved successfully to database');
+      console.log('=== GAME SAVED SUCCESSFULLY ===');
       
       // Only show toast for manual saves
       if (isManual) {
@@ -71,11 +78,13 @@ export const useGameData = () => {
 
       return gameId;
     } catch (error) {
+      console.error('=== SAVE GAME FAILED ===');
       console.error('Error saving game:', error);
+      
       if (isManual) {
         toast({
           title: "Error",
-          description: "Failed to save the game. Please try again.",
+          description: `Failed to save the game: ${error instanceof Error ? error.message : 'Unknown error'}`,
           variant: "destructive",
         });
       }
@@ -118,9 +127,12 @@ export const useGameData = () => {
   const loadRecentGames = async (limit = 10) => {
     setIsLoading(true);
     try {
-      return await loadRecentGamesData(limit);
+      console.log('Hook: Starting to load recent games...');
+      const games = await loadRecentGamesData(limit);
+      console.log('Hook: Games loaded successfully:', games?.length || 0);
+      return games;
     } catch (error) {
-      console.error('Error loading games:', error);
+      console.error('Hook: Error loading games:', error);
       
       // More specific error handling
       if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
@@ -133,7 +145,7 @@ export const useGameData = () => {
       } else {
         toast({
           title: "Error",
-          description: "Failed to load games. Please try again.",
+          description: `Failed to load games: ${error instanceof Error ? error.message : 'Unknown error'}`,
           variant: "destructive",
         });
       }

@@ -6,6 +6,7 @@ import { Question, CategoryDescription } from '../types/game';
 import QuestionEditForm from './QuestionEditForm';
 import CategoryEditForm from './CategoryEditForm';
 import CategoryGrid from './CategoryGrid';
+import { useGameData } from '../hooks/useGameData';
 
 interface GameEditorProps {
   questions: Question[];
@@ -28,11 +29,30 @@ const GameEditor: React.FC<GameEditorProps> = ({
   const [editingCategory, setEditingCategory] = useState<string | null>(null);
   const [showAddCategory, setShowAddCategory] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState('');
+  const { saveGame } = useGameData();
 
   const categories = Array.from(new Set(questions.map(q => q.category)));
 
   // Check if we're in the main view (not editing anything)
   const isMainView = !editingQuestion && !editingCategory && !showAddCategory;
+
+  const triggerAutoSave = async (updatedQuestions?: Question[], updatedDescriptions?: CategoryDescription[]) => {
+    try {
+      console.log('GameEditor: Triggering auto-save after changes');
+      // Use empty players array since we're only saving content changes
+      const players = [{ id: 1, name: 'Team 1', score: 0 }, { id: 2, name: 'Team 2', score: 0 }];
+      await saveGame(
+        players,
+        updatedQuestions || questions,
+        [],
+        updatedDescriptions || categoryDescriptions,
+        undefined,
+        false // Auto-save, not manual
+      );
+    } catch (error) {
+      console.error('GameEditor: Auto-save failed:', error);
+    }
+  };
 
   const startEdit = (question: Question) => {
     setEditingQuestion(question);
@@ -58,20 +78,24 @@ const GameEditor: React.FC<GameEditorProps> = ({
     setShowAddCategory(false);
   };
 
-  const saveQuestionEdit = (questionData: Partial<Question>) => {
+  const saveQuestionEdit = async (questionData: Partial<Question>) => {
     if (editingQuestion && questionData.category && questionData.question && questionData.answer && questionData.points) {
       const existingQuestionIndex = questions.findIndex(q => q.id === editingQuestion.id);
+      let updatedQuestions;
       
       if (existingQuestionIndex === -1) {
-        onQuestionsUpdate([...questions, { ...questionData } as Question]);
+        updatedQuestions = [...questions, { ...questionData } as Question];
       } else {
-        const updatedQuestions = questions.map(q => 
+        updatedQuestions = questions.map(q => 
           q.id === editingQuestion.id ? { ...q, ...questionData } as Question : q
         );
-        onQuestionsUpdate(updatedQuestions);
       }
       
+      onQuestionsUpdate(updatedQuestions);
       setEditingQuestion(null);
+      
+      // Auto-save after question edit
+      await triggerAutoSave(updatedQuestions);
     }
   };
 
@@ -82,9 +106,12 @@ const GameEditor: React.FC<GameEditorProps> = ({
     setNewCategoryName('');
   };
 
-  const deleteQuestion = (id: number) => {
+  const deleteQuestion = async (id: number) => {
     const updatedQuestions = questions.filter(q => q.id !== id);
     onQuestionsUpdate(updatedQuestions);
+    
+    // Auto-save after question delete
+    await triggerAutoSave(updatedQuestions);
   };
 
   const startEditCategory = (category: string) => {
@@ -93,7 +120,7 @@ const GameEditor: React.FC<GameEditorProps> = ({
     setShowAddCategory(false);
   };
 
-  const saveCategoryEdit = (oldName: string, newName: string) => {
+  const saveCategoryEdit = async (oldName: string, newName: string) => {
     if (oldName && newName.trim() && newName !== oldName) {
       const updatedQuestions = questions.map(q => 
         q.category === oldName ? { ...q, category: newName.trim() } : q
@@ -105,21 +132,27 @@ const GameEditor: React.FC<GameEditorProps> = ({
         desc.category === oldName ? { ...desc, category: newName.trim() } : desc
       );
       onCategoryDescriptionsUpdate(updatedDescriptions);
+      
+      // Auto-save after category edit
+      await triggerAutoSave(updatedQuestions, updatedDescriptions);
     }
     setEditingCategory(null);
   };
 
-  const deleteCategory = (category: string) => {
+  const deleteCategory = async (category: string) => {
     if (confirm(`Are you sure you want to delete the category "${category}" and all its questions?`)) {
       const updatedQuestions = questions.filter(q => q.category !== category);
       onQuestionsUpdate(updatedQuestions);
       
       const updatedDescriptions = categoryDescriptions.filter(desc => desc.category !== category);
       onCategoryDescriptionsUpdate(updatedDescriptions);
+      
+      // Auto-save after category delete
+      await triggerAutoSave(updatedQuestions, updatedDescriptions);
     }
   };
 
-  const addNewCategory = () => {
+  const addNewCategory = async () => {
     if (newCategoryName.trim() && !categories.includes(newCategoryName.trim())) {
       const newId = Date.now() + Math.floor(Math.random() * 1000);
       const newQuestion: Question = {
@@ -130,13 +163,17 @@ const GameEditor: React.FC<GameEditorProps> = ({
         answer: 'What is the answer?',
         bonusPoints: 0
       };
-      onQuestionsUpdate([...questions, newQuestion]);
+      const updatedQuestions = [...questions, newQuestion];
+      onQuestionsUpdate(updatedQuestions);
       setShowAddCategory(false);
       setNewCategoryName('');
+      
+      // Auto-save after adding new category
+      await triggerAutoSave(updatedQuestions);
     }
   };
 
-  const updateCategoryDescription = (category: string, description: string) => {
+  const updateCategoryDescription = async (category: string, description: string) => {
     const existingIndex = categoryDescriptions.findIndex(desc => desc.category === category);
     let updatedDescriptions;
     
@@ -149,6 +186,9 @@ const GameEditor: React.FC<GameEditorProps> = ({
     }
     
     onCategoryDescriptionsUpdate(updatedDescriptions);
+    
+    // Auto-save after description update
+    await triggerAutoSave(undefined, updatedDescriptions);
   };
 
   const getCategoryDescription = (category: string) => {
