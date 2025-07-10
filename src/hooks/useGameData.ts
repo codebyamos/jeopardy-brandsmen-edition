@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Player, Question, CategoryDescription } from '@/types/game';
@@ -8,6 +7,54 @@ export const useGameData = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [currentGameId, setCurrentGameId] = useState<string | null>(null);
   const { toast } = useToast();
+
+  const cleanupUnusedMedia = async (questions: Question[]) => {
+    try {
+      // Extract all image and video URLs from current questions
+      const usedUrls = new Set<string>();
+      questions.forEach(question => {
+        if (question.imageUrl) usedUrls.add(question.imageUrl);
+        if (question.videoUrl) usedUrls.add(question.videoUrl);
+      });
+
+      // Get all uploaded files from storage
+      const { data: files, error } = await supabase.storage
+        .from('player-avatars')
+        .list();
+
+      if (error) {
+        console.error('Error listing files:', error);
+        return;
+      }
+
+      // Find files that are not being used
+      const filesToDelete: string[] = [];
+      files?.forEach(file => {
+        const fileUrl = supabase.storage
+          .from('player-avatars')
+          .getPublicUrl(file.name).data.publicUrl;
+        
+        if (!usedUrls.has(fileUrl)) {
+          filesToDelete.push(file.name);
+        }
+      });
+
+      // Delete unused files
+      if (filesToDelete.length > 0) {
+        const { error: deleteError } = await supabase.storage
+          .from('player-avatars')
+          .remove(filesToDelete);
+
+        if (deleteError) {
+          console.error('Error deleting unused files:', deleteError);
+        } else {
+          console.log(`Cleaned up ${filesToDelete.length} unused media files`);
+        }
+      }
+    } catch (error) {
+      console.error('Error during media cleanup:', error);
+    }
+  };
 
   const saveGame = async (
     players: Player[], 
@@ -71,6 +118,11 @@ export const useGameData = () => {
         gameId = gameData.id;
         setCurrentGameId(gameId);
         console.log('Created new game:', gameId);
+
+        // Clean up unused media files when starting a new game
+        if (questions && questions.length > 0) {
+          await cleanupUnusedMedia(questions);
+        }
       }
 
       // Delete existing players for this game
@@ -173,6 +225,12 @@ export const useGameData = () => {
   const deleteGame = async (gameId: string) => {
     setIsLoading(true);
     try {
+      // Get all questions for this game to clean up their media
+      const { data: questions } = await supabase
+        .from('game_questions')
+        .select('image_url, video_url')
+        .eq('game_id', gameId);
+
       // Delete game questions first
       await supabase
         .from('game_questions')
@@ -187,6 +245,12 @@ export const useGameData = () => {
 
       if (playersError) throw playersError;
 
+      // Delete game categories
+      await supabase
+        .from('game_categories')
+        .delete()
+        .eq('game_id', gameId);
+
       // Delete the game
       const { error: gameError } = await supabase
         .from('games')
@@ -194,6 +258,23 @@ export const useGameData = () => {
         .eq('id', gameId);
 
       if (gameError) throw gameError;
+
+      // Clean up media files for this game
+      if (questions && questions.length > 0) {
+        const filesToDelete: string[] = [];
+        questions.forEach(q => {
+          if (q.image_url && q.image_url.includes('player-avatars')) {
+            const fileName = q.image_url.split('/').pop();
+            if (fileName) filesToDelete.push(fileName);
+          }
+        });
+
+        if (filesToDelete.length > 0) {
+          await supabase.storage
+            .from('player-avatars')
+            .remove(filesToDelete);
+        }
+      }
 
       // Reset current game ID if it was the deleted game
       if (currentGameId === gameId) {
@@ -294,6 +375,7 @@ export const useGameData = () => {
     loadRecentGames,
     resetCurrentGame,
     currentGameId,
-    isLoading
+    isLoading,
+    cleanupUnusedMedia
   };
 };
