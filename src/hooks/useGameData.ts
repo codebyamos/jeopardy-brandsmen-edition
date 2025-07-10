@@ -85,12 +85,25 @@ export const useGameData = () => {
         stack: error instanceof Error ? error.stack : undefined
       });
       
+      // Show more specific error messages
+      let errorMessage = "Failed to save the game";
+      
+      if (error instanceof Error) {
+        if (error.message.includes('network') || error.message.includes('fetch') || error.message.includes('connection')) {
+          errorMessage = "Network connection error. Please check your internet connection and try again.";
+        } else if (error.message.includes('offline')) {
+          errorMessage = "You appear to be offline. Please check your internet connection.";
+        } else {
+          errorMessage = `Save failed: ${error.message}`;
+        }
+      }
+      
       // Show error toast for both manual and auto saves
       toast({
         title: "Save Error",
-        description: `Failed to save the game: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        description: errorMessage,
         variant: "destructive",
-        duration: 5000,
+        duration: 8000, // Longer duration for network errors
       });
       
       throw error;
@@ -118,9 +131,15 @@ export const useGameData = () => {
       });
     } catch (error) {
       console.error('Error deleting game:', error);
+      
+      let errorMessage = "Failed to delete the game. Please try again.";
+      if (error instanceof Error && (error.message.includes('network') || error.message.includes('fetch'))) {
+        errorMessage = "Network error while deleting. Please check your connection and try again.";
+      }
+      
       toast({
         title: "Error",
-        description: "Failed to delete the game. Please try again.",
+        description: errorMessage,
         variant: "destructive",
       });
       throw error;
@@ -139,21 +158,26 @@ export const useGameData = () => {
     } catch (error) {
       console.error('Hook: Error loading games:', error);
       
-      // More specific error handling
-      if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
-        console.error('Network connection error - unable to reach database');
-        toast({
-          title: "Connection Error",
-          description: "Unable to connect to the database. Please check your internet connection.",
-          variant: "destructive",
-        });
-      } else {
-        toast({
-          title: "Error",
-          description: `Failed to load games: ${error instanceof Error ? error.message : 'Unknown error'}`,
-          variant: "destructive",
-        });
+      // More specific error handling for network issues
+      let errorTitle = "Error";
+      let errorDescription = `Failed to load games: ${error instanceof Error ? error.message : 'Unknown error'}`;
+      
+      if (error instanceof Error) {
+        if (error.message.includes('offline') || error.message.includes('connection')) {
+          errorTitle = "Connection Error";
+          errorDescription = error.message;
+        } else if (error.message.includes('fetch') || error.message.includes('network')) {
+          errorTitle = "Network Error";
+          errorDescription = "Unable to connect to the database. Please check your internet connection.";
+        }
       }
+      
+      toast({
+        title: errorTitle,
+        description: errorDescription,
+        variant: "destructive",
+        duration: 8000,
+      });
       return [];
     } finally {
       setIsLoading(false);

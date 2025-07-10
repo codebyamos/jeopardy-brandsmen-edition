@@ -1,78 +1,144 @@
 import { supabase } from '@/integrations/supabase/client';
 import { Player, Question, CategoryDescription } from '@/types/game';
 
-// Test database connection
+// Enhanced connection test with more detailed logging
 const testConnection = async () => {
   try {
+    console.log('=== TESTING DATABASE CONNECTION ===');
+    console.log('Supabase URL:', 'https://gzflmkzdxalzgjhjwzwf.supabase.co');
+    console.log('Environment:', window.location.origin);
+    console.log('User Agent:', navigator.userAgent);
+    console.log('Online status:', navigator.onLine);
+    
+    // Test basic connectivity first
+    if (!navigator.onLine) {
+      throw new Error('Device appears to be offline');
+    }
+    
+    // Test the actual Supabase connection
     const { data, error } = await supabase.from('games').select('id').limit(1);
+    
     if (error) {
-      console.error('Database connection test failed:', error);
+      console.error('Database connection test failed:', {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code
+      });
       throw new Error(`Database connection failed: ${error.message}`);
     }
+    
     console.log('Database connection test passed');
+    console.log('=== CONNECTION TEST COMPLETE ===');
     return true;
   } catch (error) {
-    console.error('Database connection test error:', error);
+    console.error('=== CONNECTION TEST FAILED ===');
+    console.error('Error type:', error.constructor.name);
+    console.error('Error message:', error.message);
+    
+    if (error instanceof TypeError && error.message.includes('fetch')) {
+      console.error('This appears to be a network connectivity issue');
+      console.error('Possible causes:');
+      console.error('- Internet connection problems');
+      console.error('- Firewall blocking the request');
+      console.error('- DNS resolution issues');
+      console.error('- Supabase service temporarily unavailable');
+    }
+    
     throw error;
   }
 };
 
 export const createOrFindGame = async (gameDate: string, currentGameId: string | null) => {
-  // Test connection first
-  await testConnection();
+  // Test connection first with retry logic
+  let connectionAttempts = 0;
+  const maxAttempts = 3;
+  
+  while (connectionAttempts < maxAttempts) {
+    try {
+      await testConnection();
+      break;
+    } catch (error) {
+      connectionAttempts++;
+      console.log(`Connection attempt ${connectionAttempts}/${maxAttempts} failed`);
+      
+      if (connectionAttempts >= maxAttempts) {
+        throw new Error(`Failed to connect to database after ${maxAttempts} attempts: ${error.message}`);
+      }
+      
+      // Wait before retrying (exponential backoff)
+      const delay = Math.pow(2, connectionAttempts) * 1000;
+      console.log(`Waiting ${delay}ms before retry...`);
+      await new Promise(resolve => setTimeout(resolve, delay));
+    }
+  }
   
   let gameId = currentGameId;
 
   // If currentGameId is set, check if it still exists in the database
   if (gameId) {
-    const { data: existingGame, error: checkError } = await supabase
-      .from('games')
-      .select('id')
-      .eq('id', gameId)
-      .maybeSingle();
+    try {
+      const { data: existingGame, error: checkError } = await supabase
+        .from('games')
+        .select('id')
+        .eq('id', gameId)
+        .maybeSingle();
 
-    if (checkError) {
-      console.error('Error checking existing game:', checkError);
-      gameId = null;
-    } else if (!existingGame) {
-      // If the game doesn't exist, reset the currentGameId
-      gameId = null;
+      if (checkError) {
+        console.error('Error checking existing game:', checkError);
+        gameId = null;
+      } else if (!existingGame) {
+        gameId = null;
+      }
+    } catch (error) {
+      console.error('Network error checking existing game:', error);
+      throw new Error(`Network error: ${error.message}`);
     }
   }
 
   // Check if there's already a game for today (if we don't have a valid gameId)
   if (!gameId) {
-    const { data: existingGame, error: findError } = await supabase
-      .from('games')
-      .select('id')
-      .eq('game_date', gameDate)
-      .maybeSingle();
+    try {
+      const { data: existingGame, error: findError } = await supabase
+        .from('games')
+        .select('id')
+        .eq('game_date', gameDate)
+        .maybeSingle();
 
-    if (findError) {
-      console.error('Error finding existing game:', findError);
-      throw new Error(`Failed to find existing game: ${findError.message}`);
-    } else if (existingGame) {
-      gameId = existingGame.id;
-      console.log('Found existing game for today:', gameId);
+      if (findError) {
+        console.error('Error finding existing game:', findError);
+        throw new Error(`Failed to find existing game: ${findError.message}`);
+      } else if (existingGame) {
+        gameId = existingGame.id;
+        console.log('Found existing game for today:', gameId);
+      }
+    } catch (error) {
+      console.error('Network error finding existing game:', error);
+      throw new Error(`Network error: ${error.message}`);
     }
   }
 
   // Create a new game if none exists for today
   if (!gameId) {
-    console.log('Creating new game for today');
-    const { data: gameData, error: gameError } = await supabase
-      .from('games')
-      .insert([{ game_date: gameDate }])
-      .select()
-      .single();
+    try {
+      console.log('Creating new game for today');
+      const { data: gameData, error: gameError } = await supabase
+        .from('games')
+        .insert([{ game_date: gameDate }])
+        .select()
+        .single();
 
-    if (gameError) {
-      console.error('Error creating game:', gameError);
-      throw new Error(`Failed to create game: ${gameError.message}`);
+      if (gameError) {
+        console.error('Error creating game:', gameError);
+        throw new Error(`Failed to create game: ${gameError.message}`);
+      }
+      
+      gameId = gameData.id;
+      console.log('Created new game:', gameId);
+    } catch (error) {
+      console.error('Network error creating game:', error);
+      throw new Error(`Network error: ${error.message}`);
     }
-    
-    gameId = gameData.id;
-    console.log('Created new game:', gameId);
   }
 
   return gameId;
@@ -283,8 +349,14 @@ export const loadRecentGamesData = async (limit = 10) => {
   console.log('=== LOADING RECENT GAMES ===');
   console.log('Environment:', window.location.origin);
   console.log('Limit:', limit);
+  console.log('Online status:', navigator.onLine);
   
   try {
+    // Check if we're online first
+    if (!navigator.onLine) {
+      throw new Error('Device appears to be offline. Please check your internet connection.');
+    }
+    
     console.log('Making Supabase query...');
     
     const { data: games, error } = await supabase
@@ -329,6 +401,12 @@ export const loadRecentGamesData = async (limit = 10) => {
         hint: error.hint,
         code: error.code
       });
+      
+      // Check if this is a network-related error
+      if (error.message?.includes('fetch') || error.message?.includes('network')) {
+        throw new Error('Network connection error. Please check your internet connection and try again.');
+      }
+      
       throw error;
     }
 
@@ -357,7 +435,8 @@ export const loadRecentGamesData = async (limit = 10) => {
     
     // Check if it's a network error
     if (error instanceof TypeError && error.message.includes('fetch')) {
-      console.error('Network error - check internet connection and Supabase URL');
+      console.error('Network error detected - this appears to be a connectivity issue');
+      throw new Error('Unable to connect to the database. Please check your internet connection and try again.');
     }
     
     throw error;
