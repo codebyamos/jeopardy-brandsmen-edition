@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from './ui/button';
 import { Settings, Save, History, Edit, Calculator, Users, Volume2, Timer, Key, RotateCcw } from 'lucide-react';
@@ -35,9 +36,19 @@ const GameControls: React.FC<GameControlsProps> = ({
   const [showTimerSettings, setShowTimerSettings] = useState(false);
   const [showNewGameSettings, setShowNewGameSettings] = useState(false);
   const [showPasscodeManager, setShowPasscodeManager] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+
+  const handleSaveGame = async () => {
+    setIsSaving(true);
+    try {
+      await onSaveGame();
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const menuItems = [
-    { icon: Save, label: 'Save Game', action: onSaveGame, disabled: false },
+    { icon: Save, label: 'Save Game', action: handleSaveGame, disabled: isSaving },
     { icon: History, label: 'Game History', action: onShowGameHistory },
     { icon: Edit, label: 'Edit Game', action: onShowGameEditor },
     { icon: Calculator, label: 'Manage Scores', action: onShowScoreManager },
@@ -75,13 +86,13 @@ const GameControls: React.FC<GameControlsProps> = ({
                   item.action();
                   setIsMenuOpen(false);
                 }}
-                disabled={item.disabled || (item.label === 'Save Game' && isLoading)}
+                disabled={item.disabled}
                 size="sm"
                 className="text-white border justify-start gap-2 min-w-[140px] hover:opacity-90"
                 style={{ backgroundColor: '#2c5b69', borderColor: '#2c5b69' }}
               >
                 <item.icon className="w-4 h-4" />
-                {item.label} {item.label === 'Save Game' && isLoading && '...'}
+                {item.label} {item.label === 'Save Game' && isSaving && '...'}
               </Button>
             ))}
           </div>
