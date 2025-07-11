@@ -99,65 +99,65 @@ const GameEditor: React.FC<GameEditorProps> = ({
   };
 
   const handleSaveQuestionEdit = (questionData: Partial<Question>) => {
-    console.log('💾 Saving question edit:', questionData);
+    console.log('💾 GameEditor: Saving question edit:', questionData);
     if (editingQuestion) {
       // Call the synchronous save function
       saveQuestionEdit(questionData, editingQuestion);
       // Close the form immediately
       setEditingQuestion(null);
-      console.log('✅ Question edit completed and form closed');
+      console.log('✅ GameEditor: Question edit completed and form closed');
     }
   };
 
   const handleDeleteQuestion = (id: number) => {
-    console.log('🗑️ Handling question delete:', id);
+    console.log('🗑️ GameEditor: Handling question delete:', id);
     // Call the synchronous delete function
     deleteQuestion(id);
   };
 
   const handleAddCategory = () => {
-    console.log('➕ Starting to add new category');
+    console.log('➕ GameEditor: Starting to add new category');
     setShowAddCategory(true);
     setEditingQuestion(null);
     setEditingCategory(null);
   };
 
   const handleAddNewCategory = () => {
-    console.log('💾 Adding new category:', newCategoryName);
+    console.log('💾 GameEditor: Adding new category:', newCategoryName);
     // Call the synchronous add function
     addNewCategory(newCategoryName, categories);
     // Close the form immediately
     setShowAddCategory(false);
     setNewCategoryName('');
-    console.log('✅ New category added and form closed');
+    console.log('✅ GameEditor: New category added and form closed');
   };
 
   const startEditCategory = (category: string) => {
-    console.log('🔧 Starting to edit category:', category);
+    console.log('🔧 GameEditor: Starting to edit category:', category);
     setEditingCategory(category);
     setEditingQuestion(null);
     setShowAddCategory(false);
   };
 
   const handleSaveCategoryEdit = (newName: string) => {
-    console.log('💾 Saving category edit:', { old: editingCategory, new: newName });
+    console.log('💾 GameEditor: Saving category edit:', { old: editingCategory, new: newName });
     if (editingCategory) {
       // Call the synchronous save function
       saveCategoryEdit(editingCategory, newName);
       // Close the form immediately
       setEditingCategory(null);
-      console.log('✅ Category edit completed and form closed');
+      console.log('✅ GameEditor: Category edit completed and form closed');
     }
   };
 
   const handleDeleteCategory = (category: string) => {
-    console.log('🗑️ Handling category delete:', category);
+    console.log('🗑️ GameEditor: Handling category delete:', category);
     // Call the synchronous delete function
     deleteCategory(category);
   };
 
   const handleUpdateCategoryDescription = (category: string, description: string) => {
-    console.log('💾 Updating category description:', { category, description });
+    console.log('💾 GameEditor: Updating category description:', { category, description });
     // Call the synchronous update function
     updateCategoryDescription(category, description);
   };
@@ -176,7 +176,7 @@ const GameEditor: React.FC<GameEditorProps> = ({
 
   if (!isVisible) return null;
 
-  console.log('🔄 GameEditor render - Questions:', questions.length, 'Categories:', categoryDescriptions.length);
+  console.log('🔄 GameEditor render - Questions:', questions.length, 'Categories:', categoryDescriptions.length, 'Unique categories from questions:', categories.length);
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-2 sm:p-4">
