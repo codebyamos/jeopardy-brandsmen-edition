@@ -40,7 +40,7 @@ export const useGameEffects = ({
     return loadRecentGames(1);
   }, [loadRecentGames]);
 
-  // Set up periodic database saves every 20 minutes
+  // Set up periodic database saves every 20 minutes (no toast notifications)
   const { triggerManualSave } = usePeriodicSave({
     questions,
     categoryDescriptions,
@@ -52,7 +52,7 @@ export const useGameEffects = ({
     enabled: isAuthenticated && !isLoadingGameState
   });
 
-  // ALWAYS load from database first when opening app
+  // Load from database ONCE at startup, then work with local data
   useEffect(() => {
     const loadGameState = async () => {
       if (!isAuthenticated) {
@@ -61,9 +61,9 @@ export const useGameEffects = ({
       }
 
       try {
-        console.log('=== LOADING GAME STATE (DATABASE PRIORITY) ===');
+        console.log('=== LOADING GAME STATE FROM DATABASE (STARTUP) ===');
         
-        // ALWAYS try to load from database first
+        // Load from database first
         const recentGames = await stableLoadRecentGames();
         console.log('Database games loaded:', recentGames?.length || 0);
         
@@ -75,7 +75,7 @@ export const useGameEffects = ({
           });
           
           if (todaysGame) {
-            console.log('✅ LOADING FROM DATABASE (Primary source):', {
+            console.log('✅ LOADING FROM DATABASE (Startup load):', {
               questions: todaysGame.game_questions?.length || 0,
               categories: todaysGame.game_categories?.length || 0,
               players: todaysGame.game_players?.length || 0
@@ -121,9 +121,9 @@ export const useGameEffects = ({
               setCategoryDescriptions(loadedDescriptions);
             }
 
-            // Clear any old local storage since we loaded from database
-            clearLocalStorage();
-            console.log('🗑️ Cleared old local storage - using fresh database data');
+            // Now save this data to localStorage for local use
+            console.log('💾 Saving database data to localStorage for local use');
+            saveToLocalStorage(loadedQuestions || [], loadedDescriptions || []);
           } else {
             console.log('No today\'s game in database - will create new one');
           }
@@ -132,9 +132,9 @@ export const useGameEffects = ({
         }
         
       } catch (error) {
-        console.error('Failed to load from database, checking localStorage fallback:', error);
+        console.error('Failed to load from database:', error);
         
-        // Only use localStorage as absolute fallback
+        // Try localStorage as fallback
         const localData = loadFromLocalStorage();
         if (localData && localData.questions.length > 0) {
           console.log('📂 Using localStorage fallback data');
@@ -148,15 +148,15 @@ export const useGameEffects = ({
     };
 
     loadGameState();
-  }, [isAuthenticated, stableLoadRecentGames, clearLocalStorage, loadFromLocalStorage, setIsLoadingGameState, setQuestions, setCategoryDescriptions, setPlayers, setAnsweredQuestions]);
+  }, [isAuthenticated, stableLoadRecentGames, saveToLocalStorage, loadFromLocalStorage, clearLocalStorage, setIsLoadingGameState, setQuestions, setCategoryDescriptions, setPlayers, setAnsweredQuestions]);
 
-  // Save changes to localStorage for immediate local testing
+  // Save changes to localStorage immediately for local work
   useEffect(() => {
     if (!isAuthenticated || isLoadingGameState || questions.length === 0) {
       return;
     }
 
-    // Save to localStorage immediately for local testing
+    // Save to localStorage for immediate local use (no console logs to reduce noise)
     saveToLocalStorage(questions, categoryDescriptions);
   }, [questions, categoryDescriptions, saveToLocalStorage, isAuthenticated, isLoadingGameState]);
 
@@ -167,7 +167,7 @@ export const useGameEffects = ({
 
   const handleSaveGame = useCallback(async () => {
     try {
-      console.log('💾 Manual save game clicked - saving to database and clearing local');
+      console.log('💾 Manual save game clicked - saving to database');
       await triggerManualSave();
     } catch (error) {
       console.error('❌ Failed to save game manually:', error);

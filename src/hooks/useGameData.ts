@@ -24,7 +24,7 @@ export const useGameData = () => {
     gameDate?: string, 
     isManual: boolean = false
   ) => {
-    // Always set loading for database saves to show user feedback
+    // Only set loading for manual saves to show user feedback
     if (isManual) {
       setIsLoading(true);
     }
@@ -42,7 +42,6 @@ export const useGameData = () => {
 
       const gameId = await createOrFindGame(today, currentGameId);
       setCurrentGameId(gameId);
-      console.log('Using game ID:', gameId);
 
       // Clean up unused media files when starting a new game
       if (questions && questions.length > 0 && !currentGameId) {
@@ -67,42 +66,40 @@ export const useGameData = () => {
 
       console.log('=== DATABASE SAVE COMPLETED SUCCESSFULLY ===');
       
-      // Only show toast for manual saves
+      // Only show toast for manual saves - no notifications for automatic saves
       if (isManual) {
         toast({
-          title: "Saved to Database!",
-          description: "Your game data has been successfully saved and will persist between sessions.",
+          title: "Game Saved!",
+          description: "Your game has been successfully saved to the database.",
         });
       }
 
       return gameId;
     } catch (error) {
       console.error('=== DATABASE SAVE FAILED ===');
-      console.error('Error details:', {
-        error,
-        message: error instanceof Error ? error.message : 'Unknown error',
-        stack: error instanceof Error ? error.stack : undefined
-      });
+      console.error('Error details:', error);
       
-      // Show error toasts for all database save failures
-      let errorMessage = "Failed to save to database";
-      
-      if (error instanceof Error) {
-        if (error.message.includes('network') || error.message.includes('fetch') || error.message.includes('connection')) {
-          errorMessage = "Network connection error. Please check your internet connection and try again.";
-        } else if (error.message.includes('offline')) {
-          errorMessage = "You appear to be offline. Please check your internet connection.";
-        } else {
-          errorMessage = `Database save failed: ${error.message}`;
+      // Only show error toasts for manual saves or critical errors
+      if (isManual) {
+        let errorMessage = "Failed to save to database";
+        
+        if (error instanceof Error) {
+          if (error.message.includes('network') || error.message.includes('fetch') || error.message.includes('connection')) {
+            errorMessage = "Network connection error. Please check your internet connection and try again.";
+          } else if (error.message.includes('offline')) {
+            errorMessage = "You appear to be offline. Please check your internet connection.";
+          } else {
+            errorMessage = `Database save failed: ${error.message}`;
+          }
         }
+        
+        toast({
+          title: "Save Error",
+          description: errorMessage,
+          variant: "destructive",
+          duration: 5000,
+        });
       }
-      
-      toast({
-        title: "Database Error",
-        description: errorMessage,
-        variant: "destructive",
-        duration: 8000,
-      });
       
       throw error;
     } finally {
@@ -141,24 +138,23 @@ export const useGameData = () => {
   };
 
   const loadRecentGames = async (limit = 10) => {
-    setIsLoading(true);
+    // Don't show loading for background data loads
     try {
-      console.log('Hook: Starting to load recent games from database...');
+      console.log('Loading recent games from database...');
       const games = await loadRecentGamesData(limit);
-      console.log('Hook: Games loaded successfully from database:', games?.length || 0);
+      console.log('Games loaded successfully from database:', games?.length || 0);
       return games;
     } catch (error) {
-      console.error('Hook: Error loading games from database:', error);
+      console.error('Error loading games from database:', error);
       
+      // Only show error toast for critical failures
       toast({
         title: "Database Connection Error",
-        description: "Unable to load games from database. Please check your connection.",
+        description: "Unable to load games from database. Using local data.",
         variant: "destructive",
-        duration: 5000,
+        duration: 3000,
       });
       return [];
-    } finally {
-      setIsLoading(false);
     }
   };
 

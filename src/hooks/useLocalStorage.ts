@@ -12,7 +12,7 @@ interface GameState {
 export const useLocalStorage = () => {
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
-  const saveToLocalStorage = (questions: Question[], categoryDescriptions: CategoryDescription[]) => {
+  const saveToLocalStorage = (questions: Question[], categoryDescriptions: CategoryDescription[], silent: boolean = true) => {
     const gameState: GameState = {
       questions,
       categoryDescriptions,
@@ -22,11 +22,15 @@ export const useLocalStorage = () => {
     
     localStorage.setItem('jeopardy-game-state', JSON.stringify(gameState));
     setHasUnsavedChanges(true);
-    console.log('💾 Saved to localStorage for local testing:', { 
-      questions: questions.length, 
-      categories: categoryDescriptions.length,
-      version: gameState.version
-    });
+    
+    // Only log if not silent
+    if (!silent) {
+      console.log('💾 Saved to localStorage:', { 
+        questions: questions.length, 
+        categories: categoryDescriptions.length,
+        version: gameState.version
+      });
+    }
   };
 
   const loadFromLocalStorage = (): GameState | null => {
