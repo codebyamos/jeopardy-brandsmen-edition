@@ -78,7 +78,7 @@ const GameEditor: React.FC<GameEditorProps> = ({
     enabled: hasUnsavedChanges
   });
 
-  const categories = Array.from(new Set(questions.map(q => q.category)));
+  const categories = categoryDescriptions.map(desc => desc.category);
 
   const startEdit = (question: Question) => {
     console.log('🔧 Starting to edit question:', question.id);

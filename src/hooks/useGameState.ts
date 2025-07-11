@@ -32,7 +32,7 @@ const sampleQuestions: Question[] = [
 ];
 
 export const useGameState = () => {
-  const [questions, setQuestions] = useState<Question[]>(sampleQuestions);
+  const [questions, setQuestions] = useState<Question[]>([]);
   const [categoryDescriptions, setCategoryDescriptions] = useState<CategoryDescription[]>([]);
   const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(null);
   const [answeredQuestions, setAnsweredQuestions] = useState<Set<number>>(new Set());
@@ -40,13 +40,11 @@ export const useGameState = () => {
   const [showGameEditor, setShowGameEditor] = useState(false);
   const [showScoreManager, setShowScoreManager] = useState(false);
   const [showGameHistory, setShowGameHistory] = useState(false);
-  const [players, setPlayers] = useState<Player[]>([
-    { id: 1, name: 'Team 1', score: 0 },
-    { id: 2, name: 'Team 2', score: 0 }
-  ]);
+  const [players, setPlayers] = useState<Player[]>([]);
   const [isLoadingGameState, setIsLoadingGameState] = useState(true);
 
-  const categories = Array.from(new Set(questions.map(q => q.category)));
+  // Get categories from database category descriptions, not from questions
+  const categories = categoryDescriptions.map(desc => desc.category);
   const pointValues = [100, 200, 300, 400, 500];
 
   const handleQuestionSelect = useCallback((category: string, points: number) => {
@@ -78,14 +76,10 @@ export const useGameState = () => {
   }, [players]);
 
   const handleStartNewGame = useCallback((newPasscode?: string) => {
-    // Reset all game state
-    setQuestions(sampleQuestions);
+    // Reset all game state but keep database categories
+    setQuestions([]);
     setAnsweredQuestions(new Set());
-    setCategoryDescriptions([]);
-    setPlayers([
-      { id: 1, name: 'Team 1', score: 0 },
-      { id: 2, name: 'Team 2', score: 0 }
-    ]);
+    setPlayers([]);
     setSelectedQuestion(null);
     setShowScoring(false);
     setShowGameEditor(false);
