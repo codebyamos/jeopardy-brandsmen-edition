@@ -27,7 +27,7 @@ const GameEditor: React.FC<GameEditorProps> = ({
   isVisible, 
   onClose 
 }) => {
-  console.log('🔄 GameEditor render - Questions length:', questions.length, 'Categories length:', categoryDescriptions.length);
+  console.log('🔄 GameEditor render - Questions length:', questions.length, 'Categories length:', categoryDescriptions.length, 'questions array:', questions.slice(0, 3));
 
   const {
     editingQuestion,
@@ -102,6 +102,8 @@ const GameEditor: React.FC<GameEditorProps> = ({
 
   const handleSaveQuestionEdit = (questionData: Partial<Question>) => {
     console.log('💾 GameEditor: handleSaveQuestionEdit called with:', questionData);
+    console.log('💾 GameEditor: Current editing question:', editingQuestion);
+    console.log('💾 GameEditor: Current questions array before save:', questions.slice(0, 3));
     if (editingQuestion) {
       saveQuestionEdit(questionData, editingQuestion);
       setEditingQuestion(null);
@@ -138,6 +140,7 @@ const GameEditor: React.FC<GameEditorProps> = ({
 
   const handleSaveCategoryEdit = (newName: string) => {
     console.log('💾 GameEditor: handleSaveCategoryEdit called:', { old: editingCategory, new: newName });
+    console.log('💾 GameEditor: Current questions before category edit:', questions.slice(0, 3));
     if (editingCategory) {
       saveCategoryEdit(editingCategory, newName);
       setEditingCategory(null);
