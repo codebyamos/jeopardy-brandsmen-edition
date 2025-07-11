@@ -15,6 +15,8 @@ interface GameEditorProps {
   categoryDescriptions: CategoryDescription[];
   onQuestionsUpdate: (questions: Question[]) => void;
   onCategoryDescriptionsUpdate: (descriptions: CategoryDescription[]) => void;
+  answeredQuestions: Set<number>;
+  setAnsweredQuestions: (answered: Set<number>) => void;
   isVisible: boolean;
   onClose: () => void;
 }
@@ -24,6 +26,8 @@ const GameEditor: React.FC<GameEditorProps> = ({
   categoryDescriptions,
   onQuestionsUpdate, 
   onCategoryDescriptionsUpdate,
+  answeredQuestions,
+  setAnsweredQuestions,
   isVisible, 
   onClose 
 }) => {
@@ -59,7 +63,9 @@ const GameEditor: React.FC<GameEditorProps> = ({
     categoryDescriptions,
     onQuestionsUpdate,
     onCategoryDescriptionsUpdate,
-    setIsSaving
+    setIsSaving,
+    answeredQuestions,
+    setAnsweredQuestions
   });
 
   // Set up periodic saves every 15 minutes

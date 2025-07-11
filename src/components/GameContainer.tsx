@@ -17,6 +17,7 @@ interface GameContainerProps {
   setCategoryDescriptions: (descriptions: CategoryDescription[]) => void;
   selectedQuestion: Question | null;
   answeredQuestions: Set<number>;
+  setAnsweredQuestions: (answered: Set<number>) => void;
   showScoring: boolean;
   setShowScoring: (show: boolean) => void;
   showGameEditor: boolean;
@@ -45,6 +46,7 @@ const GameContainer: React.FC<GameContainerProps> = ({
   setCategoryDescriptions,
   selectedQuestion,
   answeredQuestions,
+  setAnsweredQuestions,
   showScoring,
   setShowScoring,
   showGameEditor,
@@ -114,6 +116,8 @@ const GameContainer: React.FC<GameContainerProps> = ({
           categoryDescriptions={categoryDescriptions}
           onQuestionsUpdate={setQuestions}
           onCategoryDescriptionsUpdate={setCategoryDescriptions}
+          answeredQuestions={answeredQuestions}
+          setAnsweredQuestions={setAnsweredQuestions}
           isVisible={showGameEditor}
           onClose={() => setShowGameEditor(false)}
         />

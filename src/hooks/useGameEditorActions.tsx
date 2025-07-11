@@ -9,6 +9,8 @@ interface UseGameEditorActionsProps {
   onQuestionsUpdate: (questions: Question[]) => void;
   onCategoryDescriptionsUpdate: (descriptions: CategoryDescription[]) => void;
   setIsSaving: (saving: boolean) => void;
+  answeredQuestions?: Set<number>;
+  setAnsweredQuestions?: (answered: Set<number>) => void;
 }
 
 export const useGameEditorActions = ({
@@ -16,7 +18,9 @@ export const useGameEditorActions = ({
   categoryDescriptions,
   onQuestionsUpdate,
   onCategoryDescriptionsUpdate,
-  setIsSaving
+  setIsSaving,
+  answeredQuestions,
+  setAnsweredQuestions
 }: UseGameEditorActionsProps) => {
   const { forceSaveToLocal } = useLocalStorage();
   const { toast } = useToast();
@@ -64,6 +68,14 @@ export const useGameEditorActions = ({
     
     const updatedQuestions = questions.filter(q => q.id !== id);
     console.log('🚀 Calling onQuestionsUpdate after delete. New length:', updatedQuestions.length);
+    
+    // Also remove the question from answered questions if it was answered
+    if (answeredQuestions && setAnsweredQuestions && answeredQuestions.has(id)) {
+      const updatedAnsweredQuestions = new Set(answeredQuestions);
+      updatedAnsweredQuestions.delete(id);
+      setAnsweredQuestions(updatedAnsweredQuestions);
+      console.log('🚮 Removed question from answered questions:', id);
+    }
     
     onQuestionsUpdate(updatedQuestions);
     saveToLocal(updatedQuestions);

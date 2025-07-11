@@ -81,6 +81,7 @@ const Index = () => {
       setCategoryDescriptions={setCategoryDescriptions}
       selectedQuestion={selectedQuestion}
       answeredQuestions={answeredQuestions}
+      setAnsweredQuestions={setAnsweredQuestions}
       showScoring={showScoring}
       setShowScoring={setShowScoring}
       showGameEditor={showGameEditor}
