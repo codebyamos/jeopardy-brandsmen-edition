@@ -29,7 +29,13 @@ const MediaSection: React.FC<MediaSectionProps> = ({ imageUrl, videoUrl }) => {
             onError={(e) => {
               const target = e.target as HTMLImageElement;
               console.error('Image failed to load:', imageUrl);
+              // Hide broken images completely
               target.style.display = 'none';
+              // Also hide the container if the image fails to load
+              const container = target.closest('.max-w-sm') as HTMLElement;
+              if (container) {
+                container.style.display = 'none';
+              }
             }}
             onLoad={() => {
               console.log('Image loaded successfully:', imageUrl);

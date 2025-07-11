@@ -4,6 +4,8 @@ import { Question } from '@/types/game';
 
 export const cleanupUnusedMedia = async (questions: Question[]) => {
   try {
+    console.log('🧹 Starting media cleanup...');
+    
     // Extract all image and video URLs from current questions
     const usedUrls = new Set<string>();
     questions.forEach(question => {
@@ -23,17 +25,21 @@ export const cleanupUnusedMedia = async (questions: Question[]) => {
 
     // Find files that are not being used
     const filesToDelete: string[] = [];
+    const existingFiles = new Set<string>();
+    
     files?.forEach(file => {
       const fileUrl = supabase.storage
         .from('player-avatars')
         .getPublicUrl(file.name).data.publicUrl;
+      
+      existingFiles.add(fileUrl);
       
       if (!usedUrls.has(fileUrl)) {
         filesToDelete.push(file.name);
       }
     });
 
-    // Delete unused files
+    // Delete unused files from storage
     if (filesToDelete.length > 0) {
       const { error: deleteError } = await supabase.storage
         .from('player-avatars')
@@ -42,9 +48,23 @@ export const cleanupUnusedMedia = async (questions: Question[]) => {
       if (deleteError) {
         console.error('Error deleting unused files:', deleteError);
       } else {
-        console.log(`Cleaned up ${filesToDelete.length} unused media files`);
+        console.log(`🗑️ Cleaned up ${filesToDelete.length} unused media files from storage`);
       }
     }
+
+    // Check for broken references in database (URLs that don't exist in storage)
+    const brokenRefs: string[] = [];
+    usedUrls.forEach(url => {
+      if (url.includes('player-avatars') && !existingFiles.has(url)) {
+        brokenRefs.push(url);
+      }
+    });
+
+    if (brokenRefs.length > 0) {
+      console.log(`🔗 Found ${brokenRefs.length} broken image references in database:`, brokenRefs);
+      // Note: The calling code should handle updating the database to remove these broken references
+    }
+
   } catch (error) {
     console.error('Error during media cleanup:', error);
   }
