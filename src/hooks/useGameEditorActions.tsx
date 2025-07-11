@@ -43,22 +43,26 @@ export const useGameEditorActions = ({
         );
       }
       
-      // Update state first
+      // Update state first - this will trigger UI update
       onQuestionsUpdate(updatedQuestions);
       
       // Then save to local immediately
       saveToLocal(updatedQuestions);
+      
+      console.log('✅ Question saved and UI updated:', questionData);
     }
   };
 
   const deleteQuestion = async (id: number) => {
     const updatedQuestions = questions.filter(q => q.id !== id);
     
-    // Update state first
+    // Update state first - this will trigger UI update
     onQuestionsUpdate(updatedQuestions);
     
     // Then save to local immediately
     saveToLocal(updatedQuestions);
+    
+    console.log('✅ Question deleted and UI updated:', id);
   };
 
   const saveCategoryEdit = async (oldName: string, newName: string) => {
@@ -71,12 +75,14 @@ export const useGameEditorActions = ({
         desc.category === oldName ? { ...desc, category: newName.trim() } : desc
       );
       
-      // Update state first
+      // Update state first - this will trigger UI update
       onQuestionsUpdate(updatedQuestions);
       onCategoryDescriptionsUpdate(updatedDescriptions);
       
       // Then save to local immediately
       saveToLocal(updatedQuestions, updatedDescriptions);
+      
+      console.log('✅ Category renamed and UI updated:', { oldName, newName });
     }
   };
 
@@ -85,12 +91,14 @@ export const useGameEditorActions = ({
       const updatedQuestions = questions.filter(q => q.category !== category);
       const updatedDescriptions = categoryDescriptions.filter(desc => desc.category !== category);
       
-      // Update state first
+      // Update state first - this will trigger UI update
       onQuestionsUpdate(updatedQuestions);
       onCategoryDescriptionsUpdate(updatedDescriptions);
       
       // Then save to local immediately
       saveToLocal(updatedQuestions, updatedDescriptions);
+      
+      console.log('✅ Category deleted and UI updated:', category);
     }
   };
 
@@ -108,11 +116,13 @@ export const useGameEditorActions = ({
       
       const updatedQuestions = [...questions, newQuestion];
       
-      // Update state first
+      // Update state first - this will trigger UI update
       onQuestionsUpdate(updatedQuestions);
       
       // Then save to local immediately
       saveToLocal(updatedQuestions);
+      
+      console.log('✅ New category added and UI updated:', newCategoryName);
     }
   };
 
@@ -128,11 +138,13 @@ export const useGameEditorActions = ({
       updatedDescriptions = [...categoryDescriptions, { category, description }];
     }
     
-    // Update state first
+    // Update state first - this will trigger UI update
     onCategoryDescriptionsUpdate(updatedDescriptions);
     
     // Then save to local immediately
     saveToLocal(undefined, updatedDescriptions);
+    
+    console.log('✅ Category description updated and UI updated:', { category, description });
   };
 
   // Placeholder for manual save - not used in editor anymore

@@ -73,6 +73,7 @@ const GameEditor: React.FC<GameEditorProps> = ({
   const categories = Array.from(new Set(questions.map(q => q.category)));
 
   const startEdit = (question: Question) => {
+    console.log('🔧 Starting to edit question:', question.id);
     setEditingQuestion(question);
     setEditingCategory(null);
     setShowAddCategory(false);
@@ -91,40 +92,49 @@ const GameEditor: React.FC<GameEditorProps> = ({
       videoUrl: ''
     };
     
+    console.log('➕ Adding new question for category:', category, 'points:', points);
     setEditingQuestion(newQuestion);
     setEditingCategory(null);
     setShowAddCategory(false);
   };
 
   const handleSaveQuestionEdit = async (questionData: Partial<Question>) => {
+    console.log('💾 Saving question edit:', questionData);
     if (editingQuestion) {
       await saveQuestionEdit(questionData, editingQuestion);
       setEditingQuestion(null);
+      console.log('✅ Question edit completed and form closed');
     }
   };
 
   const handleAddCategory = () => {
+    console.log('➕ Starting to add new category');
     setShowAddCategory(true);
     setEditingQuestion(null);
     setEditingCategory(null);
   };
 
   const handleAddNewCategory = async () => {
+    console.log('💾 Adding new category:', newCategoryName);
     await addNewCategory(newCategoryName, categories);
     setShowAddCategory(false);
     setNewCategoryName('');
+    console.log('✅ New category added and form closed');
   };
 
   const startEditCategory = (category: string) => {
+    console.log('🔧 Starting to edit category:', category);
     setEditingCategory(category);
     setEditingQuestion(null);
     setShowAddCategory(false);
   };
 
   const handleSaveCategoryEdit = async (newName: string) => {
+    console.log('💾 Saving category edit:', { old: editingCategory, new: newName });
     if (editingCategory) {
       await saveCategoryEdit(editingCategory, newName);
       setEditingCategory(null);
+      console.log('✅ Category edit completed and form closed');
     }
   };
 
@@ -141,6 +151,8 @@ const GameEditor: React.FC<GameEditorProps> = ({
   };
 
   if (!isVisible) return null;
+
+  console.log('🔄 GameEditor render - Questions:', questions.length, 'Categories:', categoryDescriptions.length);
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-2 sm:p-4">
