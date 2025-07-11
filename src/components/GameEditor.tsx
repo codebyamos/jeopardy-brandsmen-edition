@@ -101,9 +101,7 @@ const GameEditor: React.FC<GameEditorProps> = ({
   const handleSaveQuestionEdit = (questionData: Partial<Question>) => {
     console.log('💾 GameEditor: Saving question edit:', questionData);
     if (editingQuestion) {
-      // Call the synchronous save function
       saveQuestionEdit(questionData, editingQuestion);
-      // Close the form immediately
       setEditingQuestion(null);
       console.log('✅ GameEditor: Question edit completed and form closed');
     }
@@ -111,7 +109,6 @@ const GameEditor: React.FC<GameEditorProps> = ({
 
   const handleDeleteQuestion = (id: number) => {
     console.log('🗑️ GameEditor: Handling question delete:', id);
-    // Call the synchronous delete function
     deleteQuestion(id);
   };
 
@@ -124,9 +121,7 @@ const GameEditor: React.FC<GameEditorProps> = ({
 
   const handleAddNewCategory = () => {
     console.log('💾 GameEditor: Adding new category:', newCategoryName);
-    // Call the synchronous add function
     addNewCategory(newCategoryName, categories);
-    // Close the form immediately
     setShowAddCategory(false);
     setNewCategoryName('');
     console.log('✅ GameEditor: New category added and form closed');
@@ -142,9 +137,7 @@ const GameEditor: React.FC<GameEditorProps> = ({
   const handleSaveCategoryEdit = (newName: string) => {
     console.log('💾 GameEditor: Saving category edit:', { old: editingCategory, new: newName });
     if (editingCategory) {
-      // Call the synchronous save function
       saveCategoryEdit(editingCategory, newName);
-      // Close the form immediately
       setEditingCategory(null);
       console.log('✅ GameEditor: Category edit completed and form closed');
     }
@@ -152,13 +145,11 @@ const GameEditor: React.FC<GameEditorProps> = ({
 
   const handleDeleteCategory = (category: string) => {
     console.log('🗑️ GameEditor: Handling category delete:', category);
-    // Call the synchronous delete function
     deleteCategory(category);
   };
 
   const handleUpdateCategoryDescription = (category: string, description: string) => {
     console.log('💾 GameEditor: Updating category description:', { category, description });
-    // Call the synchronous update function
     updateCategoryDescription(category, description);
   };
 
@@ -178,6 +169,9 @@ const GameEditor: React.FC<GameEditorProps> = ({
 
   console.log('🔄 GameEditor render - Questions:', questions.length, 'Categories:', categoryDescriptions.length, 'Unique categories from questions:', categories.length);
 
+  // Create a render key to force React to re-render when data changes
+  const renderKey = `${questions.length}-${categoryDescriptions.length}-${Date.now()}`;
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-2 sm:p-4">
       <div className="bg-white border-2 rounded-lg w-full max-w-7xl max-h-[95vh] overflow-auto shadow-2xl" style={{ borderColor: '#2c5b69' }}>
@@ -193,6 +187,7 @@ const GameEditor: React.FC<GameEditorProps> = ({
 
           {showAddCategory && (
             <CategoryEditForm
+              key="add-category"
               isNew={true}
               categoryName={newCategoryName}
               onCategoryNameChange={setNewCategoryName}
@@ -204,6 +199,7 @@ const GameEditor: React.FC<GameEditorProps> = ({
 
           {editingCategory && (
             <CategoryEditForm
+              key={`edit-category-${editingCategory}`}
               isNew={false}
               categoryName={editingCategory}
               onSave={handleSaveCategoryEdit}
@@ -214,12 +210,14 @@ const GameEditor: React.FC<GameEditorProps> = ({
 
           {editingQuestion ? (
             <QuestionEditForm
+              key={`edit-question-${editingQuestion.id}`}
               question={editingQuestion}
               onSave={handleSaveQuestionEdit}
               onCancel={resetEditingState}
             />
           ) : (
             <CategoryGrid
+              key={renderKey}
               categories={categories}
               questions={questions}
               categoryDescriptions={categoryDescriptions}
