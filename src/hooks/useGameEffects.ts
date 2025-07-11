@@ -3,7 +3,6 @@ import { useEffect, useCallback } from 'react';
 import { Question, Player, CategoryDescription } from '../types/game';
 import { useGameData } from './useGameData';
 import { useLocalStorage } from './useLocalStorage';
-import { usePasscode } from '../contexts/PasscodeContext';
 import { initializeSpeechSystem } from '../utils/textToSpeech';
 
 interface UseGameEffectsProps {
@@ -36,7 +35,6 @@ export const useGameEffects = ({
   const { saveGame, loadRecentGames } = useGameData();
   const { loadFromLocalStorage } = useLocalStorage();
 
-  // Create a stable loadRecentGames function to avoid infinite loops
   const stableLoadRecentGames = useCallback(() => {
     return loadRecentGames(1);
   }, [loadRecentGames]);
@@ -52,7 +50,6 @@ export const useGameEffects = ({
       try {
         console.log('Loading game state...');
         
-        // First, try to load from localStorage
         const localData = loadFromLocalStorage();
         let hasLocalData = false;
         
@@ -69,7 +66,6 @@ export const useGameEffects = ({
           hasLocalData = true;
         }
 
-        // Then try to load from database
         const recentGames = await stableLoadRecentGames();
         console.log('Recent games loaded:', recentGames?.length || 0);
         
@@ -84,7 +80,6 @@ export const useGameEffects = ({
           console.log('Todays game found:', !!todaysGame);
           
           if (todaysGame) {
-            // Load players from the database (always use database players if available)
             if (todaysGame.game_players && todaysGame.game_players.length > 0) {
               const loadedPlayers: Player[] = todaysGame.game_players.map((player, index) => ({
                 id: index + 1,
@@ -96,7 +91,6 @@ export const useGameEffects = ({
               setPlayers(loadedPlayers);
             }
 
-            // Only load questions from database if we don't have newer local data
             if (!hasLocalData && todaysGame.game_questions && todaysGame.game_questions.length > 0) {
               const loadedQuestions: Question[] = todaysGame.game_questions.map(q => ({
                 id: q.question_id,
@@ -111,7 +105,6 @@ export const useGameEffects = ({
               console.log('Loaded questions from database:', loadedQuestions.length);
               setQuestions(loadedQuestions);
 
-              // Load answered questions
               const answeredIds = todaysGame.game_questions
                 .filter(q => q.is_answered)
                 .map(q => q.question_id);
@@ -119,7 +112,6 @@ export const useGameEffects = ({
               setAnsweredQuestions(new Set(answeredIds));
             }
 
-            // Only load category descriptions from database if we don't have newer local data
             if (!hasLocalData && todaysGame.game_categories && todaysGame.game_categories.length > 0) {
               const loadedDescriptions: CategoryDescription[] = todaysGame.game_categories.map(cat => ({
                 category: cat.category_name,
@@ -142,7 +134,6 @@ export const useGameEffects = ({
       } catch (error) {
         console.error('Failed to load game state:', error);
         
-        // Try to fall back to localStorage if database fails
         const localData = loadFromLocalStorage();
         if (localData && localData.questions && localData.questions.length > 0) {
           console.log('Database failed, falling back to localStorage');
@@ -159,14 +150,13 @@ export const useGameEffects = ({
     loadGameState();
   }, [isAuthenticated, stableLoadRecentGames, loadFromLocalStorage, setIsLoadingGameState, setQuestions, setCategoryDescriptions, setPlayers, setAnsweredQuestions]);
 
-  // Auto-save game state every 10 minutes (reduced from 20)
+  // Auto-save game state every 10 minutes
   useEffect(() => {
     if (!isAuthenticated || isLoadingGameState) {
       console.log('Skipping auto-save setup:', { isAuthenticated, isLoadingGameState });
       return;
     }
 
-    // Set up auto-save every 10 minutes (600000 ms)
     const autoSaveInterval = setInterval(async () => {
       try {
         console.log('Auto-saving game state...');

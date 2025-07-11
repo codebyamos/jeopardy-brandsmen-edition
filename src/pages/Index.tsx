@@ -56,23 +56,19 @@ const Index = () => {
   });
 
   const handleStartNewGame = (newPasscode?: string) => {
-    // Update the passcode if provided
     if (newPasscode) {
       setPasscode(newPasscode);
-      // Log out the user so they need to re-authenticate with the new passcode
       logout();
-      return; // Exit early as the user will be redirected to the passcode screen
+      return;
     }
     
     baseHandleStartNewGame();
   };
 
-  // Show passcode screen if not authenticated
   if (!isAuthenticated) {
     return <PasscodeScreen />;
   }
 
-  // Show loading state while game state is being loaded
   if (isLoadingGameState) {
     return <GameLoadingScreen />;
   }
