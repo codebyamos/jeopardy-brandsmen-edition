@@ -57,17 +57,18 @@ export const useGameEffects = ({
   useEffect(() => {
     console.log('🔥 LOADING EFFECT TRIGGERED', { isAuthenticated, isLoadingGameState });
     
-    if (isLoadingGameState) {
-      console.log('⏭️ SKIPPING: Already loading');
-      return; // Skip if already loading
-    }
-
     const loadGameState = async () => {
       console.log('🎯 LOAD GAME STATE CALLED', { isAuthenticated });
       
       if (!isAuthenticated) {
         console.log('❌ NOT AUTHENTICATED: Setting loading to false');
         setIsLoadingGameState(false);
+        return;
+      }
+
+      // Only proceed if not already loading
+      if (isLoadingGameState) {
+        console.log('⏭️ SKIPPING: Already loading');
         return;
       }
 
