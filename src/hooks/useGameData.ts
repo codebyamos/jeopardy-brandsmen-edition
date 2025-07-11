@@ -16,30 +16,27 @@ export const useGameData = () => {
   const [currentGameId, setCurrentGameId] = useState<string | null>(null);
   const { toast } = useToast();
 
-  const saveGame = async (
+  const saveGameWithRetry = async (
     players: Player[], 
     questions?: Question[], 
     answeredQuestions?: number[], 
     categoryDescriptions?: CategoryDescription[],
     gameDate?: string, 
-    isManual: boolean = false
-  ) => {
-    // Only set loading for manual saves to show user feedback
-    if (isManual) {
-      setIsLoading(true);
-    }
-    
+    isManual: boolean = false,
+    retryCount: number = 0
+  ): Promise<string> => {
+    const maxRetries = 3;
+    const today = gameDate || new Date().toISOString().split('T')[0];
+
+    console.log(`=== SAVING TO DATABASE (Attempt ${retryCount + 1}/${maxRetries + 1}) ===`);
+    console.log('Players:', players?.length || 0);
+    console.log('Questions:', questions?.length || 0);
+    console.log('Category descriptions:', categoryDescriptions?.length || 0);
+    console.log('Current game ID:', currentGameId);
+    console.log('Game date:', today);
+    console.log('Is manual save:', isManual);
+
     try {
-      const today = gameDate || new Date().toISOString().split('T')[0];
-
-      console.log('=== SAVING TO DATABASE ===');
-      console.log('Players:', players?.length || 0);
-      console.log('Questions:', questions?.length || 0);
-      console.log('Category descriptions:', categoryDescriptions?.length || 0);
-      console.log('Current game ID:', currentGameId);
-      console.log('Game date:', today);
-      console.log('Is manual save:', isManual);
-
       const gameId = await createOrFindGame(today, currentGameId);
       setCurrentGameId(gameId);
 
@@ -64,24 +61,56 @@ export const useGameData = () => {
         console.log('✅ Category descriptions saved to database');
       }
 
+      // Verify save by checking if data exists
+      console.log('🔍 VERIFYING SAVE: Checking if data was actually saved...');
+      const { loadRecentGamesData } = await import('@/services/gameService');
+      const recentGames = await loadRecentGamesData(1);
+      const savedGame = recentGames.find(g => g.id === gameId);
+      
+      if (savedGame) {
+        console.log('✅ SAVE VERIFIED: Game data confirmed in database');
+        console.log(`   - Players: ${savedGame.game_players?.length || 0}`);
+        console.log(`   - Questions: ${savedGame.game_questions?.length || 0}`);
+        console.log(`   - Categories: ${savedGame.game_categories?.length || 0}`);
+      } else {
+        throw new Error('Save verification failed: Game not found in database');
+      }
+
       console.log('=== DATABASE SAVE COMPLETED SUCCESSFULLY ===');
       
       // Only show toast for manual saves - no notifications for automatic saves
       if (isManual) {
         toast({
           title: "Game Saved!",
-          description: "Your game has been successfully saved to the database.",
+          description: `Your game has been successfully saved and verified in the database.`,
         });
       }
 
       return gameId;
     } catch (error) {
-      console.error('=== DATABASE SAVE FAILED ===');
+      console.error(`=== DATABASE SAVE FAILED (Attempt ${retryCount + 1}) ===`);
       console.error('Error details:', error);
       
-      // Only show error toasts for manual saves or critical errors
+      // Retry logic for non-manual saves or if we haven't exceeded retry limit
+      if (retryCount < maxRetries && (!isManual || retryCount === 0)) {
+        console.log(`🔄 RETRYING SAVE: Attempt ${retryCount + 2}/${maxRetries + 1} in 2 seconds...`);
+        
+        if (isManual && retryCount === 0) {
+          toast({
+            title: "Save Failed - Retrying",
+            description: "Save failed, automatically retrying in the background...",
+            duration: 3000,
+          });
+        }
+        
+        // Wait 2 seconds before retry
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        return saveGameWithRetry(players, questions, answeredQuestions, categoryDescriptions, gameDate, false, retryCount + 1);
+      }
+      
+      // Final failure - show error to user if manual save
       if (isManual) {
-        let errorMessage = "Failed to save to database";
+        let errorMessage = "Failed to save to database after multiple attempts";
         
         if (error instanceof Error) {
           if (error.message.includes('network') || error.message.includes('fetch') || error.message.includes('connection')) {
@@ -102,6 +131,24 @@ export const useGameData = () => {
       }
       
       throw error;
+    }
+  };
+
+  const saveGame = async (
+    players: Player[], 
+    questions?: Question[], 
+    answeredQuestions?: number[], 
+    categoryDescriptions?: CategoryDescription[],
+    gameDate?: string, 
+    isManual: boolean = false
+  ) => {
+    // Only set loading for manual saves to show user feedback
+    if (isManual) {
+      setIsLoading(true);
+    }
+    
+    try {
+      return await saveGameWithRetry(players, questions, answeredQuestions, categoryDescriptions, gameDate, isManual);
     } finally {
       if (isManual) {
         setIsLoading(false);
