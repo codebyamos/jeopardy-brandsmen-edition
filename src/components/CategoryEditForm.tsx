@@ -34,6 +34,7 @@ const CategoryEditForm: React.FC<CategoryEditFormProps> = ({
   };
 
   const handleSave = () => {
+    console.log('🔥 CategoryEditForm handleSave called:', { tempCategoryName, isNew });
     onSave(tempCategoryName);
   };
 

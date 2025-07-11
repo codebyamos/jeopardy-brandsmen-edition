@@ -60,7 +60,7 @@ const ScoringModal: React.FC<ScoringModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-2 sm:p-4">
-      <div className="bg-white border-2 rounded-lg max-w-md w-full p-3 sm:p-4 relative" style={{ borderColor: '#2c5b69' }}>
+      <div className="bg-white border-2 rounded-lg max-w-4xl w-full p-3 sm:p-4 relative grid grid-cols-1 lg:grid-cols-2 gap-4" style={{ borderColor: '#2c5b69' }}>
         {/* Close button in top right corner */}
         <button
           onClick={onClose}
@@ -72,11 +72,11 @@ const ScoringModal: React.FC<ScoringModalProps> = ({
           </svg>
         </button>
 
-        <h3 className="text-lg sm:text-xl font-bold mb-3 text-center pr-8 text-white" style={{ backgroundColor: '#2c5b69', padding: '8px', borderRadius: '4px' }}>
+        <h3 className="text-lg sm:text-xl font-bold mb-3 text-center pr-8 text-white lg:col-span-2" style={{ backgroundColor: '#2c5b69', padding: '8px', borderRadius: '4px' }}>
           Award Points
         </h3>
         
-        <div className="grid grid-cols-1 gap-3">
+        <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-3">
           {players.map((player) => (
             <div 
               key={player.id} 
@@ -160,7 +160,7 @@ const ScoringModal: React.FC<ScoringModalProps> = ({
           ))}
         </div>
         
-        <div className="flex justify-center mt-3">
+        <div className="flex justify-center mt-3 lg:col-span-2">
           <Button
             onClick={onClose}
             variant="outline"
