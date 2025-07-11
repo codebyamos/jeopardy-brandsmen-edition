@@ -77,14 +77,25 @@ export const useGameEffects = ({
         console.log('=== STARTUP: LOADING GAME STATE ===');
         setIsLoadingGameState(true);
         
-        // Load categories and descriptions directly from database (not tied to specific games)
-        console.log('📂 STARTUP: Loading categories and descriptions from database');
+        console.log('📂 STARTUP: Loading ALL data from database');
         
-        // Load all categories and descriptions
+        // Load categories and descriptions
         const { data: categoriesData, error: categoriesError } = await supabase
           .from('game_categories')
           .select('category_name, description')
           .order('category_name');
+        
+        // Load players
+        const { data: playersData, error: playersError } = await supabase
+          .from('game_players')
+          .select('player_name, player_score, avatar_url')
+          .order('created_at', { ascending: false });
+        
+        // Load questions
+        const { data: questionsData, error: questionsError } = await supabase
+          .from('game_questions')
+          .select('question_id, category, points, question, answer, bonus_points, image_url, video_url, is_answered')
+          .order('question_id');
         
         if (categoriesError) {
           console.error('STARTUP: Failed to load categories:', categoriesError);
@@ -93,9 +104,44 @@ export const useGameEffects = ({
             category: cat.category_name,
             description: cat.description || ''
           }));
-          
           console.log('✅ STARTUP: Loaded categories from database:', loadedDescriptions.length);
           setCategoryDescriptions(loadedDescriptions);
+        }
+        
+        if (playersError) {
+          console.error('STARTUP: Failed to load players:', playersError);
+        } else if (playersData && playersData.length > 0) {
+          const loadedPlayers = playersData.map((player, index) => ({
+            id: index + 1,
+            name: player.player_name,
+            score: player.player_score,
+            avatar: player.avatar_url || undefined
+          }));
+          console.log('✅ STARTUP: Loaded players from database:', loadedPlayers.length);
+          setPlayers(loadedPlayers);
+        }
+        
+        if (questionsError) {
+          console.error('STARTUP: Failed to load questions:', questionsError);
+        } else if (questionsData && questionsData.length > 0) {
+          const loadedQuestions = questionsData.map(q => ({
+            id: q.question_id,
+            category: q.category,
+            points: q.points,
+            question: q.question,
+            answer: q.answer,
+            bonusPoints: q.bonus_points || 0,
+            imageUrl: q.image_url || undefined,
+            videoUrl: q.video_url || undefined
+          }));
+          
+          const loadedAnsweredQuestions = questionsData
+            .filter(q => q.is_answered)
+            .map(q => q.question_id);
+          
+          console.log('✅ STARTUP: Loaded questions from database:', loadedQuestions.length);
+          setQuestions(loadedQuestions);
+          setAnsweredQuestions(new Set(loadedAnsweredQuestions));
         }
         
         // Load from database for reference only (don't auto-load games)
@@ -108,12 +154,6 @@ export const useGameEffects = ({
           console.log('STARTUP: No games found in database');
         }
 
-        // Try to load from localStorage as fallback for questions
-        const localData = loadFromLocalStorage();
-        if (localData && localData.questions.length > 0) {
-          console.log('📂 STARTUP: Using localStorage fallback data for questions');
-          setQuestions(localData.questions);
-        }
         
       } catch (error) {
         console.error('STARTUP: Failed to load from database:', error);
