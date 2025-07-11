@@ -126,43 +126,54 @@ const PlayerManager: React.FC<PlayerManagerProps> = ({
     setUploadingAvatars(prev => new Set([...prev, playerId]));
 
     try {
-      // Create a unique filename
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${playerId}-${Date.now()}.${fileExt}`;
+      // Convert to base64 for cross-origin compatibility
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const base64String = e.target?.result as string;
+        console.log('Avatar converted to base64 for player:', playerId);
+        
+        // Update player with new avatar
+        onPlayersUpdate(players.map(p => 
+          p.id === playerId ? { ...p, avatar: base64String } : p
+        ));
 
-      // Upload to Supabase storage
-      const { data, error } = await supabase.storage
-        .from('player-avatars')
-        .upload(fileName, file, {
-          cacheControl: '3600',
-          upsert: false
+        toast({
+          title: "Avatar uploaded!",
+          description: "Player avatar has been successfully updated.",
         });
-
-      if (error) throw error;
-
-      // Get the public URL
-      const { data: { publicUrl } } = supabase.storage
-        .from('player-avatars')
-        .getPublicUrl(fileName);
-
-      // Update player with new avatar URL
-      onPlayersUpdate(players.map(p => 
-        p.id === playerId ? { ...p, avatar: publicUrl } : p
-      ));
-
-      toast({
-        title: "Avatar uploaded!",
-        description: "Player avatar has been successfully updated.",
-      });
+        
+        setUploadingAvatars(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(playerId);
+          return newSet;
+        });
+      };
+      
+      reader.onerror = () => {
+        console.error('Failed to convert avatar to base64');
+        toast({
+          title: "Upload failed",
+          description: "Failed to process avatar. Please try again.",
+          variant: "destructive",
+        });
+        
+        setUploadingAvatars(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(playerId);
+          return newSet;
+        });
+      };
+      
+      reader.readAsDataURL(file);
 
     } catch (error) {
-      console.error('Error uploading avatar:', error);
+      console.error('Error processing avatar:', error);
       toast({
         title: "Upload failed",
-        description: "Failed to upload avatar. Please try again.",
+        description: "Failed to process avatar. Please try again.",
         variant: "destructive",
       });
-    } finally {
+      
       setUploadingAvatars(prev => {
         const newSet = new Set(prev);
         newSet.delete(playerId);
@@ -224,24 +235,17 @@ const PlayerManager: React.FC<PlayerManagerProps> = ({
                         className="w-16 h-16 rounded-full object-cover border-2"
                         style={{ borderColor: '#2c5b69' }}
                         onLoad={() => {
-                          console.log('Avatar loaded successfully:', player.avatar);
+                          console.log('Avatar loaded successfully:', player.name);
                         }}
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
-                          console.error('Avatar failed to load:', player.avatar);
-                          // Try without crossorigin first
-                          if (target.crossOrigin) {
-                            target.crossOrigin = '';
-                            target.src = player.avatar + '?t=' + Date.now();
-                          } else {
-                            // If still fails, hide and show placeholder
-                            target.style.display = 'none';
-                            const container = target.closest('.relative') as HTMLElement;
-                            if (container) {
-                              const placeholder = container.querySelector('.bg-gray-200') as HTMLElement;
-                              if (placeholder) {
-                                placeholder.style.display = 'flex';
-                              }
+                          console.error('Avatar failed to load for:', player.name);
+                          target.style.display = 'none';
+                          const container = target.closest('.relative') as HTMLElement;
+                          if (container) {
+                            const placeholder = container.querySelector('.bg-gray-200') as HTMLElement;
+                            if (placeholder) {
+                              placeholder.style.display = 'flex';
                             }
                           }
                         }}

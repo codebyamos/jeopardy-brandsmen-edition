@@ -21,15 +21,8 @@ const PlayerScores: React.FC<PlayerScoresProps> = ({ players }) => {
                   className="w-5 h-5 sm:w-6 sm:h-6 rounded-full object-cover border border-gray-300 flex-shrink-0"
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;
-                    console.error('Player score avatar failed to load:', player.avatar);
-                    // Try without crossorigin first
-                    if (target.crossOrigin) {
-                      target.crossOrigin = '';
-                      target.src = player.avatar + '?t=' + Date.now();
-                    } else {
-                      // If still fails, hide image
-                      target.style.display = 'none';
-                    }
+                    console.error('Player score avatar failed to load for:', player.name);
+                    target.style.display = 'none';
                   }}
                 />
               )}

@@ -31,32 +31,23 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ onImageSelect, currentImageUr
     setIsUploading(true);
 
     try {
-      // Create a unique filename
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
-      
-      // Upload to Supabase storage
-      const { data, error } = await supabase.storage
-        .from('player-avatars')
-        .upload(fileName, file, {
-          cacheControl: '3600',
-          upsert: false
-        });
-
-      if (error) {
-        throw error;
-      }
-
-      // Get the public URL
-      const { data: { publicUrl } } = supabase.storage
-        .from('player-avatars')
-        .getPublicUrl(fileName);
-
-      onImageSelect(publicUrl);
-      setIsUploading(false);
+      // Convert to base64 for cross-origin compatibility
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const base64String = e.target?.result as string;
+        console.log('Image converted to base64, size:', base64String.length);
+        onImageSelect(base64String);
+        setIsUploading(false);
+      };
+      reader.onerror = () => {
+        console.error('Failed to convert image to base64');
+        alert('Error processing image');
+        setIsUploading(false);
+      };
+      reader.readAsDataURL(file);
     } catch (error) {
-      console.error('Upload error:', error);
-      alert('Error uploading image');
+      console.error('Image processing error:', error);
+      alert('Error processing image');
       setIsUploading(false);
     }
   };
