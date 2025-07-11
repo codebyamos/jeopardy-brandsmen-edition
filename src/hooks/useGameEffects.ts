@@ -87,57 +87,8 @@ export const useGameEffects = ({
         let loadedAnsweredQuestions: number[] = [];
         
         if (recentGames.length > 0) {
-          const today = new Date().toISOString().split('T')[0];
-          const todaysGame = recentGames.find(game => {
-            const gameDate = new Date(game.game_date).toISOString().split('T')[0];
-            return today === gameDate;
-          });
-          
-          if (todaysGame) {
-            console.log('✅ STARTUP: Loading today\'s game from database:', {
-              questions: todaysGame.game_questions?.length || 0,
-              categories: todaysGame.game_categories?.length || 0,
-              players: todaysGame.game_players?.length || 0
-            });
-
-            // Load players from database
-            if (todaysGame.game_players && todaysGame.game_players.length > 0) {
-              loadedPlayers = todaysGame.game_players.map((player, index) => ({
-                id: index + 1,
-                name: player.player_name,
-                score: player.player_score,
-                avatar: player.avatar_url || undefined
-              }));
-            }
-
-            // Load questions from database
-            if (todaysGame.game_questions && todaysGame.game_questions.length > 0) {
-              loadedQuestions = todaysGame.game_questions.map(q => ({
-                id: q.question_id,
-                category: q.category,
-                points: q.points,
-                question: q.question,
-                answer: q.answer,
-                bonusPoints: q.bonus_points || 0,
-                imageUrl: q.image_url || undefined,
-                videoUrl: q.video_url || undefined
-              }));
-
-              loadedAnsweredQuestions = todaysGame.game_questions
-                .filter(q => q.is_answered)
-                .map(q => q.question_id);
-            }
-
-            // Load categories from database
-            if (todaysGame.game_categories && todaysGame.game_categories.length > 0) {
-              loadedDescriptions = todaysGame.game_categories.map(cat => ({
-                category: cat.category_name,
-                description: cat.description || ''
-              }));
-            }
-          } else {
-            console.log('STARTUP: No today\'s game in database');
-          }
+          console.log('STARTUP: Recent games found in database, but NOT auto-loading by date');
+          console.log('STARTUP: User must manually start new game to load database content');
         } else {
           console.log('STARTUP: No games found in database');
         }
