@@ -38,18 +38,16 @@ const GameEditorHeader: React.FC<GameEditorHeaderProps> = ({
         )}
       </div>
       <div className="flex gap-2">
-        {hasUnsavedChanges && (
-          <Button
-            onClick={onManualSave}
-            size="sm"
-            className="text-white"
-            style={{ backgroundColor: '#0f766e' }}
-            disabled={isSaving}
-          >
-            <Save className="w-4 h-4 mr-1" />
-            Save Now
-          </Button>
-        )}
+        <Button
+          onClick={onManualSave}
+          size="sm"
+          className="text-white"
+          style={{ backgroundColor: '#dc2626' }}
+          disabled={isSaving}
+        >
+          <Save className="w-4 h-4 mr-1" />
+          FORCE SAVE (Override DB)
+        </Button>
         {isMainView && (
           <Button
             onClick={onAddCategory}
