@@ -35,34 +35,31 @@ export const usePeriodicSave = ({
       const timeSinceLastSave = now - lastSaveTimeRef.current;
       const minInterval = intervalMinutes * 60 * 1000;
 
-      // Only save if enough time has passed and data has changed
       if (timeSinceLastSave < minInterval) {
-        console.log('Skipping periodic save - not enough time passed');
+        console.log('⏱️ Skipping periodic save - not enough time passed');
         return;
       }
 
-      // Check if data has changed since last save
       const currentData = JSON.stringify({ questions, categoryDescriptions });
       if (currentData === lastDataRef.current) {
-        console.log('Skipping periodic save - no data changes');
+        console.log('📋 Skipping periodic save - no data changes');
         return;
       }
 
       try {
-        console.log('Starting periodic save...');
+        console.log('🔄 Starting periodic database save...');
         await onSave(questions, categoryDescriptions);
         lastDataRef.current = currentData;
         lastSaveTimeRef.current = now;
-        console.log('Periodic save completed at:', new Date().toLocaleTimeString());
+        console.log('✅ Periodic database save completed at:', new Date().toLocaleTimeString());
       } catch (error) {
-        console.error('Periodic save failed:', error);
+        console.error('❌ Periodic database save failed (local data still safe):', error);
       }
     };
 
-    // Set up interval - check every 5 minutes but only save every intervalMinutes
-    intervalRef.current = setInterval(saveData, 5 * 60 * 1000);
+    // Check every 2 minutes but only save every intervalMinutes
+    intervalRef.current = setInterval(saveData, 2 * 60 * 1000);
 
-    // Cleanup on unmount or dependency change
     return () => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
@@ -71,15 +68,14 @@ export const usePeriodicSave = ({
     };
   }, [questions, categoryDescriptions, onSave, intervalMinutes, enabled]);
 
-  // Manual trigger for immediate save
   const triggerSave = async () => {
     try {
-      console.log('Manual periodic save triggered');
+      console.log('💾 Manual periodic save triggered');
       await onSave(questions, categoryDescriptions);
       lastDataRef.current = JSON.stringify({ questions, categoryDescriptions });
       lastSaveTimeRef.current = Date.now();
     } catch (error) {
-      console.error('Manual save failed:', error);
+      console.error('❌ Manual periodic save failed:', error);
       throw error;
     }
   };

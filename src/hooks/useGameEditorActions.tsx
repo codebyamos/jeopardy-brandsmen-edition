@@ -20,21 +20,28 @@ export const useGameEditorActions = ({
   setIsSaving
 }: UseGameEditorActionsProps) => {
   const { saveGame } = useGameData();
-  const { saveToLocalStorage, markAsSaved } = useLocalStorage();
+  const { saveToLocalStorage, markAsSaved, setHasUnsavedChanges } = useLocalStorage();
   const { toast } = useToast();
 
   const saveToLocal = (updatedQuestions?: Question[], updatedDescriptions?: CategoryDescription[]) => {
     const questionsToSave = updatedQuestions || questions;
     const descriptionsToSave = updatedDescriptions || categoryDescriptions;
+    
+    // Always save to localStorage immediately
     saveToLocalStorage(questionsToSave, descriptionsToSave);
+    setHasUnsavedChanges(true);
+    
+    console.log('💾 Saved to localStorage:', { 
+      questions: questionsToSave.length, 
+      categories: descriptionsToSave.length 
+    });
   };
 
   const triggerDatabaseSave = async (updatedQuestions?: Question[], updatedDescriptions?: CategoryDescription[]) => {
     setIsSaving(true);
     try {
-      console.log('GameEditor: Starting database save');
+      console.log('☁️ GameEditor: Starting database save');
       
-      // Use empty players array since we're only saving content changes
       const players = [{ id: 1, name: 'Team 1', score: 0 }, { id: 2, name: 'Team 2', score: 0 }];
       await saveGame(
         players,
@@ -42,14 +49,23 @@ export const useGameEditorActions = ({
         [],
         updatedDescriptions || categoryDescriptions,
         undefined,
-        true // Manual save
+        true
       );
       
-      // Mark as saved after successful database save
       markAsSaved();
-      console.log('GameEditor: Database save completed successfully');
+      console.log('✅ GameEditor: Database save completed successfully');
+      
+      toast({
+        title: "Saved to Database!",
+        description: "Your changes have been backed up to the database.",
+      });
     } catch (error) {
-      console.error('GameEditor: Database save failed:', error);
+      console.error('❌ GameEditor: Database save failed:', error);
+      toast({
+        title: "Database Save Failed",
+        description: "Don't worry - your changes are still saved locally and will be backed up automatically.",
+        variant: "destructive",
+      });
       throw error;
     } finally {
       setIsSaving(false);
@@ -69,21 +85,14 @@ export const useGameEditorActions = ({
         );
       }
       
-      // Update state immediately
       onQuestionsUpdate(updatedQuestions);
-      
-      // Save to local storage only
       saveToLocal(updatedQuestions);
     }
   };
 
   const deleteQuestion = async (id: number) => {
     const updatedQuestions = questions.filter(q => q.id !== id);
-    
-    // Update state immediately
     onQuestionsUpdate(updatedQuestions);
-    
-    // Save to local storage only
     saveToLocal(updatedQuestions);
   };
 
@@ -91,21 +100,16 @@ export const useGameEditorActions = ({
     if (oldName && newName.trim() && newName !== oldName) {
       console.log('GameEditor: Saving category edit:', { oldName, newName });
       
-      // Preserve the order of questions by updating them in the same order
       const updatedQuestions = questions.map(q => 
         q.category === oldName ? { ...q, category: newName.trim() } : q
       );
 
-      // Update category descriptions while preserving order
       const updatedDescriptions = categoryDescriptions.map(desc =>
         desc.category === oldName ? { ...desc, category: newName.trim() } : desc
       );
       
-      // Update state immediately
       onQuestionsUpdate(updatedQuestions);
       onCategoryDescriptionsUpdate(updatedDescriptions);
-      
-      // Save to local storage only
       saveToLocal(updatedQuestions, updatedDescriptions);
     }
   };
@@ -115,11 +119,8 @@ export const useGameEditorActions = ({
       const updatedQuestions = questions.filter(q => q.category !== category);
       const updatedDescriptions = categoryDescriptions.filter(desc => desc.category !== category);
       
-      // Update state immediately
       onQuestionsUpdate(updatedQuestions);
       onCategoryDescriptionsUpdate(updatedDescriptions);
-      
-      // Save to local storage only
       saveToLocal(updatedQuestions, updatedDescriptions);
     }
   };
@@ -135,13 +136,9 @@ export const useGameEditorActions = ({
         answer: 'What is the answer?',
         bonusPoints: 0
       };
-      // Add new question at the end to maintain order
+      
       const updatedQuestions = [...questions, newQuestion];
-      
-      // Update state immediately
       onQuestionsUpdate(updatedQuestions);
-      
-      // Save to local storage only
       saveToLocal(updatedQuestions);
     }
   };
@@ -153,19 +150,14 @@ export const useGameEditorActions = ({
     let updatedDescriptions;
     
     if (existingIndex >= 0) {
-      // Update existing description in place to preserve order
       updatedDescriptions = categoryDescriptions.map(desc =>
         desc.category === category ? { ...desc, description } : desc
       );
     } else {
-      // Add new description at the end to maintain order
       updatedDescriptions = [...categoryDescriptions, { category, description }];
     }
     
-    // Update state immediately
     onCategoryDescriptionsUpdate(updatedDescriptions);
-    
-    // Save to local storage only
     saveToLocal(undefined, updatedDescriptions);
   };
 
