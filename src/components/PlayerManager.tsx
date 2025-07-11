@@ -37,8 +37,13 @@ const PlayerManager: React.FC<PlayerManagerProps> = ({
   const addPlayer = () => {
     if (isAnyPlayerBeingEdited) return; // Prevent adding while editing
     
+    // Find the highest existing ID and add 1 to ensure uniqueness
+    const existingIds = players.map(p => p.id);
+    const maxId = existingIds.length > 0 ? Math.max(...existingIds) : 0;
+    const newId = maxId + 1;
+    
     const newPlayer: Player = {
-      id: Date.now(),
+      id: newId,
       name: `Team ${players.length + 1}`,
       score: 0
     };

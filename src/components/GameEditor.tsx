@@ -82,7 +82,11 @@ const GameEditor: React.FC<GameEditorProps> = ({
   };
 
   const addQuestion = (category: string, points: number) => {
-    const newId = Date.now() + Math.floor(Math.random() * 1000);
+    // Find the highest existing ID and add 1 to ensure uniqueness
+    const existingIds = questions.map(q => q.id);
+    const maxId = existingIds.length > 0 ? Math.max(...existingIds) : 0;
+    const newId = maxId + 1;
+    
     const newQuestion: Question = {
       id: newId,
       category,
