@@ -81,6 +81,10 @@ export const useGameEffects = ({
               players: todaysGame.game_players?.length || 0
             });
 
+            // Initialize variables for loaded data
+            let loadedQuestions: Question[] = [];
+            let loadedDescriptions: CategoryDescription[] = [];
+
             // Load players from database
             if (todaysGame.game_players && todaysGame.game_players.length > 0) {
               const loadedPlayers: Player[] = todaysGame.game_players.map((player, index) => ({
@@ -94,7 +98,7 @@ export const useGameEffects = ({
 
             // Load questions from database
             if (todaysGame.game_questions && todaysGame.game_questions.length > 0) {
-              const loadedQuestions: Question[] = todaysGame.game_questions.map(q => ({
+              loadedQuestions = todaysGame.game_questions.map(q => ({
                 id: q.question_id,
                 category: q.category,
                 points: q.points,
@@ -114,7 +118,7 @@ export const useGameEffects = ({
 
             // Load categories from database
             if (todaysGame.game_categories && todaysGame.game_categories.length > 0) {
-              const loadedDescriptions: CategoryDescription[] = todaysGame.game_categories.map(cat => ({
+              loadedDescriptions = todaysGame.game_categories.map(cat => ({
                 category: cat.category_name,
                 description: cat.description || ''
               }));
@@ -123,7 +127,7 @@ export const useGameEffects = ({
 
             // Now save this data to localStorage for local use
             console.log('💾 Saving database data to localStorage for local use');
-            saveToLocalStorage(loadedQuestions || [], loadedDescriptions || []);
+            saveToLocalStorage(loadedQuestions, loadedDescriptions);
           } else {
             console.log('No today\'s game in database - will create new one');
           }
