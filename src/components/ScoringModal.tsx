@@ -36,6 +36,7 @@ const ScoringModal: React.FC<ScoringModalProps> = ({
   const bonusPoints = getLastQuestionBonusPoints();
 
   const handleScoreClick = (playerId: number, scorePoints: number) => {
+    console.log('🔥 ScoringModal handleScoreClick called:', { playerId, scorePoints });
     onScorePlayer(playerId, scorePoints);
     // Don't close the modal automatically - let users continue scoring
   };

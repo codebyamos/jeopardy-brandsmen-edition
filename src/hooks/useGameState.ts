@@ -65,10 +65,17 @@ export const useGameState = () => {
   }, [selectedQuestion, answeredQuestions]);
 
   const handleScorePlayer = useCallback((playerId: number, points: number) => {
-    setPlayers(prev => prev.map(p => 
-      p.id === playerId ? { ...p, score: p.score + points } : p
-    ));
-  }, []);
+    console.log('🎯 handleScorePlayer called:', { playerId, points });
+    console.log('🎯 Current players before update:', players);
+    
+    setPlayers(prev => {
+      const updated = prev.map(p => 
+        p.id === playerId ? { ...p, score: p.score + points } : p
+      );
+      console.log('🎯 Updated players after scoring:', updated);
+      return updated;
+    });
+  }, [players]);
 
   const handleStartNewGame = useCallback((newPasscode?: string) => {
     // Reset all game state
