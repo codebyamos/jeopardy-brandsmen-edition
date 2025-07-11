@@ -20,7 +20,7 @@ export const useGameEditorActions = ({
   setIsSaving
 }: UseGameEditorActionsProps) => {
   const { saveGame } = useGameData();
-  const { saveToLocalStorage } = useLocalStorage();
+  const { saveToLocalStorage, markAsSaved } = useLocalStorage();
   const { toast } = useToast();
 
   const saveToLocal = (updatedQuestions?: Question[], updatedDescriptions?: CategoryDescription[]) => {
@@ -45,6 +45,8 @@ export const useGameEditorActions = ({
         true // Manual save
       );
       
+      // Mark as saved after successful database save
+      markAsSaved();
       console.log('GameEditor: Database save completed successfully');
     } catch (error) {
       console.error('GameEditor: Database save failed:', error);

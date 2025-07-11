@@ -19,6 +19,7 @@ export const usePeriodicSave = ({
 }: UsePeriodicSaveProps) => {
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const lastDataRef = useRef<string>('');
+  const lastSaveTimeRef = useRef<number>(0);
 
   useEffect(() => {
     if (!enabled) {
@@ -30,23 +31,36 @@ export const usePeriodicSave = ({
     }
 
     const saveData = async () => {
+      const now = Date.now();
+      const timeSinceLastSave = now - lastSaveTimeRef.current;
+      const minInterval = intervalMinutes * 60 * 1000;
+
+      // Only save if enough time has passed and data has changed
+      if (timeSinceLastSave < minInterval) {
+        console.log('Skipping periodic save - not enough time passed');
+        return;
+      }
+
       // Check if data has changed since last save
       const currentData = JSON.stringify({ questions, categoryDescriptions });
       if (currentData === lastDataRef.current) {
-        return; // No changes, skip save
+        console.log('Skipping periodic save - no data changes');
+        return;
       }
 
       try {
+        console.log('Starting periodic save...');
         await onSave(questions, categoryDescriptions);
         lastDataRef.current = currentData;
+        lastSaveTimeRef.current = now;
         console.log('Periodic save completed at:', new Date().toLocaleTimeString());
       } catch (error) {
         console.error('Periodic save failed:', error);
       }
     };
 
-    // Set up interval
-    intervalRef.current = setInterval(saveData, intervalMinutes * 60 * 1000);
+    // Set up interval - check every 5 minutes but only save every intervalMinutes
+    intervalRef.current = setInterval(saveData, 5 * 60 * 1000);
 
     // Cleanup on unmount or dependency change
     return () => {
@@ -60,8 +74,10 @@ export const usePeriodicSave = ({
   // Manual trigger for immediate save
   const triggerSave = async () => {
     try {
+      console.log('Manual periodic save triggered');
       await onSave(questions, categoryDescriptions);
       lastDataRef.current = JSON.stringify({ questions, categoryDescriptions });
+      lastSaveTimeRef.current = Date.now();
     } catch (error) {
       console.error('Manual save failed:', error);
       throw error;

@@ -13,6 +13,7 @@ import { useGameData } from '../hooks/useGameData';
 import { initializeSpeechSystem } from '../utils/textToSpeech';
 import { useTheme } from '../hooks/useTheme';
 import { usePasscode } from '../contexts/PasscodeContext';
+import { useLocalStorage } from '../hooks/useLocalStorage';
 
 const sampleQuestions: Question[] = [
   // Category 1: Company History
@@ -62,6 +63,7 @@ const Index = () => {
 
   const { saveGame, loadRecentGames, isLoading } = useGameData();
   const { theme } = useTheme();
+  const { loadFromLocalStorage } = useLocalStorage();
 
   const categories = Array.from(new Set(questions.map(q => q.category)));
   const pointValues = [100, 200, 300, 400, 500];
@@ -80,9 +82,28 @@ const Index = () => {
       }
 
       try {
-        console.log('Loading game state from database...');
+        console.log('Loading game state...');
+        
+        // First, try to load from localStorage
+        const localData = loadFromLocalStorage();
+        let hasLocalData = false;
+        
+        if (localData && localData.questions && localData.questions.length > 0) {
+          console.log('Found local data, loading:', { 
+            questions: localData.questions.length, 
+            categories: localData.categoryDescriptions?.length || 0 
+          });
+          
+          setQuestions(localData.questions);
+          if (localData.categoryDescriptions) {
+            setCategoryDescriptions(localData.categoryDescriptions);
+          }
+          hasLocalData = true;
+        }
+
+        // Then try to load from database
         const recentGames = await stableLoadRecentGames();
-        console.log('Recent games loaded:', recentGames);
+        console.log('Recent games loaded:', recentGames?.length || 0);
         
         if (recentGames.length > 0) {
           const today = new Date().toISOString().split('T')[0];
@@ -92,10 +113,10 @@ const Index = () => {
             return today === gameDate;
           });
           
-          console.log('Todays game found:', todaysGame);
+          console.log('Todays game found:', !!todaysGame);
           
           if (todaysGame) {
-            // Load players from the database
+            // Load players from the database (always use database players if available)
             if (todaysGame.game_players && todaysGame.game_players.length > 0) {
               const loadedPlayers: Player[] = todaysGame.game_players.map((player, index) => ({
                 id: index + 1,
@@ -107,8 +128,8 @@ const Index = () => {
               setPlayers(loadedPlayers);
             }
 
-            // Load questions from the database
-            if (todaysGame.game_questions && todaysGame.game_questions.length > 0) {
+            // Only load questions from database if we don't have newer local data
+            if (!hasLocalData && todaysGame.game_questions && todaysGame.game_questions.length > 0) {
               const loadedQuestions: Question[] = todaysGame.game_questions.map(q => ({
                 id: q.question_id,
                 category: q.category,
@@ -119,7 +140,7 @@ const Index = () => {
                 imageUrl: q.image_url || undefined,
                 videoUrl: q.video_url || undefined
               }));
-              console.log('Loaded questions from database:', loadedQuestions);
+              console.log('Loaded questions from database:', loadedQuestions.length);
               setQuestions(loadedQuestions);
 
               // Load answered questions
@@ -130,36 +151,54 @@ const Index = () => {
               setAnsweredQuestions(new Set(answeredIds));
             }
 
-            // Load category descriptions from the database
-            if (todaysGame.game_categories && todaysGame.game_categories.length > 0) {
+            // Only load category descriptions from database if we don't have newer local data
+            if (!hasLocalData && todaysGame.game_categories && todaysGame.game_categories.length > 0) {
               const loadedDescriptions: CategoryDescription[] = todaysGame.game_categories.map(cat => ({
                 category: cat.category_name,
                 description: cat.description || ''
               }));
-              console.log('Loaded category descriptions:', loadedDescriptions);
+              console.log('Loaded category descriptions from database:', loadedDescriptions);
               setCategoryDescriptions(loadedDescriptions);
             }
+          } else if (!hasLocalData) {
+            console.log('No todays game found and no local data, using sample questions');
           }
+        } else if (!hasLocalData) {
+          console.log('No recent games found and no local data, using sample questions');
         }
+        
+        if (hasLocalData) {
+          console.log('Using local data as primary source');
+        }
+        
       } catch (error) {
         console.error('Failed to load game state:', error);
-        // Continue with default data if loading fails
+        
+        // Try to fall back to localStorage if database fails
+        const localData = loadFromLocalStorage();
+        if (localData && localData.questions && localData.questions.length > 0) {
+          console.log('Database failed, falling back to localStorage');
+          setQuestions(localData.questions);
+          if (localData.categoryDescriptions) {
+            setCategoryDescriptions(localData.categoryDescriptions);
+          }
+        }
       } finally {
         setIsLoadingGameState(false);
       }
     };
 
     loadGameState();
-  }, [isAuthenticated, stableLoadRecentGames]);
+  }, [isAuthenticated, stableLoadRecentGames, loadFromLocalStorage]);
 
-  // Auto-save game state every 20 minutes
+  // Auto-save game state every 10 minutes (reduced from 20)
   useEffect(() => {
     if (!isAuthenticated || isLoadingGameState) {
       console.log('Skipping auto-save setup:', { isAuthenticated, isLoadingGameState });
       return;
     }
 
-    // Set up auto-save every 20 minutes (1200000 ms)
+    // Set up auto-save every 10 minutes (600000 ms)
     const autoSaveInterval = setInterval(async () => {
       try {
         console.log('Auto-saving game state...');
@@ -168,7 +207,7 @@ const Index = () => {
       } catch (error) {
         console.error('Failed to auto-save game state:', error);
       }
-    }, 1200000); // 20 minutes
+    }, 600000); // 10 minutes
 
     return () => clearInterval(autoSaveInterval);
   }, [players, questions, answeredQuestions, categoryDescriptions, saveGame, isAuthenticated, isLoadingGameState]);
