@@ -47,16 +47,10 @@ const CategoryGrid: React.FC<CategoryGridProps> = ({
     setEditingDescriptionCategory(null);
   };
 
-  // Create a stable sort for categories to maintain order
-  const categoryOrder = Array.from(new Set(questions.map(q => q.category)));
-  const allCategories = [...categoryOrder];
-  categories.forEach(cat => {
-    if (!allCategories.includes(cat)) {
-      allCategories.push(cat);
-    }
-  });
+  // Use only the database categories (no questions-derived categories)
+  const allCategories = categories;
 
-  console.log('🔄 CategoryGrid render - Categories:', allCategories.length, 'Questions:', questions.length);
+  console.log('🔄 CategoryGrid render - Database Categories:', allCategories.length, 'Questions:', questions.length);
 
   return (
     <>
