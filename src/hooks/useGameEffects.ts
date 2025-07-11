@@ -55,12 +55,18 @@ export const useGameEffects = ({
 
   // Load from database ONCE at startup, then work with local data
   useEffect(() => {
+    console.log('🔥 LOADING EFFECT TRIGGERED', { isAuthenticated, isLoadingGameState });
+    
     if (isLoadingGameState) {
+      console.log('⏭️ SKIPPING: Already loading');
       return; // Skip if already loading
     }
 
     const loadGameState = async () => {
+      console.log('🎯 LOAD GAME STATE CALLED', { isAuthenticated });
+      
       if (!isAuthenticated) {
+        console.log('❌ NOT AUTHENTICATED: Setting loading to false');
         setIsLoadingGameState(false);
         return;
       }
