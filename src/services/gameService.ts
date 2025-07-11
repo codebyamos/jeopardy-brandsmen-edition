@@ -191,6 +191,18 @@ export const saveGameQuestions = async (gameId: string, questions: Question[], a
   console.log('Saving questions for game:', gameId, 'Questions count:', questions.length);
   
   try {
+    // First, get count of existing questions to verify deletion
+    const { count: existingCount, error: countError } = await supabase
+      .from('game_questions')
+      .select('*', { count: 'exact', head: true })
+      .eq('game_id', gameId);
+
+    if (countError) {
+      console.error('Error counting existing questions:', countError);
+    } else {
+      console.log(`🗑️ Found ${existingCount} existing questions to delete for game ${gameId}`);
+    }
+
     // Delete existing questions for this game
     const { error: deleteQuestionsError } = await supabase
       .from('game_questions')
@@ -202,32 +214,54 @@ export const saveGameQuestions = async (gameId: string, questions: Question[], a
       throw new Error(`Failed to delete existing questions: ${deleteQuestionsError.message}`);
     }
 
-    // Save all questions for this game
-    const gameQuestionsData = questions.map(question => ({
-      game_id: gameId,
-      question_id: question.id,
-      category: question.category,
-      points: question.points,
-      question: question.question,
-      answer: question.answer,
-      bonus_points: question.bonusPoints || 0,
-      image_url: question.imageUrl || null,
-      video_url: question.videoUrl || null,
-      is_answered: answeredQuestions?.includes(question.id) || false
-    }));
+    console.log(`✅ Successfully deleted ${existingCount || 'all'} existing questions from database`);
 
-    console.log('Inserting questions data:', gameQuestionsData.slice(0, 2)); // Log first 2 for brevity
+    // Only insert if we have questions to save
+    if (questions.length > 0) {
+      // Save all questions for this game
+      const gameQuestionsData = questions.map(question => ({
+        game_id: gameId,
+        question_id: question.id,
+        category: question.category,
+        points: question.points,
+        question: question.question,
+        answer: question.answer,
+        bonus_points: question.bonusPoints || 0,
+        image_url: question.imageUrl || null,
+        video_url: question.videoUrl || null,
+        is_answered: answeredQuestions?.includes(question.id) || false
+      }));
 
-    const { error: questionsError } = await supabase
+      console.log(`💾 Inserting ${questions.length} new questions to database`);
+      console.log('Sample question data:', gameQuestionsData.slice(0, 1)); // Log first question for verification
+
+      const { error: questionsError } = await supabase
+        .from('game_questions')
+        .insert(gameQuestionsData);
+
+      if (questionsError) {
+        console.error('Error saving questions:', questionsError);
+        throw new Error(`Failed to save questions: ${questionsError.message}`);
+      }
+      
+      console.log(`✅ Successfully inserted ${questions.length} questions to database`);
+    } else {
+      console.log('📝 No questions to insert - game has 0 questions');
+    }
+
+    // Verify the final count matches what we expect
+    const { count: finalCount, error: finalCountError } = await supabase
       .from('game_questions')
-      .insert(gameQuestionsData);
+      .select('*', { count: 'exact', head: true })
+      .eq('game_id', gameId);
 
-    if (questionsError) {
-      console.error('Error saving questions:', questionsError);
-      throw new Error(`Failed to save questions: ${questionsError.message}`);
+    if (!finalCountError) {
+      console.log(`🔍 Database verification: Game now has ${finalCount} questions (expected: ${questions.length})`);
+      if (finalCount !== questions.length) {
+        console.warn(`⚠️ Question count mismatch! Expected ${questions.length}, but database has ${finalCount}`);
+      }
     }
     
-    console.log('Questions saved successfully');
   } catch (error) {
     console.error('saveGameQuestions failed:', error);
     throw error;
