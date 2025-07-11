@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Player, Question, CategoryDescription } from '@/types/game';
 import { useToast } from '@/hooks/use-toast';
@@ -25,7 +24,7 @@ export const useGameData = () => {
     gameDate?: string, 
     isManual: boolean = false
   ) => {
-    // Don't set loading for auto-saves to avoid blocking the UI
+    // Always set loading for database saves to show user feedback
     if (isManual) {
       setIsLoading(true);
     }
@@ -33,7 +32,7 @@ export const useGameData = () => {
     try {
       const today = gameDate || new Date().toISOString().split('T')[0];
 
-      console.log('=== SAVING GAME ===');
+      console.log('=== SAVING TO DATABASE ===');
       console.log('Players:', players?.length || 0);
       console.log('Questions:', questions?.length || 0);
       console.log('Category descriptions:', categoryDescriptions?.length || 0);
@@ -50,66 +49,63 @@ export const useGameData = () => {
         await cleanupUnusedMedia(questions);
       }
 
-      // Always save players
+      // Always save players to database
       await saveGamePlayers(gameId, players);
-      console.log('Players saved successfully');
+      console.log('✅ Players saved to database');
 
       // Save questions and answered questions if provided
       if (questions && questions.length > 0) {
         await saveGameQuestions(gameId, questions, answeredQuestions);
-        console.log('Questions saved successfully');
+        console.log('✅ Questions saved to database');
       }
 
       // Save category descriptions if provided
       if (categoryDescriptions && categoryDescriptions.length > 0) {
         await saveGameCategories(gameId, categoryDescriptions);
-        console.log('Category descriptions saved successfully');
+        console.log('✅ Category descriptions saved to database');
       }
 
-      console.log('=== GAME SAVED SUCCESSFULLY ===');
+      console.log('=== DATABASE SAVE COMPLETED SUCCESSFULLY ===');
       
       // Only show toast for manual saves
       if (isManual) {
         toast({
-          title: "Game Saved!",
-          description: "Your game has been successfully saved to the database.",
+          title: "Saved to Database!",
+          description: "Your game data has been successfully saved and will persist between sessions.",
         });
       }
 
       return gameId;
     } catch (error) {
-      console.error('=== SAVE GAME FAILED ===');
+      console.error('=== DATABASE SAVE FAILED ===');
       console.error('Error details:', {
         error,
         message: error instanceof Error ? error.message : 'Unknown error',
         stack: error instanceof Error ? error.stack : undefined
       });
       
-      // Only show error toasts for critical failures or manual saves
-      if (isManual || (error instanceof Error && error.message.includes('critical'))) {
-        let errorMessage = "Failed to save the game";
-        
-        if (error instanceof Error) {
-          if (error.message.includes('network') || error.message.includes('fetch') || error.message.includes('connection')) {
-            errorMessage = "Network connection error. Please check your internet connection and try again.";
-          } else if (error.message.includes('offline')) {
-            errorMessage = "You appear to be offline. Please check your internet connection.";
-          } else {
-            errorMessage = `Save failed: ${error.message}`;
-          }
+      // Show error toasts for all database save failures
+      let errorMessage = "Failed to save to database";
+      
+      if (error instanceof Error) {
+        if (error.message.includes('network') || error.message.includes('fetch') || error.message.includes('connection')) {
+          errorMessage = "Network connection error. Please check your internet connection and try again.";
+        } else if (error.message.includes('offline')) {
+          errorMessage = "You appear to be offline. Please check your internet connection.";
+        } else {
+          errorMessage = `Database save failed: ${error.message}`;
         }
-        
-        toast({
-          title: "Save Error",
-          description: errorMessage,
-          variant: "destructive",
-          duration: 5000,
-        });
       }
+      
+      toast({
+        title: "Database Error",
+        description: errorMessage,
+        variant: "destructive",
+        duration: 8000,
+      });
       
       throw error;
     } finally {
-      // Always reset loading state for manual saves
       if (isManual) {
         setIsLoading(false);
       }
@@ -147,22 +143,19 @@ export const useGameData = () => {
   const loadRecentGames = async (limit = 10) => {
     setIsLoading(true);
     try {
-      console.log('Hook: Starting to load recent games...');
+      console.log('Hook: Starting to load recent games from database...');
       const games = await loadRecentGamesData(limit);
-      console.log('Hook: Games loaded successfully:', games?.length || 0);
+      console.log('Hook: Games loaded successfully from database:', games?.length || 0);
       return games;
     } catch (error) {
-      console.error('Hook: Error loading games:', error);
+      console.error('Hook: Error loading games from database:', error);
       
-      // Only show critical load errors to user
-      if (error instanceof Error && error.message.includes('critical')) {
-        toast({
-          title: "Connection Error",
-          description: "Unable to connect to the database. Please check your internet connection.",
-          variant: "destructive",
-          duration: 5000,
-        });
-      }
+      toast({
+        title: "Database Connection Error",
+        description: "Unable to load games from database. Please check your connection.",
+        variant: "destructive",
+        duration: 5000,
+      });
       return [];
     } finally {
       setIsLoading(false);
