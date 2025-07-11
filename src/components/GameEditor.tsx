@@ -42,7 +42,7 @@ const GameEditor: React.FC<GameEditorProps> = ({
     resetEditingState
   } = useGameEditorState();
 
-  const { hasUnsavedChanges } = useLocalStorage();
+  const { hasUnsavedChanges, clearLocalStorage } = useLocalStorage();
 
   const {
     triggerDatabaseSave,
@@ -65,6 +65,7 @@ const GameEditor: React.FC<GameEditorProps> = ({
     questions,
     categoryDescriptions,
     onSave: triggerDatabaseSave,
+    onClearLocal: clearLocalStorage,
     intervalMinutes: 15,
     enabled: hasUnsavedChanges
   });
