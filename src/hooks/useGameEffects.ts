@@ -116,17 +116,41 @@ export const useGameEffects = ({
           setPlayers(loadedPlayers);
         }
         
-        // DON'T load old questions - start fresh so user can create questions for their proper categories
-        console.log('📝 STARTUP: NOT loading old questions - starting with empty questions for proper categories');
+        // Load recent game data including questions
+        console.log('📝 STARTUP: Loading recent game data including questions');
         
-        // Load from database for reference only (don't auto-load games)
         const recentGames = await stableLoadRecentGames();
         
         if (recentGames.length > 0) {
-          console.log('STARTUP: Recent games found in database, but NOT auto-loading by date');
-          console.log('STARTUP: User must manually start new game to load database content');
+          const mostRecentGame = recentGames[0];
+          console.log('✅ STARTUP: Found recent game data, loading it automatically');
+          
+          // Load questions from the most recent game
+          if (mostRecentGame.game_questions && mostRecentGame.game_questions.length > 0) {
+            const loadedQuestions = mostRecentGame.game_questions.map(q => ({
+              id: q.question_id,
+              category: q.category,
+              points: q.points,
+              question: q.question,
+              answer: q.answer,
+              bonusPoints: q.bonus_points || 0,
+              imageUrl: q.image_url || '',
+              videoUrl: q.video_url || ''
+            }));
+            console.log('✅ STARTUP: Loaded questions from database:', loadedQuestions.length);
+            setQuestions(loadedQuestions);
+            
+            // Load answered questions
+            const answeredQuestionIds = mostRecentGame.game_questions
+              .filter(q => q.is_answered)
+              .map(q => q.question_id);
+            if (answeredQuestionIds.length > 0) {
+              setAnsweredQuestions(new Set(answeredQuestionIds));
+              console.log('✅ STARTUP: Loaded answered questions:', answeredQuestionIds.length);
+            }
+          }
         } else {
-          console.log('STARTUP: No games found in database');
+          console.log('📝 STARTUP: No games found in database');
         }
 
         
