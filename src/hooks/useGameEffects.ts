@@ -109,11 +109,21 @@ export const useGameEffects = ({
               }));
               console.log('Using database categories:', loadedDescriptions);
               setCategoryDescriptions(loadedDescriptions);
-            }
 
-            // Also save to localStorage as backup
-            if (loadedQuestions.length > 0) {
-              saveToLocalStorage(loadedQuestions, loadedDescriptions);
+              // Also save to localStorage as backup
+              if (todaysGame.game_questions && todaysGame.game_questions.length > 0) {
+                const questionsForStorage: Question[] = todaysGame.game_questions.map(q => ({
+                  id: q.question_id,
+                  category: q.category,
+                  points: q.points,
+                  question: q.question,
+                  answer: q.answer,
+                  bonusPoints: q.bonus_points || 0,
+                  imageUrl: q.image_url || undefined,
+                  videoUrl: q.video_url || undefined
+                }));
+                saveToLocalStorage(questionsForStorage, loadedDescriptions);
+              }
             }
           } else {
             console.log('No today\'s game in database - will create new one');
