@@ -106,12 +106,15 @@ export const useGameEffects = ({
         if (playersError) {
           console.error('STARTUP: Failed to load players:', playersError);
         } else if (playersData && playersData.length > 0) {
-          const loadedPlayers = playersData.map((player, index) => ({
-            id: index + 1,
-            name: player.player_name,
-            score: player.player_score,
-            avatar: player.avatar_url || undefined
-          }));
+          const loadedPlayers = playersData.map((player, index) => {
+            console.log(`🖼️ LOAD: Player ${player.player_name} avatar:`, player.avatar_url ? `${player.avatar_url.substring(0, 50)}...` : 'null');
+            return {
+              id: index + 1,
+              name: player.player_name,
+              score: player.player_score,
+              avatar: player.avatar_url || undefined
+            };
+          });
           console.log('✅ STARTUP: Loaded players from database:', loadedPlayers.length);
           setPlayers(loadedPlayers);
         }

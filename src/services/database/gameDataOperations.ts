@@ -32,12 +32,15 @@ export const saveGamePlayers = async (gameId: string, players: Player[]) => {
 
     // Only insert if we have players to save
     if (players && players.length > 0) {
-      const gamePlayersData = players.map(player => ({
+    const gamePlayersData = players.map(player => {
+      console.log(`🖼️ SAVE: Player ${player.name} avatar:`, player.avatar ? `${player.avatar.substring(0, 50)}...` : 'null');
+      return {
         game_id: gameId,
         player_name: player.name,
         player_score: player.score,
         avatar_url: player.avatar || null
-      }));
+      };
+    });
 
       console.log(`💾 Inserting ${players.length} new players to database`);
 

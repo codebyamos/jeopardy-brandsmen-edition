@@ -22,7 +22,8 @@ const PlayerScores: React.FC<PlayerScoresProps> = ({ players }) => {
                   referrerPolicy="no-referrer"
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;
-                    console.error('Player score avatar failed to load for:', player.name);
+                    console.error('🖼️ DISPLAY: Player score avatar failed to load for:', player.name);
+                    console.error('🖼️ DISPLAY: Avatar URL was:', player.avatar ? `${player.avatar.substring(0, 50)}...` : 'null');
                     // Try reloading without cache
                     if (!target.src.includes('&refresh=')) {
                       target.src = player.avatar + '&refresh=' + Date.now();
