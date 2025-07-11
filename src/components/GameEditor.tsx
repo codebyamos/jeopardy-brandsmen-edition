@@ -27,6 +27,8 @@ const GameEditor: React.FC<GameEditorProps> = ({
   isVisible, 
   onClose 
 }) => {
+  console.log('🔄 GameEditor render - Questions length:', questions.length, 'Categories length:', categoryDescriptions.length);
+
   const {
     editingQuestion,
     setEditingQuestion,
@@ -99,57 +101,57 @@ const GameEditor: React.FC<GameEditorProps> = ({
   };
 
   const handleSaveQuestionEdit = (questionData: Partial<Question>) => {
-    console.log('💾 GameEditor: Saving question edit:', questionData);
+    console.log('💾 GameEditor: handleSaveQuestionEdit called with:', questionData);
     if (editingQuestion) {
       saveQuestionEdit(questionData, editingQuestion);
       setEditingQuestion(null);
-      console.log('✅ GameEditor: Question edit completed and form closed');
+      console.log('✅ GameEditor: Question edit form closed');
     }
   };
 
   const handleDeleteQuestion = (id: number) => {
-    console.log('🗑️ GameEditor: Handling question delete:', id);
+    console.log('🗑️ GameEditor: handleDeleteQuestion called for ID:', id);
     deleteQuestion(id);
   };
 
   const handleAddCategory = () => {
-    console.log('➕ GameEditor: Starting to add new category');
+    console.log('➕ GameEditor: handleAddCategory called');
     setShowAddCategory(true);
     setEditingQuestion(null);
     setEditingCategory(null);
   };
 
   const handleAddNewCategory = () => {
-    console.log('💾 GameEditor: Adding new category:', newCategoryName);
+    console.log('💾 GameEditor: handleAddNewCategory called with name:', newCategoryName);
     addNewCategory(newCategoryName, categories);
     setShowAddCategory(false);
     setNewCategoryName('');
-    console.log('✅ GameEditor: New category added and form closed');
+    console.log('✅ GameEditor: New category form closed');
   };
 
   const startEditCategory = (category: string) => {
-    console.log('🔧 GameEditor: Starting to edit category:', category);
+    console.log('🔧 GameEditor: startEditCategory called for:', category);
     setEditingCategory(category);
     setEditingQuestion(null);
     setShowAddCategory(false);
   };
 
   const handleSaveCategoryEdit = (newName: string) => {
-    console.log('💾 GameEditor: Saving category edit:', { old: editingCategory, new: newName });
+    console.log('💾 GameEditor: handleSaveCategoryEdit called:', { old: editingCategory, new: newName });
     if (editingCategory) {
       saveCategoryEdit(editingCategory, newName);
       setEditingCategory(null);
-      console.log('✅ GameEditor: Category edit completed and form closed');
+      console.log('✅ GameEditor: Category edit form closed');
     }
   };
 
   const handleDeleteCategory = (category: string) => {
-    console.log('🗑️ GameEditor: Handling category delete:', category);
+    console.log('🗑️ GameEditor: handleDeleteCategory called for:', category);
     deleteCategory(category);
   };
 
   const handleUpdateCategoryDescription = (category: string, description: string) => {
-    console.log('💾 GameEditor: Updating category description:', { category, description });
+    console.log('💾 GameEditor: handleUpdateCategoryDescription called:', { category, description });
     updateCategoryDescription(category, description);
   };
 
@@ -167,10 +169,10 @@ const GameEditor: React.FC<GameEditorProps> = ({
 
   if (!isVisible) return null;
 
-  console.log('🔄 GameEditor render - Questions:', questions.length, 'Categories:', categoryDescriptions.length, 'Unique categories from questions:', categories.length);
-
-  // Create a render key to force React to re-render when data changes
-  const renderKey = `${questions.length}-${categoryDescriptions.length}-${Date.now()}`;
+  // Use a timestamp to force re-renders when needed
+  const renderTimestamp = Date.now();
+  const questionsKey = `questions-${questions.length}-${renderTimestamp}`;
+  const categoriesKey = `categories-${categoryDescriptions.length}-${renderTimestamp}`;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-2 sm:p-4">
@@ -210,14 +212,14 @@ const GameEditor: React.FC<GameEditorProps> = ({
 
           {editingQuestion ? (
             <QuestionEditForm
-              key={`edit-question-${editingQuestion.id}`}
+              key={`edit-question-${editingQuestion.id}-${renderTimestamp}`}
               question={editingQuestion}
               onSave={handleSaveQuestionEdit}
               onCancel={resetEditingState}
             />
           ) : (
             <CategoryGrid
-              key={renderKey}
+              key={`${questionsKey}-${categoriesKey}`}
               categories={categories}
               questions={questions}
               categoryDescriptions={categoryDescriptions}

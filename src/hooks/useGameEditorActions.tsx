@@ -25,61 +25,55 @@ export const useGameEditorActions = ({
     const questionsToSave = updatedQuestions || questions;
     const descriptionsToSave = updatedDescriptions || categoryDescriptions;
     
-    // Force save to localStorage immediately
-    forceSaveToLocal(questionsToSave, descriptionsToSave);
-    console.log('💾 GameEditor: Changes saved locally immediately');
+    setTimeout(() => {
+      forceSaveToLocal(questionsToSave, descriptionsToSave);
+      console.log('💾 GameEditor: Changes saved locally');
+    }, 0);
   };
 
   const saveQuestionEdit = (questionData: Partial<Question>, editingQuestion: Question) => {
+    console.log('🔧 saveQuestionEdit called with:', { questionData, editingQuestion });
+    
     if (editingQuestion && questionData.category && questionData.question && questionData.answer && questionData.points) {
       const existingQuestionIndex = questions.findIndex(q => q.id === editingQuestion.id);
       let updatedQuestions: Question[];
       
       if (existingQuestionIndex === -1) {
-        // Create completely new array for new question
         updatedQuestions = [...questions, { ...questionData } as Question];
-        console.log('➕ Adding new question:', questionData);
+        console.log('➕ Adding new question. New array length:', updatedQuestions.length);
       } else {
-        // Create completely new array with updated question
         updatedQuestions = questions.map(q => 
           q.id === editingQuestion.id ? { ...q, ...questionData } as Question : q
         );
-        console.log('✏️ Updating existing question:', questionData);
+        console.log('✏️ Updating existing question. Array length:', updatedQuestions.length);
       }
       
-      // Update UI state IMMEDIATELY and SYNCHRONOUSLY
-      console.log('🔄 Calling onQuestionsUpdate with:', updatedQuestions.length, 'questions');
-      onQuestionsUpdate([...updatedQuestions]); // Force new array reference
+      console.log('🚀 Calling onQuestionsUpdate with updated questions');
+      onQuestionsUpdate(JSON.parse(JSON.stringify(updatedQuestions))); // Deep clone to ensure new reference
       
-      // Then save to local storage asynchronously
-      setTimeout(() => {
-        saveToLocal(updatedQuestions);
-        console.log('✅ Question saved to localStorage:', questionData);
-      }, 0);
+      saveToLocal(updatedQuestions);
+      console.log('✅ Question edit completed');
+    } else {
+      console.log('❌ Invalid question data:', { questionData, editingQuestion });
     }
   };
 
   const deleteQuestion = (id: number) => {
-    console.log('🗑️ Deleting question:', id);
-    // Create completely new array without the deleted question
+    console.log('🗑️ deleteQuestion called for ID:', id);
+    
     const updatedQuestions = questions.filter(q => q.id !== id);
+    console.log('🚀 Calling onQuestionsUpdate after delete. New length:', updatedQuestions.length);
     
-    // Update UI state IMMEDIATELY and SYNCHRONOUSLY
-    console.log('🔄 Calling onQuestionsUpdate with:', updatedQuestions.length, 'questions after delete');
-    onQuestionsUpdate([...updatedQuestions]); // Force new array reference
+    onQuestionsUpdate(JSON.parse(JSON.stringify(updatedQuestions))); // Deep clone to ensure new reference
     
-    // Then save to local storage asynchronously
-    setTimeout(() => {
-      saveToLocal(updatedQuestions);
-      console.log('✅ Question deleted from localStorage:', id);
-    }, 0);
+    saveToLocal(updatedQuestions);
+    console.log('✅ Question deleted');
   };
 
   const saveCategoryEdit = (oldName: string, newName: string) => {
+    console.log('🔧 saveCategoryEdit called:', { oldName, newName });
+    
     if (oldName && newName.trim() && newName !== oldName) {
-      console.log('✏️ Renaming category:', { oldName, newName });
-      
-      // Create completely new arrays with updated category names
       const updatedQuestions = questions.map(q => 
         q.category === oldName ? { ...q, category: newName.trim() } : q
       );
@@ -88,44 +82,35 @@ export const useGameEditorActions = ({
         desc.category === oldName ? { ...desc, category: newName.trim() } : desc
       );
       
-      // Update UI state IMMEDIATELY and SYNCHRONOUSLY
-      console.log('🔄 Calling updates for category rename');
-      onQuestionsUpdate([...updatedQuestions]); // Force new array reference
-      onCategoryDescriptionsUpdate([...updatedDescriptions]); // Force new array reference
+      console.log('🚀 Calling state updates for category rename');
+      onQuestionsUpdate(JSON.parse(JSON.stringify(updatedQuestions))); // Deep clone
+      onCategoryDescriptionsUpdate(JSON.parse(JSON.stringify(updatedDescriptions))); // Deep clone
       
-      // Then save to local storage asynchronously
-      setTimeout(() => {
-        saveToLocal(updatedQuestions, updatedDescriptions);
-        console.log('✅ Category renamed in localStorage:', { oldName, newName });
-      }, 0);
+      saveToLocal(updatedQuestions, updatedDescriptions);
+      console.log('✅ Category renamed');
     }
   };
 
   const deleteCategory = (category: string) => {
+    console.log('🔧 deleteCategory called for:', category);
+    
     if (confirm(`Are you sure you want to delete the category "${category}" and all its questions?`)) {
-      console.log('🗑️ Deleting category:', category);
-      
-      // Create completely new arrays without the deleted category
       const updatedQuestions = questions.filter(q => q.category !== category);
       const updatedDescriptions = categoryDescriptions.filter(desc => desc.category !== category);
       
-      // Update UI state IMMEDIATELY and SYNCHRONOUSLY
-      console.log('🔄 Calling updates for category deletion');
-      onQuestionsUpdate([...updatedQuestions]); // Force new array reference
-      onCategoryDescriptionsUpdate([...updatedDescriptions]); // Force new array reference
+      console.log('🚀 Calling state updates for category deletion');
+      onQuestionsUpdate(JSON.parse(JSON.stringify(updatedQuestions))); // Deep clone
+      onCategoryDescriptionsUpdate(JSON.parse(JSON.stringify(updatedDescriptions))); // Deep clone
       
-      // Then save to local storage asynchronously
-      setTimeout(() => {
-        saveToLocal(updatedQuestions, updatedDescriptions);
-        console.log('✅ Category deleted from localStorage:', category);
-      }, 0);
+      saveToLocal(updatedQuestions, updatedDescriptions);
+      console.log('✅ Category deleted');
     }
   };
 
   const addNewCategory = (newCategoryName: string, categories: string[]) => {
+    console.log('🔧 addNewCategory called:', newCategoryName);
+    
     if (newCategoryName.trim() && !categories.includes(newCategoryName.trim())) {
-      console.log('➕ Adding new category:', newCategoryName);
-      
       const newId = Date.now() + Math.floor(Math.random() * 1000);
       const newQuestion: Question = {
         id: newId,
@@ -136,49 +121,37 @@ export const useGameEditorActions = ({
         bonusPoints: 0
       };
       
-      // Create completely new array with the new question
       const updatedQuestions = [...questions, newQuestion];
       
-      // Update UI state IMMEDIATELY and SYNCHRONOUSLY
-      console.log('🔄 Calling onQuestionsUpdate for new category with:', updatedQuestions.length, 'questions');
-      onQuestionsUpdate([...updatedQuestions]); // Force new array reference
+      console.log('🚀 Calling onQuestionsUpdate for new category. New length:', updatedQuestions.length);
+      onQuestionsUpdate(JSON.parse(JSON.stringify(updatedQuestions))); // Deep clone
       
-      // Then save to local storage asynchronously
-      setTimeout(() => {
-        saveToLocal(updatedQuestions);
-        console.log('✅ New category added to localStorage:', newCategoryName);
-      }, 0);
+      saveToLocal(updatedQuestions);
+      console.log('✅ New category added');
     }
   };
 
   const updateCategoryDescription = (category: string, description: string) => {
-    console.log('✏️ Updating category description:', { category, description });
+    console.log('🔧 updateCategoryDescription called:', { category, description });
     
     const existingIndex = categoryDescriptions.findIndex(desc => desc.category === category);
     let updatedDescriptions: CategoryDescription[];
     
     if (existingIndex >= 0) {
-      // Create completely new array with updated description
       updatedDescriptions = categoryDescriptions.map(desc =>
         desc.category === category ? { ...desc, description } : desc
       );
     } else {
-      // Create completely new array with new description
       updatedDescriptions = [...categoryDescriptions, { category, description }];
     }
     
-    // Update UI state IMMEDIATELY and SYNCHRONOUSLY
-    console.log('🔄 Calling onCategoryDescriptionsUpdate with:', updatedDescriptions.length, 'descriptions');
-    onCategoryDescriptionsUpdate([...updatedDescriptions]); // Force new array reference
+    console.log('🚀 Calling onCategoryDescriptionsUpdate. New length:', updatedDescriptions.length);
+    onCategoryDescriptionsUpdate(JSON.parse(JSON.stringify(updatedDescriptions))); // Deep clone
     
-    // Then save to local storage asynchronously
-    setTimeout(() => {
-      saveToLocal(undefined, updatedDescriptions);
-      console.log('✅ Category description updated in localStorage:', { category, description });
-    }, 0);
+    saveToLocal(undefined, updatedDescriptions);
+    console.log('✅ Category description updated');
   };
 
-  // Placeholder for manual save - not used in editor anymore
   const triggerDatabaseSave = async () => {
     toast({
       title: "Use Save Game Button",
