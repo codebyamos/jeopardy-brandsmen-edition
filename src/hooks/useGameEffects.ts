@@ -91,11 +91,6 @@ export const useGameEffects = ({
           .select('player_name, player_score, avatar_url')
           .order('created_at', { ascending: false });
         
-        // Load questions
-        const { data: questionsData, error: questionsError } = await supabase
-          .from('game_questions')
-          .select('question_id, category, points, question, answer, bonus_points, image_url, video_url, is_answered')
-          .order('question_id');
         
         if (categoriesError) {
           console.error('STARTUP: Failed to load categories:', categoriesError);
@@ -121,28 +116,8 @@ export const useGameEffects = ({
           setPlayers(loadedPlayers);
         }
         
-        if (questionsError) {
-          console.error('STARTUP: Failed to load questions:', questionsError);
-        } else if (questionsData && questionsData.length > 0) {
-          const loadedQuestions = questionsData.map(q => ({
-            id: q.question_id,
-            category: q.category,
-            points: q.points,
-            question: q.question,
-            answer: q.answer,
-            bonusPoints: q.bonus_points || 0,
-            imageUrl: q.image_url || undefined,
-            videoUrl: q.video_url || undefined
-          }));
-          
-          const loadedAnsweredQuestions = questionsData
-            .filter(q => q.is_answered)
-            .map(q => q.question_id);
-          
-          console.log('✅ STARTUP: Loaded questions from database:', loadedQuestions.length);
-          setQuestions(loadedQuestions);
-          setAnsweredQuestions(new Set(loadedAnsweredQuestions));
-        }
+        // DON'T load old questions - start fresh so user can create questions for their proper categories
+        console.log('📝 STARTUP: NOT loading old questions - starting with empty questions for proper categories');
         
         // Load from database for reference only (don't auto-load games)
         const recentGames = await stableLoadRecentGames();
