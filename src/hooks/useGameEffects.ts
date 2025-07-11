@@ -34,7 +34,7 @@ export const useGameEffects = ({
   setAnsweredQuestions
 }: UseGameEffectsProps) => {
   const { saveGame, loadRecentGames } = useGameData();
-  const { saveToLocalStorage, loadFromLocalStorage, clearLocalStorage } = useLocalStorage();
+  const { forceSaveToLocal, loadFromLocalStorage, clearLocalStorage } = useLocalStorage();
 
   const stableLoadRecentGames = useCallback(() => {
     return loadRecentGames(1);
@@ -45,11 +45,12 @@ export const useGameEffects = ({
     questions,
     categoryDescriptions,
     onSave: async (qs, cats) => {
+      console.log('🔄 Periodic save: Pushing local data to database');
       await saveGame(players, qs, Array.from(answeredQuestions), cats, undefined, false);
     },
     onClearLocal: clearLocalStorage,
     intervalMinutes: 20,
-    enabled: isAuthenticated && !isLoadingGameState
+    enabled: isAuthenticated && !isLoadingGameState && questions.length > 0
   });
 
   // Load from database ONCE at startup, then work with local data
@@ -61,11 +62,17 @@ export const useGameEffects = ({
       }
 
       try {
-        console.log('=== LOADING GAME STATE FROM DATABASE (STARTUP) ===');
+        console.log('=== STARTUP: LOADING GAME STATE ===');
         
         // Load from database first
         const recentGames = await stableLoadRecentGames();
         console.log('Database games loaded:', recentGames?.length || 0);
+        
+        // Initialize variables for loaded data
+        let loadedQuestions: Question[] = [];
+        let loadedDescriptions: CategoryDescription[] = [];
+        let loadedPlayers: Player[] = [];
+        let loadedAnsweredQuestions: number[] = [];
         
         if (recentGames.length > 0) {
           const today = new Date().toISOString().split('T')[0];
@@ -75,25 +82,20 @@ export const useGameEffects = ({
           });
           
           if (todaysGame) {
-            console.log('✅ LOADING FROM DATABASE (Startup load):', {
+            console.log('✅ STARTUP: Loading today\'s game from database:', {
               questions: todaysGame.game_questions?.length || 0,
               categories: todaysGame.game_categories?.length || 0,
               players: todaysGame.game_players?.length || 0
             });
 
-            // Initialize variables for loaded data
-            let loadedQuestions: Question[] = [];
-            let loadedDescriptions: CategoryDescription[] = [];
-
             // Load players from database
             if (todaysGame.game_players && todaysGame.game_players.length > 0) {
-              const loadedPlayers: Player[] = todaysGame.game_players.map((player, index) => ({
+              loadedPlayers = todaysGame.game_players.map((player, index) => ({
                 id: index + 1,
                 name: player.player_name,
                 score: player.player_score,
                 avatar: player.avatar_url || undefined
               }));
-              setPlayers(loadedPlayers);
             }
 
             // Load questions from database
@@ -108,12 +110,10 @@ export const useGameEffects = ({
                 imageUrl: q.image_url || undefined,
                 videoUrl: q.video_url || undefined
               }));
-              setQuestions(loadedQuestions);
 
-              const answeredIds = todaysGame.game_questions
+              loadedAnsweredQuestions = todaysGame.game_questions
                 .filter(q => q.is_answered)
                 .map(q => q.question_id);
-              setAnsweredQuestions(new Set(answeredIds));
             }
 
             // Load categories from database
@@ -122,47 +122,73 @@ export const useGameEffects = ({
                 category: cat.category_name,
                 description: cat.description || ''
               }));
-              setCategoryDescriptions(loadedDescriptions);
             }
-
-            // Now save this data to localStorage for local use
-            console.log('💾 Saving database data to localStorage for local use');
-            saveToLocalStorage(loadedQuestions, loadedDescriptions);
           } else {
-            console.log('No today\'s game in database - will create new one');
+            console.log('STARTUP: No today\'s game in database');
           }
         } else {
-          console.log('No games found in database');
+          console.log('STARTUP: No games found in database');
+        }
+
+        // Set state from database data
+        if (loadedPlayers.length > 0) {
+          setPlayers(loadedPlayers);
+        }
+        if (loadedQuestions.length > 0) {
+          setQuestions(loadedQuestions);
+        }
+        if (loadedDescriptions.length > 0) {
+          setCategoryDescriptions(loadedDescriptions);
+        }
+        if (loadedAnsweredQuestions.length > 0) {
+          setAnsweredQuestions(new Set(loadedAnsweredQuestions));
+        }
+
+        // Now save this data to localStorage for local work
+        if (loadedQuestions.length > 0 || loadedDescriptions.length > 0) {
+          console.log('💾 STARTUP: Saving database data to localStorage');
+          forceSaveToLocal(loadedQuestions, loadedDescriptions);
+        } else {
+          // Try to load from localStorage as fallback
+          const localData = loadFromLocalStorage();
+          if (localData && localData.questions.length > 0) {
+            console.log('📂 STARTUP: Using localStorage fallback data');
+            setQuestions(localData.questions);
+            setCategoryDescriptions(localData.categoryDescriptions);
+          }
         }
         
       } catch (error) {
-        console.error('Failed to load from database:', error);
+        console.error('STARTUP: Failed to load from database:', error);
         
         // Try localStorage as fallback
         const localData = loadFromLocalStorage();
         if (localData && localData.questions.length > 0) {
-          console.log('📂 Using localStorage fallback data');
+          console.log('📂 STARTUP: Using localStorage fallback after database error');
           setQuestions(localData.questions);
           setCategoryDescriptions(localData.categoryDescriptions);
         }
       } finally {
-        console.log('=== GAME STATE LOADING COMPLETE ===');
+        console.log('=== STARTUP: GAME STATE LOADING COMPLETE ===');
         setIsLoadingGameState(false);
       }
     };
 
     loadGameState();
-  }, [isAuthenticated, stableLoadRecentGames, saveToLocalStorage, loadFromLocalStorage, clearLocalStorage, setIsLoadingGameState, setQuestions, setCategoryDescriptions, setPlayers, setAnsweredQuestions]);
+  }, [isAuthenticated, stableLoadRecentGames, forceSaveToLocal, loadFromLocalStorage, setIsLoadingGameState, setQuestions, setCategoryDescriptions, setPlayers, setAnsweredQuestions]);
 
-  // Save changes to localStorage immediately for local work
+  // Save changes to localStorage immediately whenever state changes
   useEffect(() => {
-    if (!isAuthenticated || isLoadingGameState || questions.length === 0) {
+    if (!isAuthenticated || isLoadingGameState) {
       return;
     }
 
-    // Save to localStorage for immediate local use (no console logs to reduce noise)
-    saveToLocalStorage(questions, categoryDescriptions);
-  }, [questions, categoryDescriptions, saveToLocalStorage, isAuthenticated, isLoadingGameState]);
+    // Only save if we have data to save
+    if (questions.length > 0 || categoryDescriptions.length > 0) {
+      console.log('💾 Auto-saving changes to localStorage');
+      forceSaveToLocal(questions, categoryDescriptions);
+    }
+  }, [questions, categoryDescriptions, forceSaveToLocal, isAuthenticated, isLoadingGameState]);
 
   // Initialize speech system on app load
   useEffect(() => {
@@ -171,10 +197,10 @@ export const useGameEffects = ({
 
   const handleSaveGame = useCallback(async () => {
     try {
-      console.log('💾 Manual save game clicked - saving to database');
+      console.log('💾 MANUAL SAVE: Pushing all local data to database');
       await triggerManualSave();
     } catch (error) {
-      console.error('❌ Failed to save game manually:', error);
+      console.error('❌ MANUAL SAVE: Failed to save game manually:', error);
       throw error;
     }
   }, [triggerManualSave]);

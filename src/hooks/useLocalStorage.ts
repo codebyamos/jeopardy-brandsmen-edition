@@ -68,6 +68,12 @@ export const useLocalStorage = () => {
     setHasUnsavedChanges(false);
   };
 
+  // Force save any data immediately to localStorage
+  const forceSaveToLocal = (questions: Question[], categoryDescriptions: CategoryDescription[]) => {
+    console.log('💾 Force saving to localStorage:', { questions: questions.length, categories: categoryDescriptions.length });
+    saveToLocalStorage(questions, categoryDescriptions, false);
+  };
+
   return {
     saveToLocalStorage,
     loadFromLocalStorage,
@@ -75,6 +81,7 @@ export const useLocalStorage = () => {
     getLastSaved,
     hasUnsavedChanges,
     setHasUnsavedChanges,
-    markAsSaved
+    markAsSaved,
+    forceSaveToLocal
   };
 };

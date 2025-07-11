@@ -18,16 +18,16 @@ export const useGameEditorActions = ({
   onCategoryDescriptionsUpdate,
   setIsSaving
 }: UseGameEditorActionsProps) => {
-  const { saveToLocalStorage } = useLocalStorage();
+  const { forceSaveToLocal } = useLocalStorage();
   const { toast } = useToast();
 
   const saveToLocal = (updatedQuestions?: Question[], updatedDescriptions?: CategoryDescription[]) => {
     const questionsToSave = updatedQuestions || questions;
     const descriptionsToSave = updatedDescriptions || categoryDescriptions;
     
-    // Save to localStorage for immediate local testing
-    saveToLocalStorage(questionsToSave, descriptionsToSave);
-    console.log('💾 GameEditor: Saved changes locally for testing');
+    // Force save to localStorage immediately
+    forceSaveToLocal(questionsToSave, descriptionsToSave);
+    console.log('💾 GameEditor: Changes saved locally immediately');
   };
 
   const saveQuestionEdit = async (questionData: Partial<Question>, editingQuestion: Question) => {
@@ -43,14 +43,21 @@ export const useGameEditorActions = ({
         );
       }
       
+      // Update state first
       onQuestionsUpdate(updatedQuestions);
+      
+      // Then save to local immediately
       saveToLocal(updatedQuestions);
     }
   };
 
   const deleteQuestion = async (id: number) => {
     const updatedQuestions = questions.filter(q => q.id !== id);
+    
+    // Update state first
     onQuestionsUpdate(updatedQuestions);
+    
+    // Then save to local immediately
     saveToLocal(updatedQuestions);
   };
 
@@ -64,8 +71,11 @@ export const useGameEditorActions = ({
         desc.category === oldName ? { ...desc, category: newName.trim() } : desc
       );
       
+      // Update state first
       onQuestionsUpdate(updatedQuestions);
       onCategoryDescriptionsUpdate(updatedDescriptions);
+      
+      // Then save to local immediately
       saveToLocal(updatedQuestions, updatedDescriptions);
     }
   };
@@ -75,8 +85,11 @@ export const useGameEditorActions = ({
       const updatedQuestions = questions.filter(q => q.category !== category);
       const updatedDescriptions = categoryDescriptions.filter(desc => desc.category !== category);
       
+      // Update state first
       onQuestionsUpdate(updatedQuestions);
       onCategoryDescriptionsUpdate(updatedDescriptions);
+      
+      // Then save to local immediately
       saveToLocal(updatedQuestions, updatedDescriptions);
     }
   };
@@ -94,7 +107,11 @@ export const useGameEditorActions = ({
       };
       
       const updatedQuestions = [...questions, newQuestion];
+      
+      // Update state first
       onQuestionsUpdate(updatedQuestions);
+      
+      // Then save to local immediately
       saveToLocal(updatedQuestions);
     }
   };
@@ -111,7 +128,10 @@ export const useGameEditorActions = ({
       updatedDescriptions = [...categoryDescriptions, { category, description }];
     }
     
+    // Update state first
     onCategoryDescriptionsUpdate(updatedDescriptions);
+    
+    // Then save to local immediately
     saveToLocal(undefined, updatedDescriptions);
   };
 
