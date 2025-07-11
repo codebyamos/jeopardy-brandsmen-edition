@@ -24,9 +24,15 @@ const MediaSection: React.FC<MediaSectionProps> = ({ imageUrl, videoUrl }) => {
             src={imageUrl} 
             alt="Question image" 
             className="w-full h-auto rounded-lg shadow-md max-h-64 object-contain"
+            crossOrigin="anonymous"
+            loading="lazy"
             onError={(e) => {
               const target = e.target as HTMLImageElement;
+              console.error('Image failed to load:', imageUrl);
               target.style.display = 'none';
+            }}
+            onLoad={() => {
+              console.log('Image loaded successfully:', imageUrl);
             }}
           />
         </div>

@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { Button } from './ui/button';
 import { Upload, X } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 interface ImageUploadProps {
   onImageSelect: (imageUrl: string) => void;
@@ -30,18 +31,29 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ onImageSelect, currentImageUr
     setIsUploading(true);
 
     try {
-      // Convert to base64 for now - in a real app you'd upload to a service
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const result = e.target?.result as string;
-        onImageSelect(result);
-        setIsUploading(false);
-      };
-      reader.onerror = () => {
-        alert('Error reading file');
-        setIsUploading(false);
-      };
-      reader.readAsDataURL(file);
+      // Create a unique filename
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+      
+      // Upload to Supabase storage
+      const { data, error } = await supabase.storage
+        .from('player-avatars')
+        .upload(fileName, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
+
+      if (error) {
+        throw error;
+      }
+
+      // Get the public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('player-avatars')
+        .getPublicUrl(fileName);
+
+      onImageSelect(publicUrl);
+      setIsUploading(false);
     } catch (error) {
       console.error('Upload error:', error);
       alert('Error uploading image');
