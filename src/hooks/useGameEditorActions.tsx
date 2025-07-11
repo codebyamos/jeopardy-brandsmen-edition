@@ -43,9 +43,9 @@ export const useGameEditorActions = ({
         updatedQuestions = [...questions, { ...questionData } as Question];
         console.log('➕ Adding new question. New array length:', updatedQuestions.length);
       } else {
-        // Updating existing question
+        // Updating existing question - create completely new array
         updatedQuestions = questions.map(q => 
-          q.id === editingQuestion.id ? { ...q, ...questionData } as Question : q
+          q.id === editingQuestion.id ? { ...editingQuestion, ...questionData } : q
         );
         console.log('✏️ Updating existing question. Array length:', updatedQuestions.length);
       }
@@ -74,6 +74,7 @@ export const useGameEditorActions = ({
     console.log('🔧 saveCategoryEdit called:', { oldName, newName });
     
     if (oldName && newName.trim() && newName !== oldName) {
+      // Create completely new arrays
       const updatedQuestions = questions.map(q => 
         q.category === oldName ? { ...q, category: newName.trim() } : q
       );
@@ -87,7 +88,7 @@ export const useGameEditorActions = ({
       onCategoryDescriptionsUpdate(updatedDescriptions);
       
       saveToLocal(updatedQuestions, updatedDescriptions);
-      console.log('✅ Category renamed');
+      console.log('✅ Category renamed from', oldName, 'to', newName);
     }
   };
 

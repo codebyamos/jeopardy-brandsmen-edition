@@ -169,6 +169,9 @@ const GameEditor: React.FC<GameEditorProps> = ({
 
   if (!isVisible) return null;
 
+  // Create a render key that changes when data changes
+  const renderKey = `${questions.length}-${categoryDescriptions.length}-${Date.now()}`;
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-2 sm:p-4">
       <div className="bg-white border-2 rounded-lg w-full max-w-7xl max-h-[95vh] overflow-auto shadow-2xl" style={{ borderColor: '#2c5b69' }}>
@@ -214,7 +217,7 @@ const GameEditor: React.FC<GameEditorProps> = ({
             />
           ) : (
             <CategoryGrid
-              key={`categories-${questions.length}-${categoryDescriptions.length}`}
+              key={renderKey}
               categories={categories}
               questions={questions}
               categoryDescriptions={categoryDescriptions}
