@@ -173,6 +173,27 @@ export type Database = {
         }
         Relationships: []
       }
+      timer_settings: {
+        Row: {
+          created_at: string
+          id: number
+          timer_duration: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          timer_duration?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          timer_duration?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       voice_settings: {
         Row: {
           api_key: string | null

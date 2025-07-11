@@ -229,27 +229,34 @@ const PlayerManager: React.FC<PlayerManagerProps> = ({
                 <div className="flex justify-center mb-3">
                   <div className="relative">
                      {player.avatar ? (
-                      <img 
-                        src={player.avatar} 
-                        alt={`${player.name} avatar`}
-                        className="w-16 h-16 rounded-full object-cover border-2"
-                        style={{ borderColor: '#2c5b69' }}
-                        onLoad={() => {
-                          console.log('Avatar loaded successfully:', player.name);
-                        }}
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          console.error('Avatar failed to load for:', player.name);
-                          target.style.display = 'none';
-                          const container = target.closest('.relative') as HTMLElement;
-                          if (container) {
-                            const placeholder = container.querySelector('.bg-gray-200') as HTMLElement;
-                            if (placeholder) {
-                              placeholder.style.display = 'flex';
-                            }
-                          }
-                        }}
-                      />
+                       <img 
+                         src={player.avatar} 
+                         alt={`${player.name} avatar`}
+                         className="w-16 h-16 rounded-full object-cover border-2"
+                         style={{ borderColor: '#2c5b69' }}
+                         referrerPolicy="no-referrer"
+                         onLoad={() => {
+                           console.log('Avatar loaded successfully:', player.name);
+                         }}
+                         onError={(e) => {
+                           const target = e.target as HTMLImageElement;
+                           console.error('Avatar failed to load for:', player.name);
+                           // Try reloading without cache first
+                           if (!target.src.includes('&refresh=')) {
+                             target.src = player.avatar + '&refresh=' + Date.now();
+                           } else {
+                             // If still fails, hide and show placeholder
+                             target.style.display = 'none';
+                             const container = target.closest('.relative') as HTMLElement;
+                             if (container) {
+                               const placeholder = container.querySelector('.bg-gray-200') as HTMLElement;
+                               if (placeholder) {
+                                 placeholder.style.display = 'flex';
+                               }
+                             }
+                           }
+                         }}
+                       />
                      ) : null}
                     <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center border-2" style={{ borderColor: '#2c5b69', display: player.avatar ? 'none' : 'flex' }}>
                       <span className="text-gray-500 text-xs">No Image</span>
