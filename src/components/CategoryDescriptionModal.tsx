@@ -20,6 +20,13 @@ const CategoryDescriptionModal: React.FC<CategoryDescriptionModalProps> = ({
 }) => {
   const [tempDescription, setTempDescription] = useState(description);
 
+  // Reset temp description when the modal opens with new description
+  React.useEffect(() => {
+    if (isVisible) {
+      setTempDescription(description);
+    }
+  }, [description, isVisible]);
+
   const handleSave = () => {
     onSave(tempDescription);
     onClose();

@@ -24,7 +24,7 @@ const CategoryEditForm: React.FC<CategoryEditFormProps> = ({
 
   useEffect(() => {
     setTempCategoryName(categoryName);
-  }, [categoryName]);
+  }, [categoryName, isNew]);
 
   const handleNameChange = (name: string) => {
     setTempCategoryName(name);

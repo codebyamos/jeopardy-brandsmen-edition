@@ -18,6 +18,11 @@ const QuestionEditForm: React.FC<QuestionEditFormProps> = ({
 }) => {
   const [tempQuestion, setTempQuestion] = useState<Partial<Question>>({ ...question });
 
+  // Reset temp question when the question prop changes
+  React.useEffect(() => {
+    setTempQuestion({ ...question });
+  }, [question]);
+
   const handleSave = () => {
     onSave(tempQuestion);
   };
