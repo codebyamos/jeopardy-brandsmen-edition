@@ -1,6 +1,5 @@
 
 import { useToast } from '../hooks/use-toast';
-import { useGameData } from '../hooks/useGameData';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { Question, CategoryDescription } from '../types/game';
 
@@ -19,57 +18,16 @@ export const useGameEditorActions = ({
   onCategoryDescriptionsUpdate,
   setIsSaving
 }: UseGameEditorActionsProps) => {
-  const { saveGame } = useGameData();
   const { saveToLocalStorage } = useLocalStorage();
   const { toast } = useToast();
 
-  const saveToDatabase = async (updatedQuestions?: Question[], updatedDescriptions?: CategoryDescription[]) => {
+  const saveToLocal = (updatedQuestions?: Question[], updatedDescriptions?: CategoryDescription[]) => {
     const questionsToSave = updatedQuestions || questions;
     const descriptionsToSave = updatedDescriptions || categoryDescriptions;
     
-    try {
-      console.log('☁️ GameEditor: Saving to database immediately');
-      
-      const players = [{ id: 1, name: 'Team 1', score: 0 }, { id: 2, name: 'Team 2', score: 0 }];
-      await saveGame(
-        players,
-        questionsToSave,
-        [],
-        descriptionsToSave,
-        undefined,
-        false // Don't show toast for automatic saves
-      );
-      
-      // Also save to localStorage as backup
-      saveToLocalStorage(questionsToSave, descriptionsToSave);
-      
-      console.log('✅ GameEditor: Data saved to database and localStorage');
-    } catch (error) {
-      console.error('❌ GameEditor: Database save failed, but localStorage is safe:', error);
-      // Still save to localStorage even if database fails
-      saveToLocalStorage(questionsToSave, descriptionsToSave);
-    }
-  };
-
-  const triggerDatabaseSave = async (updatedQuestions?: Question[], updatedDescriptions?: CategoryDescription[]) => {
-    setIsSaving(true);
-    try {
-      await saveToDatabase(updatedQuestions, updatedDescriptions);
-      
-      toast({
-        title: "Saved!",
-        description: "Your changes have been saved to the database.",
-      });
-    } catch (error) {
-      console.error('❌ GameEditor: Manual save failed:', error);
-      toast({
-        title: "Save Error",
-        description: "Failed to save to database, but your changes are safe locally.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSaving(false);
-    }
+    // Save to localStorage for immediate local testing
+    saveToLocalStorage(questionsToSave, descriptionsToSave);
+    console.log('💾 GameEditor: Saved changes locally for testing');
   };
 
   const saveQuestionEdit = async (questionData: Partial<Question>, editingQuestion: Question) => {
@@ -86,22 +44,18 @@ export const useGameEditorActions = ({
       }
       
       onQuestionsUpdate(updatedQuestions);
-      // Save to database immediately
-      await saveToDatabase(updatedQuestions);
+      saveToLocal(updatedQuestions);
     }
   };
 
   const deleteQuestion = async (id: number) => {
     const updatedQuestions = questions.filter(q => q.id !== id);
     onQuestionsUpdate(updatedQuestions);
-    // Save to database immediately
-    await saveToDatabase(updatedQuestions);
+    saveToLocal(updatedQuestions);
   };
 
   const saveCategoryEdit = async (oldName: string, newName: string) => {
     if (oldName && newName.trim() && newName !== oldName) {
-      console.log('GameEditor: Saving category edit:', { oldName, newName });
-      
       const updatedQuestions = questions.map(q => 
         q.category === oldName ? { ...q, category: newName.trim() } : q
       );
@@ -112,8 +66,7 @@ export const useGameEditorActions = ({
       
       onQuestionsUpdate(updatedQuestions);
       onCategoryDescriptionsUpdate(updatedDescriptions);
-      // Save to database immediately
-      await saveToDatabase(updatedQuestions, updatedDescriptions);
+      saveToLocal(updatedQuestions, updatedDescriptions);
     }
   };
 
@@ -124,8 +77,7 @@ export const useGameEditorActions = ({
       
       onQuestionsUpdate(updatedQuestions);
       onCategoryDescriptionsUpdate(updatedDescriptions);
-      // Save to database immediately
-      await saveToDatabase(updatedQuestions, updatedDescriptions);
+      saveToLocal(updatedQuestions, updatedDescriptions);
     }
   };
 
@@ -143,14 +95,11 @@ export const useGameEditorActions = ({
       
       const updatedQuestions = [...questions, newQuestion];
       onQuestionsUpdate(updatedQuestions);
-      // Save to database immediately
-      await saveToDatabase(updatedQuestions);
+      saveToLocal(updatedQuestions);
     }
   };
 
   const updateCategoryDescription = async (category: string, description: string) => {
-    console.log('GameEditor: Updating category description:', { category, description });
-    
     const existingIndex = categoryDescriptions.findIndex(desc => desc.category === category);
     let updatedDescriptions;
     
@@ -163,8 +112,15 @@ export const useGameEditorActions = ({
     }
     
     onCategoryDescriptionsUpdate(updatedDescriptions);
-    // Save to database immediately
-    await saveToDatabase(undefined, updatedDescriptions);
+    saveToLocal(undefined, updatedDescriptions);
+  };
+
+  // Placeholder for manual save - not used in editor anymore
+  const triggerDatabaseSave = async () => {
+    toast({
+      title: "Use Save Game Button",
+      description: "Please use the main 'Save Game' button to save to the database.",
+    });
   };
 
   return {

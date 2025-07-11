@@ -6,6 +6,7 @@ interface UsePeriodicSaveProps {
   questions: Question[];
   categoryDescriptions: CategoryDescription[];
   onSave: (questions: Question[], categoryDescriptions: CategoryDescription[]) => Promise<void>;
+  onClearLocal: () => void;
   intervalMinutes?: number;
   enabled?: boolean;
 }
@@ -14,11 +15,11 @@ export const usePeriodicSave = ({
   questions,
   categoryDescriptions,
   onSave,
-  intervalMinutes = 15,
+  onClearLocal,
+  intervalMinutes = 20,
   enabled = true
 }: UsePeriodicSaveProps) => {
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  const lastDataRef = useRef<string>('');
   const lastSaveTimeRef = useRef<number>(0);
 
   useEffect(() => {
@@ -30,35 +31,36 @@ export const usePeriodicSave = ({
       return;
     }
 
-    const saveData = async () => {
+    const saveToDatabase = async () => {
       const now = Date.now();
       const timeSinceLastSave = now - lastSaveTimeRef.current;
       const minInterval = intervalMinutes * 60 * 1000;
 
       if (timeSinceLastSave < minInterval) {
-        console.log('⏱️ Skipping periodic save - not enough time passed');
+        console.log(`⏱️ Skipping periodic save - waiting for ${intervalMinutes} minutes`);
         return;
       }
 
-      const currentData = JSON.stringify({ questions, categoryDescriptions });
-      if (currentData === lastDataRef.current) {
-        console.log('📋 Skipping periodic save - no data changes');
+      if (questions.length === 0) {
+        console.log('📋 Skipping periodic save - no questions to save');
         return;
       }
 
       try {
-        console.log('🔄 Starting periodic database save...');
+        console.log(`🔄 Starting periodic database save (every ${intervalMinutes} minutes)...`);
         await onSave(questions, categoryDescriptions);
-        lastDataRef.current = currentData;
         lastSaveTimeRef.current = now;
-        console.log('✅ Periodic database save completed at:', new Date().toLocaleTimeString());
+        
+        // Clear local storage after successful database save
+        onClearLocal();
+        console.log(`✅ Periodic save completed and local storage cleared at: ${new Date().toLocaleTimeString()}`);
       } catch (error) {
-        console.error('❌ Periodic database save failed (local data still safe):', error);
+        console.error('❌ Periodic database save failed (keeping local data safe):', error);
       }
     };
 
     // Check every 2 minutes but only save every intervalMinutes
-    intervalRef.current = setInterval(saveData, 2 * 60 * 1000);
+    intervalRef.current = setInterval(saveToDatabase, 2 * 60 * 1000);
 
     return () => {
       if (intervalRef.current) {
@@ -66,19 +68,20 @@ export const usePeriodicSave = ({
         intervalRef.current = null;
       }
     };
-  }, [questions, categoryDescriptions, onSave, intervalMinutes, enabled]);
+  }, [questions, categoryDescriptions, onSave, onClearLocal, intervalMinutes, enabled]);
 
-  const triggerSave = async () => {
+  const triggerManualSave = async () => {
     try {
-      console.log('💾 Manual periodic save triggered');
+      console.log('💾 Manual database save triggered');
       await onSave(questions, categoryDescriptions);
-      lastDataRef.current = JSON.stringify({ questions, categoryDescriptions });
       lastSaveTimeRef.current = Date.now();
+      onClearLocal();
+      console.log('✅ Manual save completed and local storage cleared');
     } catch (error) {
-      console.error('❌ Manual periodic save failed:', error);
+      console.error('❌ Manual database save failed:', error);
       throw error;
     }
   };
 
-  return { triggerSave };
+  return { triggerManualSave };
 };

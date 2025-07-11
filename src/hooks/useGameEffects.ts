@@ -3,6 +3,7 @@ import { useEffect, useCallback } from 'react';
 import { Question, Player, CategoryDescription } from '../types/game';
 import { useGameData } from './useGameData';
 import { useLocalStorage } from './useLocalStorage';
+import { usePeriodicSave } from './usePeriodicSave';
 import { initializeSpeechSystem } from '../utils/textToSpeech';
 
 interface UseGameEffectsProps {
@@ -33,13 +34,25 @@ export const useGameEffects = ({
   setAnsweredQuestions
 }: UseGameEffectsProps) => {
   const { saveGame, loadRecentGames } = useGameData();
-  const { saveToLocalStorage } = useLocalStorage();
+  const { saveToLocalStorage, loadFromLocalStorage, clearLocalStorage } = useLocalStorage();
 
   const stableLoadRecentGames = useCallback(() => {
     return loadRecentGames(1);
   }, [loadRecentGames]);
 
-  // Load existing game state on component mount - PRIORITIZE DATABASE
+  // Set up periodic database saves every 20 minutes
+  const { triggerManualSave } = usePeriodicSave({
+    questions,
+    categoryDescriptions,
+    onSave: async (qs, cats) => {
+      await saveGame(players, qs, Array.from(answeredQuestions), cats, undefined, false);
+    },
+    onClearLocal: clearLocalStorage,
+    intervalMinutes: 20,
+    enabled: isAuthenticated && !isLoadingGameState
+  });
+
+  // ALWAYS load from database first when opening app
   useEffect(() => {
     const loadGameState = async () => {
       if (!isAuthenticated) {
@@ -48,9 +61,9 @@ export const useGameEffects = ({
       }
 
       try {
-        console.log('=== LOADING GAME STATE (DATABASE FIRST) ===');
+        console.log('=== LOADING GAME STATE (DATABASE PRIORITY) ===');
         
-        // FIRST: Always try to load from database
+        // ALWAYS try to load from database first
         const recentGames = await stableLoadRecentGames();
         console.log('Database games loaded:', recentGames?.length || 0);
         
@@ -62,7 +75,7 @@ export const useGameEffects = ({
           });
           
           if (todaysGame) {
-            console.log('✅ USING DATABASE DATA (Primary source):', {
+            console.log('✅ LOADING FROM DATABASE (Primary source):', {
               questions: todaysGame.game_questions?.length || 0,
               categories: todaysGame.game_categories?.length || 0,
               players: todaysGame.game_players?.length || 0
@@ -76,7 +89,6 @@ export const useGameEffects = ({
                 score: player.player_score,
                 avatar: player.avatar_url || undefined
               }));
-              console.log('Loaded players from database:', loadedPlayers);
               setPlayers(loadedPlayers);
             }
 
@@ -92,7 +104,6 @@ export const useGameEffects = ({
                 imageUrl: q.image_url || undefined,
                 videoUrl: q.video_url || undefined
               }));
-              console.log('Using database questions:', loadedQuestions.length);
               setQuestions(loadedQuestions);
 
               const answeredIds = todaysGame.game_questions
@@ -107,24 +118,12 @@ export const useGameEffects = ({
                 category: cat.category_name,
                 description: cat.description || ''
               }));
-              console.log('Using database categories:', loadedDescriptions);
               setCategoryDescriptions(loadedDescriptions);
-
-              // Also save to localStorage as backup
-              if (todaysGame.game_questions && todaysGame.game_questions.length > 0) {
-                const questionsForStorage: Question[] = todaysGame.game_questions.map(q => ({
-                  id: q.question_id,
-                  category: q.category,
-                  points: q.points,
-                  question: q.question,
-                  answer: q.answer,
-                  bonusPoints: q.bonus_points || 0,
-                  imageUrl: q.image_url || undefined,
-                  videoUrl: q.video_url || undefined
-                }));
-                saveToLocalStorage(questionsForStorage, loadedDescriptions);
-              }
             }
+
+            // Clear any old local storage since we loaded from database
+            clearLocalStorage();
+            console.log('🗑️ Cleared old local storage - using fresh database data');
           } else {
             console.log('No today\'s game in database - will create new one');
           }
@@ -133,7 +132,15 @@ export const useGameEffects = ({
         }
         
       } catch (error) {
-        console.error('Failed to load game state from database:', error);
+        console.error('Failed to load from database, checking localStorage fallback:', error);
+        
+        // Only use localStorage as absolute fallback
+        const localData = loadFromLocalStorage();
+        if (localData && localData.questions.length > 0) {
+          console.log('📂 Using localStorage fallback data');
+          setQuestions(localData.questions);
+          setCategoryDescriptions(localData.categoryDescriptions);
+        }
       } finally {
         console.log('=== GAME STATE LOADING COMPLETE ===');
         setIsLoadingGameState(false);
@@ -141,34 +148,17 @@ export const useGameEffects = ({
     };
 
     loadGameState();
-  }, [isAuthenticated, stableLoadRecentGames, saveToLocalStorage, setIsLoadingGameState, setQuestions, setCategoryDescriptions, setPlayers, setAnsweredQuestions]);
+  }, [isAuthenticated, stableLoadRecentGames, clearLocalStorage, loadFromLocalStorage, setIsLoadingGameState, setQuestions, setCategoryDescriptions, setPlayers, setAnsweredQuestions]);
 
-  // Immediate save to database on every change - no delays
+  // Save changes to localStorage for immediate local testing
   useEffect(() => {
-    if (!isAuthenticated || isLoadingGameState) {
+    if (!isAuthenticated || isLoadingGameState || questions.length === 0) {
       return;
     }
 
-    // Save immediately whenever data changes
-    const saveToDatabase = async () => {
-      try {
-        console.log('💾 Immediate database save triggered by data change');
-        await saveGame(players, questions, Array.from(answeredQuestions), categoryDescriptions, undefined, false);
-        console.log('✅ Data saved to database successfully');
-        
-        // Also backup to localStorage
-        if (questions.length > 0) {
-          saveToLocalStorage(questions, categoryDescriptions);
-        }
-      } catch (error) {
-        console.error('❌ Failed to save to database:', error);
-      }
-    };
-
-    // Debounce saves to avoid too many requests
-    const timeoutId = setTimeout(saveToDatabase, 2000); // 2 second delay
-    return () => clearTimeout(timeoutId);
-  }, [players, questions, answeredQuestions, categoryDescriptions, saveGame, saveToLocalStorage, isAuthenticated, isLoadingGameState]);
+    // Save to localStorage immediately for local testing
+    saveToLocalStorage(questions, categoryDescriptions);
+  }, [questions, categoryDescriptions, saveToLocalStorage, isAuthenticated, isLoadingGameState]);
 
   // Initialize speech system on app load
   useEffect(() => {
@@ -177,17 +167,13 @@ export const useGameEffects = ({
 
   const handleSaveGame = useCallback(async () => {
     try {
-      console.log('💾 Manual save triggered - saving to database');
-      await saveGame(players, questions, Array.from(answeredQuestions), categoryDescriptions, undefined, true);
-      
-      // Also save to localStorage as backup
-      if (questions.length > 0) {
-        saveToLocalStorage(questions, categoryDescriptions);
-      }
+      console.log('💾 Manual save game clicked - saving to database and clearing local');
+      await triggerManualSave();
     } catch (error) {
-      console.error('❌ Failed to save game:', error);
+      console.error('❌ Failed to save game manually:', error);
+      throw error;
     }
-  }, [saveGame, saveToLocalStorage, players, questions, answeredQuestions, categoryDescriptions]);
+  }, [triggerManualSave]);
 
   return {
     handleSaveGame
