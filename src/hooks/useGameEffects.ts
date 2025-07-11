@@ -5,6 +5,7 @@ import { useGameData } from './useGameData';
 import { useLocalStorage } from './useLocalStorage';
 import { usePeriodicSave } from './usePeriodicSave';
 import { initializeSpeechSystem } from '../utils/textToSpeech';
+import { supabase } from '../integrations/supabase/client';
 
 interface UseGameEffectsProps {
   isAuthenticated: boolean;
@@ -76,15 +77,29 @@ export const useGameEffects = ({
         console.log('=== STARTUP: LOADING GAME STATE ===');
         setIsLoadingGameState(true);
         
-        // Load from database first
-        const recentGames = await stableLoadRecentGames();
-        console.log('Database games loaded:', recentGames?.length || 0);
+        // Load categories and descriptions directly from database (not tied to specific games)
+        console.log('📂 STARTUP: Loading categories and descriptions from database');
         
-        // Initialize variables for loaded data
-        let loadedQuestions: Question[] = [];
-        let loadedDescriptions: CategoryDescription[] = [];
-        let loadedPlayers: Player[] = [];
-        let loadedAnsweredQuestions: number[] = [];
+        // Load all categories and descriptions
+        const { data: categoriesData, error: categoriesError } = await supabase
+          .from('game_categories')
+          .select('category_name, description')
+          .order('category_name');
+        
+        if (categoriesError) {
+          console.error('STARTUP: Failed to load categories:', categoriesError);
+        } else if (categoriesData && categoriesData.length > 0) {
+          const loadedDescriptions = categoriesData.map(cat => ({
+            category: cat.category_name,
+            description: cat.description || ''
+          }));
+          
+          console.log('✅ STARTUP: Loaded categories from database:', loadedDescriptions.length);
+          setCategoryDescriptions(loadedDescriptions);
+        }
+        
+        // Load from database for reference only (don't auto-load games)
+        const recentGames = await stableLoadRecentGames();
         
         if (recentGames.length > 0) {
           console.log('STARTUP: Recent games found in database, but NOT auto-loading by date');
@@ -93,33 +108,11 @@ export const useGameEffects = ({
           console.log('STARTUP: No games found in database');
         }
 
-        // Set state from database data ONLY ONCE
-        if (loadedPlayers.length > 0) {
-          console.log('🎯 STARTUP: Setting players from database:', loadedPlayers);
-          setPlayers(loadedPlayers);
-        }
-        if (loadedQuestions.length > 0) {
-          setQuestions(loadedQuestions);
-        }
-        if (loadedDescriptions.length > 0) {
-          setCategoryDescriptions(loadedDescriptions);
-        }
-        if (loadedAnsweredQuestions.length > 0) {
-          setAnsweredQuestions(new Set(loadedAnsweredQuestions));
-        }
-
-        // Now save this data to localStorage for local work
-        if (loadedQuestions.length > 0 || loadedDescriptions.length > 0) {
-          console.log('💾 STARTUP: Saving database data to localStorage');
-          forceSaveToLocal(loadedQuestions, loadedDescriptions);
-        } else {
-          // Try to load from localStorage as fallback
-          const localData = loadFromLocalStorage();
-          if (localData && localData.questions.length > 0) {
-            console.log('📂 STARTUP: Using localStorage fallback data');
-            setQuestions(localData.questions);
-            setCategoryDescriptions(localData.categoryDescriptions);
-          }
+        // Try to load from localStorage as fallback for questions
+        const localData = loadFromLocalStorage();
+        if (localData && localData.questions.length > 0) {
+          console.log('📂 STARTUP: Using localStorage fallback data for questions');
+          setQuestions(localData.questions);
         }
         
       } catch (error) {
