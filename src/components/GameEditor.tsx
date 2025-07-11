@@ -169,11 +169,6 @@ const GameEditor: React.FC<GameEditorProps> = ({
 
   if (!isVisible) return null;
 
-  // Use a timestamp to force re-renders when needed
-  const renderTimestamp = Date.now();
-  const questionsKey = `questions-${questions.length}-${renderTimestamp}`;
-  const categoriesKey = `categories-${categoryDescriptions.length}-${renderTimestamp}`;
-
   return (
     <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-2 sm:p-4">
       <div className="bg-white border-2 rounded-lg w-full max-w-7xl max-h-[95vh] overflow-auto shadow-2xl" style={{ borderColor: '#2c5b69' }}>
@@ -212,14 +207,14 @@ const GameEditor: React.FC<GameEditorProps> = ({
 
           {editingQuestion ? (
             <QuestionEditForm
-              key={`edit-question-${editingQuestion.id}-${renderTimestamp}`}
+              key={`edit-question-${editingQuestion.id}`}
               question={editingQuestion}
               onSave={handleSaveQuestionEdit}
               onCancel={resetEditingState}
             />
           ) : (
             <CategoryGrid
-              key={`${questionsKey}-${categoriesKey}`}
+              key={`categories-${questions.length}-${categoryDescriptions.length}`}
               categories={categories}
               questions={questions}
               categoryDescriptions={categoryDescriptions}

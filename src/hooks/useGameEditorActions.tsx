@@ -39,9 +39,11 @@ export const useGameEditorActions = ({
       let updatedQuestions: Question[];
       
       if (existingQuestionIndex === -1) {
+        // Adding new question
         updatedQuestions = [...questions, { ...questionData } as Question];
         console.log('➕ Adding new question. New array length:', updatedQuestions.length);
       } else {
+        // Updating existing question
         updatedQuestions = questions.map(q => 
           q.id === editingQuestion.id ? { ...q, ...questionData } as Question : q
         );
@@ -49,8 +51,7 @@ export const useGameEditorActions = ({
       }
       
       console.log('🚀 Calling onQuestionsUpdate with updated questions');
-      onQuestionsUpdate(JSON.parse(JSON.stringify(updatedQuestions))); // Deep clone to ensure new reference
-      
+      onQuestionsUpdate(updatedQuestions);
       saveToLocal(updatedQuestions);
       console.log('✅ Question edit completed');
     } else {
@@ -64,8 +65,7 @@ export const useGameEditorActions = ({
     const updatedQuestions = questions.filter(q => q.id !== id);
     console.log('🚀 Calling onQuestionsUpdate after delete. New length:', updatedQuestions.length);
     
-    onQuestionsUpdate(JSON.parse(JSON.stringify(updatedQuestions))); // Deep clone to ensure new reference
-    
+    onQuestionsUpdate(updatedQuestions);
     saveToLocal(updatedQuestions);
     console.log('✅ Question deleted');
   };
@@ -83,8 +83,8 @@ export const useGameEditorActions = ({
       );
       
       console.log('🚀 Calling state updates for category rename');
-      onQuestionsUpdate(JSON.parse(JSON.stringify(updatedQuestions))); // Deep clone
-      onCategoryDescriptionsUpdate(JSON.parse(JSON.stringify(updatedDescriptions))); // Deep clone
+      onQuestionsUpdate(updatedQuestions);
+      onCategoryDescriptionsUpdate(updatedDescriptions);
       
       saveToLocal(updatedQuestions, updatedDescriptions);
       console.log('✅ Category renamed');
@@ -99,8 +99,8 @@ export const useGameEditorActions = ({
       const updatedDescriptions = categoryDescriptions.filter(desc => desc.category !== category);
       
       console.log('🚀 Calling state updates for category deletion');
-      onQuestionsUpdate(JSON.parse(JSON.stringify(updatedQuestions))); // Deep clone
-      onCategoryDescriptionsUpdate(JSON.parse(JSON.stringify(updatedDescriptions))); // Deep clone
+      onQuestionsUpdate(updatedQuestions);
+      onCategoryDescriptionsUpdate(updatedDescriptions);
       
       saveToLocal(updatedQuestions, updatedDescriptions);
       console.log('✅ Category deleted');
@@ -124,7 +124,7 @@ export const useGameEditorActions = ({
       const updatedQuestions = [...questions, newQuestion];
       
       console.log('🚀 Calling onQuestionsUpdate for new category. New length:', updatedQuestions.length);
-      onQuestionsUpdate(JSON.parse(JSON.stringify(updatedQuestions))); // Deep clone
+      onQuestionsUpdate(updatedQuestions);
       
       saveToLocal(updatedQuestions);
       console.log('✅ New category added');
@@ -146,7 +146,7 @@ export const useGameEditorActions = ({
     }
     
     console.log('🚀 Calling onCategoryDescriptionsUpdate. New length:', updatedDescriptions.length);
-    onCategoryDescriptionsUpdate(JSON.parse(JSON.stringify(updatedDescriptions))); // Deep clone
+    onCategoryDescriptionsUpdate(updatedDescriptions);
     
     saveToLocal(undefined, updatedDescriptions);
     console.log('✅ Category description updated');

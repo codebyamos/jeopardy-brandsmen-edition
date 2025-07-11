@@ -63,10 +63,9 @@ const CategoryGrid: React.FC<CategoryGridProps> = ({
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
         {allCategories.map(category => {
           const categoryQuestions = questions.filter(q => q.category === category);
-          const categoryKey = `${category}-${categoryQuestions.length}-${Date.now()}`;
           
           return (
-            <div key={categoryKey} className="border rounded-lg p-3 sm:p-4" style={{ backgroundColor: '#f8fafc', borderColor: '#2c5b69' }}>
+            <div key={category} className="border rounded-lg p-3 sm:p-4" style={{ backgroundColor: '#f8fafc', borderColor: '#2c5b69' }}>
               <div className="flex items-center justify-between mb-3">
                 <h4 className="font-semibold text-sm sm:text-base" style={{color: '#2c5b69'}}>
                   {category}
@@ -117,10 +116,9 @@ const CategoryGrid: React.FC<CategoryGridProps> = ({
               <div className="space-y-2">
                 {[100, 200, 300, 400, 500].map(points => {
                   const question = categoryQuestions.find(q => q.points === points);
-                  const questionKey = `${category}-${points}-${question?.id || 'empty'}`;
                   
                   return (
-                    <div key={questionKey} className="flex items-center justify-between rounded px-2 py-1" style={{ backgroundColor: '#e2e8f0' }}>
+                    <div key={`${category}-${points}`} className="flex items-center justify-between rounded px-2 py-1" style={{ backgroundColor: '#e2e8f0' }}>
                       <span className="text-sm font-medium flex items-center gap-1" style={{ color: '#2c5b69' }}>
                         ${points}
                         {question?.bonusPoints ? (
