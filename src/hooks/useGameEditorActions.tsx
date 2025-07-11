@@ -43,9 +43,9 @@ export const useGameEditorActions = ({
         updatedQuestions = [...questions, { ...questionData } as Question];
         console.log('➕ Adding new question. New array length:', updatedQuestions.length);
       } else {
-        // Updating existing question - create completely new array
+        // Updating existing question - ensure we create a new array with new objects
         updatedQuestions = questions.map(q => 
-          q.id === editingQuestion.id ? { ...editingQuestion, ...questionData } : q
+          q.id === editingQuestion.id ? { ...editingQuestion, ...questionData } : { ...q }
         );
         console.log('✏️ Updating existing question. Array length:', updatedQuestions.length);
       }
@@ -74,13 +74,13 @@ export const useGameEditorActions = ({
     console.log('🔧 saveCategoryEdit called:', { oldName, newName });
     
     if (oldName && newName.trim() && newName !== oldName) {
-      // Create completely new arrays
+      // Create completely new arrays with new object references
       const updatedQuestions = questions.map(q => 
-        q.category === oldName ? { ...q, category: newName.trim() } : q
+        q.category === oldName ? { ...q, category: newName.trim() } : { ...q }
       );
 
       const updatedDescriptions = categoryDescriptions.map(desc =>
-        desc.category === oldName ? { ...desc, category: newName.trim() } : desc
+        desc.category === oldName ? { ...desc, category: newName.trim() } : { ...desc }
       );
       
       console.log('🚀 Calling state updates for category rename');
@@ -140,7 +140,7 @@ export const useGameEditorActions = ({
     
     if (existingIndex >= 0) {
       updatedDescriptions = categoryDescriptions.map(desc =>
-        desc.category === category ? { ...desc, description } : desc
+        desc.category === category ? { ...desc, description } : { ...desc }
       );
     } else {
       updatedDescriptions = [...categoryDescriptions, { category, description }];
