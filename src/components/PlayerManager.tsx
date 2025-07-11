@@ -223,22 +223,25 @@ const PlayerManager: React.FC<PlayerManagerProps> = ({
                         alt={`${player.name} avatar`}
                         className="w-16 h-16 rounded-full object-cover border-2"
                         style={{ borderColor: '#2c5b69' }}
-                        crossOrigin="anonymous"
-                        loading="lazy"
-                        referrerPolicy="no-referrer"
                         onLoad={() => {
                           console.log('Avatar loaded successfully:', player.avatar);
                         }}
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
                           console.error('Avatar failed to load:', player.avatar);
-                          target.style.display = 'none';
-                          // Show placeholder when image fails
-                          const container = target.closest('.relative') as HTMLElement;
-                          if (container) {
-                            const placeholder = container.querySelector('.bg-gray-200') as HTMLElement;
-                            if (placeholder) {
-                              placeholder.style.display = 'flex';
+                          // Try without crossorigin first
+                          if (target.crossOrigin) {
+                            target.crossOrigin = '';
+                            target.src = player.avatar + '?t=' + Date.now();
+                          } else {
+                            // If still fails, hide and show placeholder
+                            target.style.display = 'none';
+                            const container = target.closest('.relative') as HTMLElement;
+                            if (container) {
+                              const placeholder = container.querySelector('.bg-gray-200') as HTMLElement;
+                              if (placeholder) {
+                                placeholder.style.display = 'flex';
+                              }
                             }
                           }
                         }}
