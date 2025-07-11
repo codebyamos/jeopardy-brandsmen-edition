@@ -22,6 +22,7 @@ export const useTimerSettings = () => {
   const updateSettings = (newSettings: TimerSettings) => {
     setSettings(newSettings);
     localStorage.setItem('timer_duration', newSettings.timerDuration.toString());
+    console.log('Timer settings saved:', newSettings);
   };
 
   return {

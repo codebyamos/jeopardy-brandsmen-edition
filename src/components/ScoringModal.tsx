@@ -61,7 +61,7 @@ const ScoringModal: React.FC<ScoringModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-2 sm:p-4">
-      <div className="bg-white border-2 rounded-lg max-w-4xl w-full p-3 sm:p-4 relative grid grid-cols-1 lg:grid-cols-2 gap-4" style={{ borderColor: '#2c5b69' }}>
+      <div className="bg-white border-2 rounded-lg max-w-4xl w-full max-h-[95vh] overflow-auto p-3 sm:p-4 relative grid grid-cols-1 lg:grid-cols-2 gap-4" style={{ borderColor: '#2c5b69' }}>
         {/* Close button in top right corner */}
         <button
           onClick={onClose}

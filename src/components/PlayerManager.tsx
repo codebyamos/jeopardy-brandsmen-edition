@@ -217,18 +217,32 @@ const PlayerManager: React.FC<PlayerManagerProps> = ({
                 {/* Avatar Section */}
                 <div className="flex justify-center mb-3">
                   <div className="relative">
-                    {player.avatar ? (
+                     {player.avatar ? (
                       <img 
                         src={player.avatar} 
                         alt={`${player.name} avatar`}
                         className="w-16 h-16 rounded-full object-cover border-2"
                         style={{ borderColor: '#2c5b69' }}
+                        crossOrigin="anonymous"
+                        loading="lazy"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          console.error('Avatar failed to load:', player.avatar);
+                          target.style.display = 'none';
+                          // Show placeholder when image fails
+                          const container = target.closest('.relative') as HTMLElement;
+                          if (container) {
+                            const placeholder = container.querySelector('.bg-gray-200') as HTMLElement;
+                            if (placeholder) {
+                              placeholder.style.display = 'flex';
+                            }
+                          }
+                        }}
                       />
-                    ) : (
-                      <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center border-2" style={{ borderColor: '#2c5b69' }}>
-                        <span className="text-gray-500 text-xs">No Image</span>
-                      </div>
-                    )}
+                     ) : null}
+                    <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center border-2" style={{ borderColor: '#2c5b69', display: player.avatar ? 'none' : 'flex' }}>
+                      <span className="text-gray-500 text-xs">No Image</span>
+                    </div>
                     <label className={`absolute bottom-0 right-0 rounded-full p-1 hover:opacity-90 ${isAnyPlayerBeingEdited || uploadingAvatars.has(player.id) ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`} style={{ backgroundColor: '#2c5b69' }}>
                       {uploadingAvatars.has(player.id) ? (
                         <div className="w-3 h-3 border border-white border-t-transparent rounded-full animate-spin"></div>
