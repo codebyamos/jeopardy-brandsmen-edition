@@ -55,6 +55,10 @@ export const useGameEffects = ({
 
   // Load from database ONCE at startup, then work with local data
   useEffect(() => {
+    if (isLoadingGameState) {
+      return; // Skip if already loading
+    }
+
     const loadGameState = async () => {
       if (!isAuthenticated) {
         setIsLoadingGameState(false);
@@ -63,6 +67,7 @@ export const useGameEffects = ({
 
       try {
         console.log('=== STARTUP: LOADING GAME STATE ===');
+        setIsLoadingGameState(true);
         
         // Load from database first
         const recentGames = await stableLoadRecentGames();
@@ -130,8 +135,9 @@ export const useGameEffects = ({
           console.log('STARTUP: No games found in database');
         }
 
-        // Set state from database data
+        // Set state from database data ONLY ONCE
         if (loadedPlayers.length > 0) {
+          console.log('🎯 STARTUP: Setting players from database:', loadedPlayers);
           setPlayers(loadedPlayers);
         }
         if (loadedQuestions.length > 0) {
@@ -175,7 +181,7 @@ export const useGameEffects = ({
     };
 
     loadGameState();
-  }, [isAuthenticated, stableLoadRecentGames, forceSaveToLocal, loadFromLocalStorage, setIsLoadingGameState, setQuestions, setCategoryDescriptions, setPlayers, setAnsweredQuestions]);
+  }, [isAuthenticated]);
 
   // Save changes to localStorage immediately whenever state changes
   useEffect(() => {
@@ -188,7 +194,7 @@ export const useGameEffects = ({
       console.log('💾 Auto-saving changes to localStorage');
       forceSaveToLocal(questions, categoryDescriptions);
     }
-  }, [questions, categoryDescriptions, forceSaveToLocal, isAuthenticated, isLoadingGameState]);
+  }, [questions, categoryDescriptions, players, forceSaveToLocal, isAuthenticated, isLoadingGameState]);
 
   // Initialize speech system on app load
   useEffect(() => {
