@@ -225,6 +225,10 @@ const PlayerManager: React.FC<PlayerManagerProps> = ({
                         style={{ borderColor: '#2c5b69' }}
                         crossOrigin="anonymous"
                         loading="lazy"
+                        referrerPolicy="no-referrer"
+                        onLoad={() => {
+                          console.log('Avatar loaded successfully:', player.avatar);
+                        }}
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
                           console.error('Avatar failed to load:', player.avatar);

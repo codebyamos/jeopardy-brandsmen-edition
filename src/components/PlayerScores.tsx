@@ -19,6 +19,14 @@ const PlayerScores: React.FC<PlayerScoresProps> = ({ players }) => {
                   src={player.avatar} 
                   alt={`${player.name} avatar`}
                   className="w-5 h-5 sm:w-6 sm:h-6 rounded-full object-cover border border-gray-300 flex-shrink-0"
+                  crossOrigin="anonymous"
+                  loading="lazy"
+                  referrerPolicy="no-referrer"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    console.error('Player score avatar failed to load:', player.avatar);
+                    target.style.display = 'none';
+                  }}
                 />
               )}
               <div className="font-bold text-sm sm:text-lg text-gray-800">{player.name}</div>
