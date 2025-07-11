@@ -98,13 +98,21 @@ const GameEditor: React.FC<GameEditorProps> = ({
     setShowAddCategory(false);
   };
 
-  const handleSaveQuestionEdit = async (questionData: Partial<Question>) => {
+  const handleSaveQuestionEdit = (questionData: Partial<Question>) => {
     console.log('💾 Saving question edit:', questionData);
     if (editingQuestion) {
-      await saveQuestionEdit(questionData, editingQuestion);
+      // Call the synchronous save function
+      saveQuestionEdit(questionData, editingQuestion);
+      // Close the form immediately
       setEditingQuestion(null);
       console.log('✅ Question edit completed and form closed');
     }
+  };
+
+  const handleDeleteQuestion = (id: number) => {
+    console.log('🗑️ Handling question delete:', id);
+    // Call the synchronous delete function
+    deleteQuestion(id);
   };
 
   const handleAddCategory = () => {
@@ -114,9 +122,11 @@ const GameEditor: React.FC<GameEditorProps> = ({
     setEditingCategory(null);
   };
 
-  const handleAddNewCategory = async () => {
+  const handleAddNewCategory = () => {
     console.log('💾 Adding new category:', newCategoryName);
-    await addNewCategory(newCategoryName, categories);
+    // Call the synchronous add function
+    addNewCategory(newCategoryName, categories);
+    // Close the form immediately
     setShowAddCategory(false);
     setNewCategoryName('');
     console.log('✅ New category added and form closed');
@@ -129,13 +139,27 @@ const GameEditor: React.FC<GameEditorProps> = ({
     setShowAddCategory(false);
   };
 
-  const handleSaveCategoryEdit = async (newName: string) => {
+  const handleSaveCategoryEdit = (newName: string) => {
     console.log('💾 Saving category edit:', { old: editingCategory, new: newName });
     if (editingCategory) {
-      await saveCategoryEdit(editingCategory, newName);
+      // Call the synchronous save function
+      saveCategoryEdit(editingCategory, newName);
+      // Close the form immediately
       setEditingCategory(null);
       console.log('✅ Category edit completed and form closed');
     }
+  };
+
+  const handleDeleteCategory = (category: string) => {
+    console.log('🗑️ Handling category delete:', category);
+    // Call the synchronous delete function
+    deleteCategory(category);
+  };
+
+  const handleUpdateCategoryDescription = (category: string, description: string) => {
+    console.log('💾 Updating category description:', { category, description });
+    // Call the synchronous update function
+    updateCategoryDescription(category, description);
   };
 
   const handleManualSave = async () => {
@@ -201,10 +225,10 @@ const GameEditor: React.FC<GameEditorProps> = ({
               categoryDescriptions={categoryDescriptions}
               onEditQuestion={startEdit}
               onAddQuestion={addQuestion}
-              onDeleteQuestion={deleteQuestion}
+              onDeleteQuestion={handleDeleteQuestion}
               onEditCategory={startEditCategory}
-              onDeleteCategory={deleteCategory}
-              onUpdateCategoryDescription={updateCategoryDescription}
+              onDeleteCategory={handleDeleteCategory}
+              onUpdateCategoryDescription={handleUpdateCategoryDescription}
               getCategoryDescription={getCategoryDescription}
             />
           )}
