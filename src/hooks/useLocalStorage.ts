@@ -1,23 +1,30 @@
 
 import { useState, useEffect } from 'react';
-import { Question, CategoryDescription } from '../types/game';
+import { Question, CategoryDescription, Player } from '../types/game';
 
 interface GameState {
   questions: Question[];
   categoryDescriptions: CategoryDescription[];
   lastSaved: string;
   version: number;
+  players?: Player[]; // Make players optional for backward compatibility
 }
 
 export const useLocalStorage = () => {
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
-  const saveToLocalStorage = (questions: Question[], categoryDescriptions: CategoryDescription[], silent: boolean = true) => {
+  const saveToLocalStorage = (
+    questions: Question[], 
+    categoryDescriptions: CategoryDescription[], 
+    players?: Player[],
+    silent: boolean = true
+  ) => {
     const gameState: GameState = {
       questions,
       categoryDescriptions,
       lastSaved: new Date().toISOString(),
-      version: Date.now()
+      version: Date.now(),
+      players
     };
     
     localStorage.setItem('jeopardy-game-state', JSON.stringify(gameState));
@@ -28,6 +35,7 @@ export const useLocalStorage = () => {
       console.log('💾 Saved to localStorage:', { 
         questions: questions.length, 
         categories: categoryDescriptions.length,
+        players: players?.length || 0,
         version: gameState.version
       });
     }
@@ -69,9 +77,13 @@ export const useLocalStorage = () => {
   };
 
   // Force save any data immediately to localStorage
-  const forceSaveToLocal = (questions: Question[], categoryDescriptions: CategoryDescription[]) => {
-    console.log('💾 Force saving to localStorage:', { questions: questions.length, categories: categoryDescriptions.length });
-    saveToLocalStorage(questions, categoryDescriptions, false);
+  const forceSaveToLocal = (questions: Question[], categoryDescriptions: CategoryDescription[], players?: Player[]) => {
+    console.log('💾 Force saving to localStorage:', { 
+      questions: questions.length, 
+      categories: categoryDescriptions.length,
+      players: players?.length || 0
+    });
+    saveToLocalStorage(questions, categoryDescriptions, players, false);
   };
 
   return {

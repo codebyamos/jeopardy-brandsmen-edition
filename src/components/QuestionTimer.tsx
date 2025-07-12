@@ -99,12 +99,12 @@ const QuestionTimer: React.FC<QuestionTimerProps> = ({ duration, onTimeUp, isVis
 
   return (
     <>
-      <div className="flex items-center gap-3 bg-gray-800 rounded-lg p-3 border border-gray-600">
-        <Timer className="w-5 h-5 text-gray-400" />
-        <div className={`text-2xl font-mono font-bold ${getTimerColor()}`}>
+      <div className="flex items-center gap-2 sm:gap-3 bg-gray-800 rounded-lg p-2 sm:p-3 border border-gray-600 w-full max-w-xs sm:max-w-sm md:max-w-md">
+        <Timer className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
+        <div className={`text-xl sm:text-2xl font-mono font-bold ${getTimerColor()}`}>
           {formatTime(timeLeft)}
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-1 sm:gap-2">
           {!isRunning ? (
             <Button
               onClick={startTimer}

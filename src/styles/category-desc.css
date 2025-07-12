@@ -1,0 +1,65 @@
+/* Game Board specific styles */
+.gameboard-desc-container .gameboard-desc-text {
+  display: block;
+  text-align: center;
+}
+
+.gameboard-desc-container .gameboard-desc-icon {
+  display: flex;
+  justify-content: center;
+}
+
+/* Category name styling */
+.category-name-container span {
+  line-height: 1.4rem;
+}
+
+/* Hide eye icon by default on large screens */
+@media (min-width: 601px) {
+  .gameboard-desc-container .gameboard-desc-icon {
+    display: none;
+  }
+  
+  /* But show it for long descriptions */
+  .gameboard-desc-container.has-long-desc .gameboard-desc-icon {
+    display: flex;
+  }
+}
+
+@media (max-width: 600px) {
+  /* Adjust category name line height for small screens */
+  .category-name-container span {
+    line-height: 1rem;
+  }
+
+  /* CRITICAL: Only show eye icon in GameBoard component at 600px and below */
+  /* Very specific selector to target only the game board view */
+  .flex.justify-center > .border-2.rounded-lg .categories-about .gameboard-desc-text {
+    display: none !important;
+  }
+  
+  /* Show icon without margin at small screens - specifically in game board */
+  .flex.justify-center > .border-2.rounded-lg .categories-about .gameboard-desc-icon {
+    margin-top: 0 !important;
+    display: flex !important; /* Always show the icon at small screens */
+  }
+  
+  /* Increase eye icon size in GameBoard for better visibility */
+  .category-description-icon-btn svg {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+/* CategoryGrid (edit mode) specific styles - always show description text */
+.category-desc-responsive {
+  display: block !important;
+  word-wrap: break-word;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
+  max-width: 100%;
+}
+.category-desc-eye-responsive {
+  display: none !important;
+}

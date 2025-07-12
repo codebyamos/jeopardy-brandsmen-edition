@@ -1,11 +1,12 @@
 
 import { useEffect, useRef } from 'react';
-import { Question, CategoryDescription } from '../types/game';
+import { Question, CategoryDescription, Player } from '../types/game';
 
 interface UsePeriodicSaveProps {
   questions: Question[];
   categoryDescriptions: CategoryDescription[];
-  onSave: (questions: Question[], categoryDescriptions: CategoryDescription[]) => Promise<void>;
+  players?: Player[];
+  onSave: (questions: Question[], categoryDescriptions: CategoryDescription[], players?: Player[]) => Promise<void>;
   onClearLocal: () => void;
   intervalMinutes?: number;
   enabled?: boolean;
@@ -14,6 +15,7 @@ interface UsePeriodicSaveProps {
 export const usePeriodicSave = ({
   questions,
   categoryDescriptions,
+  players = [],
   onSave,
   onClearLocal,
   intervalMinutes = 20,
@@ -48,7 +50,7 @@ export const usePeriodicSave = ({
 
       try {
         console.log(`🔄 Starting periodic database save (every ${intervalMinutes} minutes)...`);
-        await onSave(questions, categoryDescriptions);
+        await onSave(questions, categoryDescriptions, players);
         lastSaveTimeRef.current = now;
         
         // Clear local storage after successful database save
@@ -68,12 +70,12 @@ export const usePeriodicSave = ({
         intervalRef.current = null;
       }
     };
-  }, [questions, categoryDescriptions, onSave, onClearLocal, intervalMinutes, enabled]);
+  }, [questions, categoryDescriptions, players, onSave, onClearLocal, intervalMinutes, enabled]);
 
   const triggerManualSave = async () => {
     try {
       console.log('💾 Manual database save triggered');
-      await onSave(questions, categoryDescriptions);
+      await onSave(questions, categoryDescriptions, players);
       lastSaveTimeRef.current = Date.now();
       onClearLocal();
       console.log('✅ Manual save completed and local storage cleared');

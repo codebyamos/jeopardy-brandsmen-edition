@@ -5,6 +5,14 @@ export const saveGamePlayers = async (gameId: string, players: Player[]) => {
   console.log('Saving players for game:', gameId, players);
   
   try {
+    // Deduplicate players before saving
+    const uniquePlayerMap = new Map();
+    players.forEach(player => {
+      uniquePlayerMap.set(player.name, player);
+    });
+    const uniquePlayers = Array.from(uniquePlayerMap.values());
+    console.log(`⚙️ Deduplicated players: ${players.length} → ${uniquePlayers.length}`);
+    
     // Get count of existing players to verify cleanup
     const { count: existingPlayersCount, error: countError } = await supabase
       .from('game_players')
@@ -31,8 +39,8 @@ export const saveGamePlayers = async (gameId: string, players: Player[]) => {
     console.log(`✅ Successfully deleted ${existingPlayersCount || 'all'} existing players from database`);
 
     // Only insert if we have players to save
-    if (players && players.length > 0) {
-    const gamePlayersData = players.map(player => {
+    if (uniquePlayers && uniquePlayers.length > 0) {
+    const gamePlayersData = uniquePlayers.map(player => {
       console.log(`🖼️ SAVE: Player ${player.name} avatar:`, player.avatar ? `${player.avatar.substring(0, 50)}...` : 'null');
       return {
         game_id: gameId,
@@ -42,7 +50,7 @@ export const saveGamePlayers = async (gameId: string, players: Player[]) => {
       };
     });
 
-      console.log(`💾 Inserting ${players.length} new players to database`);
+      console.log(`💾 Inserting ${uniquePlayers.length} unique players to database`);
 
       const { error: playersError } = await supabase
         .from('game_players')
@@ -53,7 +61,7 @@ export const saveGamePlayers = async (gameId: string, players: Player[]) => {
         throw new Error(`Failed to save players: ${playersError.message}`);
       }
       
-      console.log(`✅ Successfully inserted ${players.length} players to database`);
+      console.log(`✅ Successfully inserted ${uniquePlayers.length} players to database`);
     } else {
       console.log('📝 No players to insert - game has 0 players');
     }
@@ -65,9 +73,9 @@ export const saveGamePlayers = async (gameId: string, players: Player[]) => {
       .eq('game_id', gameId);
 
     if (!finalCountError) {
-      console.log(`🔍 Database verification: Game now has ${finalPlayersCount} players (expected: ${players.length})`);
-      if (finalPlayersCount !== players.length) {
-        console.warn(`⚠️ Player count mismatch! Expected ${players.length}, but database has ${finalPlayersCount}`);
+      console.log(`🔍 Database verification: Game now has ${finalPlayersCount} players (expected: ${uniquePlayers.length})`);
+      if (finalPlayersCount !== uniquePlayers.length) {
+        console.warn(`⚠️ Player count mismatch! Expected ${uniquePlayers.length}, but database has ${finalPlayersCount}`);
       }
     }
   } catch (error) {
@@ -80,6 +88,14 @@ export const saveGameQuestions = async (gameId: string, questions: Question[], a
   console.log('Saving questions for game:', gameId, 'Questions count:', questions.length);
   
   try {
+    // Deduplicate questions by ID before saving
+    const uniqueQuestionMap = new Map();
+    questions.forEach(question => {
+      uniqueQuestionMap.set(question.id, question);
+    });
+    const uniqueQuestions = Array.from(uniqueQuestionMap.values());
+    console.log(`⚙️ Deduplicated questions: ${questions.length} → ${uniqueQuestions.length}`);
+    
     // First, get count of existing questions to verify deletion
     const { count: existingCount, error: countError } = await supabase
       .from('game_questions')
@@ -106,9 +122,9 @@ export const saveGameQuestions = async (gameId: string, questions: Question[], a
     console.log(`✅ Successfully deleted ${existingCount || 'all'} existing questions from database`);
 
     // Only insert if we have questions to save
-    if (questions.length > 0) {
+    if (uniqueQuestions.length > 0) {
       // Save all questions for this game
-      const gameQuestionsData = questions.map(question => ({
+      const gameQuestionsData = uniqueQuestions.map(question => ({
         game_id: gameId,
         question_id: question.id,
         category: question.category,
@@ -121,7 +137,7 @@ export const saveGameQuestions = async (gameId: string, questions: Question[], a
         is_answered: answeredQuestions?.includes(question.id) || false
       }));
 
-      console.log(`💾 Inserting ${questions.length} new questions to database`);
+      console.log(`💾 Inserting ${uniqueQuestions.length} unique questions to database`);
       console.log('Sample question data:', gameQuestionsData.slice(0, 1)); // Log first question for verification
 
       const { error: questionsError } = await supabase
@@ -133,7 +149,7 @@ export const saveGameQuestions = async (gameId: string, questions: Question[], a
         throw new Error(`Failed to save questions: ${questionsError.message}`);
       }
       
-      console.log(`✅ Successfully inserted ${questions.length} questions to database`);
+      console.log(`✅ Successfully inserted ${uniqueQuestions.length} questions to database`);
     } else {
       console.log('📝 No questions to insert - game has 0 questions');
     }
@@ -145,9 +161,9 @@ export const saveGameQuestions = async (gameId: string, questions: Question[], a
       .eq('game_id', gameId);
 
     if (!finalCountError) {
-      console.log(`🔍 Database verification: Game now has ${finalCount} questions (expected: ${questions.length})`);
-      if (finalCount !== questions.length) {
-        console.warn(`⚠️ Question count mismatch! Expected ${questions.length}, but database has ${finalCount}`);
+      console.log(`🔍 Database verification: Game now has ${finalCount} questions (expected: ${uniqueQuestions.length})`);
+      if (finalCount !== uniqueQuestions.length) {
+        console.warn(`⚠️ Question count mismatch! Expected ${uniqueQuestions.length}, but database has ${finalCount}`);
       }
     }
     
@@ -161,6 +177,14 @@ export const saveGameCategories = async (gameId: string, categoryDescriptions: C
   console.log('Saving categories for game:', gameId, categoryDescriptions);
   
   try {
+    // Deduplicate category descriptions before saving
+    const uniqueCategoryMap = new Map();
+    categoryDescriptions.forEach(cat => {
+      uniqueCategoryMap.set(cat.category, cat);
+    });
+    const uniqueCategories = Array.from(uniqueCategoryMap.values());
+    console.log(`⚙️ Deduplicated categories: ${categoryDescriptions.length} → ${uniqueCategories.length}`);
+    
     // Get count of existing categories to verify cleanup
     const { count: existingCategoriesCount, error: countError } = await supabase
       .from('game_categories')
@@ -187,14 +211,14 @@ export const saveGameCategories = async (gameId: string, categoryDescriptions: C
     console.log(`✅ Successfully deleted ${existingCategoriesCount || 'all'} existing categories from database`);
 
     // Only insert if we have category descriptions to save
-    if (categoryDescriptions && categoryDescriptions.length > 0) {
-      const gameCategoriesData = categoryDescriptions.map(desc => ({
+    if (uniqueCategories && uniqueCategories.length > 0) {
+      const gameCategoriesData = uniqueCategories.map(desc => ({
         game_id: gameId,
         category_name: desc.category,
         description: desc.description
       }));
 
-      console.log(`💾 Inserting ${categoryDescriptions.length} new categories to database`);
+      console.log(`💾 Inserting ${uniqueCategories.length} unique categories to database`);
 
       const { error: categoriesError } = await supabase
         .from('game_categories')
@@ -205,7 +229,7 @@ export const saveGameCategories = async (gameId: string, categoryDescriptions: C
         throw new Error(`Failed to save categories: ${categoriesError.message}`);
       }
       
-      console.log(`✅ Successfully inserted ${categoryDescriptions.length} categories to database`);
+      console.log(`✅ Successfully inserted ${uniqueCategories.length} categories to database`);
     } else {
       console.log('📝 No categories to insert - game has 0 category descriptions');
     }
@@ -217,9 +241,9 @@ export const saveGameCategories = async (gameId: string, categoryDescriptions: C
       .eq('game_id', gameId);
 
     if (!finalCountError) {
-      console.log(`🔍 Database verification: Game now has ${finalCategoriesCount} categories (expected: ${categoryDescriptions.length})`);
-      if (finalCategoriesCount !== categoryDescriptions.length) {
-        console.warn(`⚠️ Category count mismatch! Expected ${categoryDescriptions.length}, but database has ${finalCategoriesCount}`);
+      console.log(`🔍 Database verification: Game now has ${finalCategoriesCount} categories (expected: ${uniqueCategories.length})`);
+      if (finalCategoriesCount !== uniqueCategories.length) {
+        console.warn(`⚠️ Category count mismatch! Expected ${uniqueCategories.length}, but database has ${finalCategoriesCount}`);
       }
     }
   } catch (error) {

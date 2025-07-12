@@ -177,7 +177,9 @@ const GameEditor: React.FC<GameEditorProps> = ({
   };
 
   const getCategoryDescription = (category: string) => {
-    return categoryDescriptions.find(desc => desc.category === category)?.description || '';
+    return categoryDescriptions.find(
+      desc => desc.category.toLowerCase() === category.toLowerCase()
+    )?.description || '';
   };
 
   if (!isVisible) return null;

@@ -67,6 +67,10 @@ const GameContainer: React.FC<GameContainerProps> = ({
   onCategoryDescriptionUpdate,
   isLoading
 }) => {
+  React.useEffect(() => {
+    console.log('[GameContainer] answeredQuestions:', Array.from(answeredQuestions));
+  }, [answeredQuestions]);
+
   return (
     <div className="min-h-screen bg-cover bg-top bg-no-repeat" 
          style={{ backgroundImage: 'url(/lovable-uploads/d1647a56-db6d-4277-aeb4-395f4275273b.png)' }}>
@@ -88,7 +92,11 @@ const GameContainer: React.FC<GameContainerProps> = ({
           onCategoryDescriptionUpdate={onCategoryDescriptionUpdate}
         />
 
-        <PlayerScores players={players} />
+        <PlayerScores 
+          players={players} 
+          onScoreChange={onScorePlayer}
+          setPlayers={setPlayers} 
+        />
 
         <GameControls
           players={players}
@@ -108,6 +116,9 @@ const GameContainer: React.FC<GameContainerProps> = ({
             players={players}
             onClose={onQuestionClose}
             onScorePlayer={onScorePlayer}
+            answeredQuestions={answeredQuestions}
+            setAnsweredQuestions={setAnsweredQuestions}
+            setPlayers={setPlayers}
           />
         )}
 

@@ -38,7 +38,11 @@ const CategoryEditForm: React.FC<CategoryEditFormProps> = ({
     onSave(tempCategoryName);
   };
 
-  const isValidName = tempCategoryName.trim() && (isNew ? !categories.includes(tempCategoryName.trim()) : tempCategoryName.trim() !== '');
+  // Case-insensitive validation to prevent duplicates
+  const isValidName = tempCategoryName.trim() && 
+    (isNew 
+      ? !categories.some(cat => cat.toLowerCase() === tempCategoryName.trim().toLowerCase())
+      : tempCategoryName.trim() !== '');
 
   return (
     <div className="border rounded-lg p-4 sm:p-6 mb-4" style={{ backgroundColor: '#f8fafc', borderColor: '#2c5b69' }}>

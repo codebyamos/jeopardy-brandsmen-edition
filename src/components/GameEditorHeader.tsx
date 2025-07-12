@@ -2,6 +2,7 @@
 import React from 'react';
 import { Button } from './ui/button';
 import { X, FolderPlus, Save, Clock } from 'lucide-react';
+import { AdminNavigation } from './AdminNavigation';
 
 interface GameEditorHeaderProps {
   isSaving: boolean;
@@ -38,6 +39,7 @@ const GameEditorHeader: React.FC<GameEditorHeaderProps> = ({
         )}
       </div>
       <div className="flex gap-2">
+        {isMainView && <AdminNavigation />}
         {hasUnsavedChanges && (
           <Button
             onClick={onManualSave}

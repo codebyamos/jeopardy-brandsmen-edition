@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { PasscodeProvider } from "./contexts/PasscodeContext";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
+import DatabaseCleanup from "./pages/DatabaseCleanup";
 
 const queryClient = new QueryClient();
 
@@ -19,6 +20,7 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
+            <Route path="/admin/cleanup" element={<DatabaseCleanup />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

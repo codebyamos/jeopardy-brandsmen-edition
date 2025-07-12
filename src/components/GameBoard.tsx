@@ -2,6 +2,8 @@
 import React, { useState } from 'react';
 import { Question, CategoryDescription } from '../types/game';
 import CategoryDescriptionModal from './CategoryDescriptionModal';
+import CategoryDescriptionIcon from './CategoryDescriptionIcon';
+import '../styles/category-desc.css';
 
 interface GameBoardProps {
   categories: string[];
@@ -22,6 +24,10 @@ const GameBoard: React.FC<GameBoardProps> = ({
   onQuestionSelect,
   onCategoryDescriptionUpdate
 }) => {
+  React.useEffect(() => {
+    console.log('[GameBoard] answeredQuestions:', Array.from(answeredQuestions));
+  }, [answeredQuestions]);
+
   const getQuestion = (category: string, points: number) => {
     return questions.find(q => q.category === category && q.points === points);
   };
@@ -32,41 +38,56 @@ const GameBoard: React.FC<GameBoardProps> = ({
   };
 
   const getCategoryDescription = (category: string) => {
-    return categoryDescriptions.find(desc => desc.category === category)?.description || '';
+    return categoryDescriptions.find(
+      desc => desc.category.toLowerCase() === category.toLowerCase()
+    )?.description || '';
   };
+
+  const [descModal, setDescModal] = useState<{ category: string; description: string } | null>(null);
 
   return (
     <div className="flex justify-center">
       <div className="border-2 rounded-lg overflow-hidden shadow-2xl bg-white bg-opacity-95 max-w-7xl w-full" style={{ borderColor: '#2c5b69' }}>
         {/* Header row with categories */}
         <div className="grid grid-cols-5 gap-px" style={{ backgroundColor: '#2c5b69' }}>
-          {categories.map((category, index) => (
-            <div
-              key={index}
-              className="text-white p-2 sm:p-3 lg:p-4 text-center font-bold text-xs sm:text-sm lg:text-lg border-b-2 border-white"
-              style={{ backgroundColor: '#2c5b69' }}
-            >
-              <div className="break-words">
-                {category.toUpperCase()}
+          {categories.map((category, index) => {
+            const desc = getCategoryDescription(category);
+            const isLong = desc.length > 145;
+            const shortDesc = isLong ? desc.slice(0, 145) + '...' : desc;
+            return (
+              <div
+                key={index}
+                className="text-white p-2 sm:p-3 lg:p-4 text-center font-bold text-xs sm:text-sm lg:text-lg border-b-2 border-white"
+                style={{ backgroundColor: '#2c5b69' }}
+              >
+                <div className="break-words category-name-container">
+                  <span style={{ display: 'block' }}>{category.toUpperCase()}</span>
+                </div>
+                {/* Category description - display only */}
+                <div className="mt-1 flex items-center justify-center">
+                  {desc && (
+                    <div className={`text-xs text-gray-200 italic categories-about flex flex-col items-center gameboard-desc-container ${isLong ? 'has-long-desc' : ''}`}>
+                                    <span className="gameboard-desc-text w-full" style={{ wordBreak: 'break-word', whiteSpace: 'normal' }}>
+                                        {isLong ? `${desc.slice(0, 145)}...` : desc}
+                                    </span>
+                                    <div className="mt-1 gameboard-desc-icon">
+                                        <CategoryDescriptionIcon onClick={() => setDescModal({ category, description: desc })} />
+                                    </div>
+                    </div>
+                  )}
+                </div>
               </div>
-              {/* Category description - display only */}
-              <div className="mt-1">
-                {getCategoryDescription(category) && (
-                  <div className="text-xs text-gray-200 italic categories-about">
-                    {getCategoryDescription(category)}
-                  </div>
-                )}
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
         
         {/* Question grid */}
         {pointValues.map((points, rowIndex) => (
           <div key={rowIndex} className="grid grid-cols-5 gap-px" style={{ backgroundColor: '#2c5b69' }}>
             {categories.map((category, colIndex) => {
-              const answered = isAnswered(category, points);
-              
+              const question = getQuestion(category, points);
+              const answered = question ? answeredQuestions.has(question.id) : false;
+              console.log('[GameBoard Button] category:', category, 'points:', points, 'questionId:', question?.id, 'answered:', answered);
               return (
                 <button
                   key={`${rowIndex}-${colIndex}`}
@@ -84,6 +105,16 @@ const GameBoard: React.FC<GameBoardProps> = ({
           </div>
         ))}
       </div>
+      {/* Category Description Modal - always read-only on the game board */}
+      {descModal && (
+        <CategoryDescriptionModal
+          category={descModal.category}
+          description={descModal.description}
+          isVisible={true}
+          onClose={() => setDescModal(null)}
+          readOnly={true}
+        />
+      )}
     </div>
   );
 };

@@ -2,8 +2,12 @@
 import React from 'react';
 import { Button } from './ui/button';
 import { X, Timer, TimerOff } from 'lucide-react';
+import { Switch } from './ui/switch';
 
 interface QuestionModalHeaderProps {
+  isAnswerModal?: boolean;
+  isAnswered?: boolean;
+  onToggleAnswered?: (checked: boolean) => void;
   category: string;
   points: number;
   bonusPoints?: number;
@@ -20,8 +24,21 @@ const QuestionModalHeader: React.FC<QuestionModalHeaderProps> = ({
   isTimerEnabled,
   showTimerToggle,
   onClose,
-  onTimerToggle
+  onTimerToggle,
+  isAnswerModal,
+  isAnswered,
+  onToggleAnswered
 }) => {
+  React.useEffect(() => {
+    if (isAnswerModal) {
+      console.log('[QuestionModalHeader] Switch checked value:', isAnswered);
+    }
+  }, [isAnswered, isAnswerModal]);
+  React.useEffect(() => {
+    if (isAnswerModal) {
+      console.log('[QuestionModalHeader] Switch checked value:', isAnswered);
+    }
+  }, [isAnswered, isAnswerModal]);
   return (
     <div className="flex justify-between items-center mb-4 sm:mb-6">
       <div>
@@ -39,7 +56,7 @@ const QuestionModalHeader: React.FC<QuestionModalHeaderProps> = ({
           )}
         </div>
       </div>
-      <div className="flex gap-2">
+      <div className="flex gap-2 items-center">
         {showTimerToggle && (
           <Button
             onClick={onTimerToggle}
@@ -50,6 +67,17 @@ const QuestionModalHeader: React.FC<QuestionModalHeaderProps> = ({
           >
             {isTimerEnabled ? <TimerOff className="w-4 h-4" /> : <Timer className="w-4 h-4" />}
           </Button>
+        )}
+        {isAnswerModal && (
+          <div className="flex items-center gap-2">
+            <Switch
+              checked={!!isAnswered}
+              onCheckedChange={onToggleAnswered}
+            />
+            <span className="text-xs font-medium" style={{ color: '#2c5b69' }}>
+              {isAnswered ? 'Mark as Played' : 'Mark as Unplayed'}
+            </span>
+          </div>
         )}
         <Button
           onClick={onClose}

@@ -14,6 +14,65 @@ export type Database = {
   }
   public: {
     Tables: {
+      completed_games: {
+        Row: {
+          id: string
+          game_date: string
+          created_at: string
+          winner_name: string | null
+          winner_score: number | null
+        }
+        Insert: {
+          id?: string
+          game_date?: string
+          created_at?: string
+          winner_name?: string | null
+          winner_score?: number | null
+        }
+        Update: {
+          id?: string
+          game_date?: string
+          created_at?: string
+          winner_name?: string | null
+          winner_score?: number | null
+        }
+        Relationships: []
+      }
+      completed_game_players: {
+        Row: {
+          id: string
+          game_id: string
+          player_name: string
+          player_score: number
+          avatar_url: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          game_id: string
+          player_name: string
+          player_score: number
+          avatar_url?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          game_id?: string
+          player_name?: string
+          player_score?: number
+          avatar_url?: string | null
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "completed_game_players_game_id_fkey"
+            columns: ["game_id"]
+            isOneToOne: false
+            referencedRelation: "completed_games"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       game_categories: {
         Row: {
           category_name: string

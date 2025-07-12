@@ -1,9 +1,9 @@
-
 import React, { useState } from 'react';
 import { Button } from './ui/button';
 import { Edit2, Plus, Trash2 } from 'lucide-react';
 import { Question, CategoryDescription } from '../types/game';
 import CategoryDescriptionModal from './CategoryDescriptionModal';
+import '../styles/category-desc.css';
 
 interface CategoryGridProps {
   categories: string[];
@@ -31,20 +31,25 @@ const CategoryGrid: React.FC<CategoryGridProps> = ({
   getCategoryDescription
 }) => {
   const [editingDescriptionCategory, setEditingDescriptionCategory] = useState<string | null>(null);
+  const [isEditingReadOnly, setIsEditingReadOnly] = useState(false);
 
-  const handleDescriptionEdit = (category: string) => {
+  const handleDescriptionEdit = (category: string, readOnly: boolean = false) => {
     setEditingDescriptionCategory(category);
+    setIsEditingReadOnly(readOnly);
   };
 
   const handleDescriptionSave = (description: string) => {
     if (editingDescriptionCategory) {
+      console.log('Saving description for category:', editingDescriptionCategory, 'Description:', description);
       onUpdateCategoryDescription(editingDescriptionCategory, description);
       setEditingDescriptionCategory(null);
+      setIsEditingReadOnly(false);
     }
   };
 
   const handleDescriptionClose = () => {
     setEditingDescriptionCategory(null);
+    setIsEditingReadOnly(false);
   };
 
   // Use only the database categories (no questions-derived categories)
@@ -89,17 +94,26 @@ const CategoryGrid: React.FC<CategoryGridProps> = ({
               
               <div className="text-xs text-gray-600 mb-3 min-h-[40px]">
                 {getCategoryDescription(category) ? (
-                  <div 
-                    className="cursor-pointer hover:bg-gray-100 p-1 rounded"
-                    onClick={() => handleDescriptionEdit(category)}
-                    title="Click to edit description"
-                  >
-                    {getCategoryDescription(category)}
-                  </div>
+                  <>
+                    <div 
+                      className="cursor-pointer hover:bg-gray-100 p-1 rounded category-desc-responsive"
+                      onClick={() => handleDescriptionEdit(category, false)}
+                      title="Click to edit description"
+                    >
+                      {getCategoryDescription(category)}
+                    </div>
+                    <div
+                      className="cursor-pointer p-1 rounded flex items-center justify-center category-desc-eye-responsive"
+                      onClick={() => handleDescriptionEdit(category, false)}
+                      title="Edit description"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M1.5 12s4.5-7.5 10.5-7.5S22.5 12 22.5 12s-4.5 7.5-10.5 7.5S1.5 12 1.5 12z" /><circle cx="12" cy="12" r="3" /></svg>
+                    </div>
+                  </>
                 ) : (
                   <div
-                    className="text-gray-400 italic cursor-pointer hover:bg-gray-100 p-1 rounded"
-                    onClick={() => handleDescriptionEdit(category)}
+                    className="text-gray-400 italic cursor-pointer hover:bg-gray-100 p-1 rounded category-desc-responsive"
+                    onClick={() => handleDescriptionEdit(category, false)}
                     title="Click to add description"
                   >
                     + Add description
@@ -171,12 +185,13 @@ const CategoryGrid: React.FC<CategoryGridProps> = ({
           category={editingDescriptionCategory}
           description={getCategoryDescription(editingDescriptionCategory)}
           isVisible={true}
-          onSave={handleDescriptionSave}
+          onSave={isEditingReadOnly ? undefined : handleDescriptionSave}
           onClose={handleDescriptionClose}
+          readOnly={isEditingReadOnly}
         />
       )}
     </>
   );
-};
+}
 
 export default CategoryGrid;

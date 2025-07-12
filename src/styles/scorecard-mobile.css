@@ -1,0 +1,21 @@
+/* Make score cards larger at 767px and below */
+@media (max-width: 767px) {
+  .score-card {
+    font-size: 1.7rem !important;
+    min-width: 150px !important;
+    max-width: 320px !important;
+    padding: 1.2rem 1.2rem !important;
+  }
+  .score-card-avatar {
+    width: 2.5rem !important;
+    height: 2.5rem !important;
+  }
+  .score-card-name {
+    font-size: 1.2rem !important;
+  }
+  .score-card-score {
+    font-size: 1.4rem !important;
+    width: 8rem !important;
+    line-height: 1.7rem !important;
+  }
+}

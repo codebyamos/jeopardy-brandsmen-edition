@@ -1,95 +1,80 @@
-
-import React, { useState } from 'react';
-import { Button } from './ui/button';
-import { X, Save } from 'lucide-react';
+import React from 'react';
 
 interface CategoryDescriptionModalProps {
   category: string;
   description: string;
   isVisible: boolean;
-  onSave: (description: string) => void;
   onClose: () => void;
+  readOnly?: boolean;
+  onSave?: (description: string) => void;
 }
 
 const CategoryDescriptionModal: React.FC<CategoryDescriptionModalProps> = ({
   category,
-  description,
+  description: initialDescription,
   isVisible,
-  onSave,
-  onClose
+  onClose,
+  readOnly = false,
+  onSave
 }) => {
-  const [tempDescription, setTempDescription] = useState(description);
-
-  // Reset temp description when the modal opens with new description
+  const [editedDescription, setEditedDescription] = React.useState(initialDescription);
+  
   React.useEffect(() => {
-    if (isVisible) {
-      setTempDescription(description);
-    }
-  }, [description, isVisible]);
-
-  const handleSave = () => {
-    onSave(tempDescription);
-    onClose();
-  };
-
-  const handleClose = () => {
-    setTempDescription(description);
-    onClose();
-  };
+    setEditedDescription(initialDescription);
+  }, [initialDescription]);
 
   if (!isVisible) return null;
 
+  const handleSave = () => {
+    if (onSave) {
+      onSave(editedDescription);
+    }
+  };
+
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-4">
-      <div className="bg-white border-2 rounded-lg w-full max-w-md shadow-2xl" style={{ borderColor: '#2c5b69' }}>
-        <div className="p-6">
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-xl font-bold" style={{ color: '#2c5b69' }}>
-              Edit Category Description
-            </h3>
-            <Button
-              onClick={handleClose}
-              variant="ghost"
-              size="sm"
-              className="text-white hover:text-red-400"
-              style={{ backgroundColor: '#2c5b69' }}
+    <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 p-2 sm:p-4">
+      <div className="bg-white border-2 rounded-lg w-full max-w-md max-h-[90vh] overflow-auto shadow-2xl" style={{ borderColor: '#2c5b69' }}>
+        <div className="flex justify-between items-center p-3 border-b" style={{ borderColor: '#2c5b69' }}>
+          <h3 className="text-lg font-bold text-[#2c5b69]">{category.toUpperCase()}</h3>
+          <button onClick={onClose} className="text-[#2c5b69] hover:text-red-400" style={{ background: 'none', border: 'none' }}>
+            <span style={{ display: 'flex', alignItems: 'center' }}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2c5b69" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </span>
+          </button>
+        </div>
+        <div className="p-4">
+          {readOnly ? (
+            // Read-only mode - just show the text
+            <div 
+              className="text-sm text-gray-700 whitespace-pre-line" 
+              style={{ 
+                minHeight: '120px',
+                overflowWrap: 'break-word',
+                wordBreak: 'break-word',
+                maxWidth: '100%'
+              }}
             >
-              <X className="w-5 h-5" />
-            </Button>
-          </div>
-
-          <div className="mb-4">
-            <p className="text-sm font-medium mb-2" style={{ color: '#2c5b69' }}>
-              Category: {category}
-            </p>
-            <textarea
-              value={tempDescription}
-              onChange={(e) => setTempDescription(e.target.value)}
-              className="w-full p-3 border-2 rounded resize-none"
-              style={{ borderColor: '#2c5b69', color: '#2c5b69' }}
-              placeholder="Enter category description..."
-              rows={4}
-            />
-          </div>
-
-          <div className="flex gap-2">
-            <Button
-              onClick={handleSave}
-              className="flex-1 text-white"
-              style={{ backgroundColor: '#0f766e' }}
-            >
-              <Save className="w-4 h-4 mr-2" />
-              Save
-            </Button>
-            <Button
-              onClick={handleClose}
-              variant="outline"
-              className="flex-1 border-2"
-              style={{ borderColor: '#2c5b69', color: '#2c5b69' }}
-            >
-              Cancel
-            </Button>
-          </div>
+              {initialDescription}
+            </div>
+          ) : (
+            // Edit mode - show textarea and save button
+            <form onSubmit={(e) => { e.preventDefault(); handleSave(); }}>
+              <textarea
+                className="w-full border rounded p-2 text-sm text-gray-700"
+                style={{ minHeight: '120px' }}
+                value={editedDescription}
+                onChange={e => setEditedDescription(e.target.value)}
+              />
+              <div className="mt-2 flex justify-end">
+                <button 
+                  type="submit"
+                  className="px-4 py-2 bg-[#2c5b69] text-white rounded font-bold"
+                >
+                  Save
+                </button>
+              </div>
+            </form>
+          )}
         </div>
       </div>
     </div>

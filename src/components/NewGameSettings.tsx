@@ -23,7 +23,7 @@ const NewGameSettings: React.FC<NewGameSettingsProps> = ({
   const [newPasscode, setNewPasscode] = useState(passcode);
 
   const handleStartNewGame = () => {
-    if (newPasscode.length !== 4) {
+    if (newPasscode && newPasscode.length !== 4) {
       toast({
         title: "Invalid Passcode",
         description: "Please enter a 4-digit passcode.",
@@ -32,10 +32,17 @@ const NewGameSettings: React.FC<NewGameSettingsProps> = ({
       return;
     }
 
-    onStartNewGame(newPasscode);
+    // If newPasscode is same as current passcode, just pass undefined
+    // to indicate we're keeping the same passcode
+    const passToUse = newPasscode !== passcode ? newPasscode : undefined;
+    
+    onStartNewGame(passToUse);
     toast({
       title: "New Game Started",
-      description: "All scores and questions have been reset. New passcode has been set.",
+      description: passToUse ? 
+        "All scores and questions have been reset. New passcode has been set." : 
+        "All scores and questions have been reset. Keeping the same passcode.",
+      duration: 5000, // Show for longer
     });
     onClose();
   };

@@ -43,6 +43,16 @@ export const PasscodeProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       if (authStatus === 'true') {
         setIsAuthenticated(true);
       }
+      
+      // Check for new game refresh - in this case we need to restore authentication
+      const hardResetFlag = sessionStorage.getItem('hard-reset-new-game');
+      const tempPasscode = sessionStorage.getItem('temp-jeopardy-passcode');
+      
+      if (hardResetFlag === 'true' && tempPasscode) {
+        console.log('🔑 Auto-authenticating after new game refresh');
+        setIsAuthenticated(true);
+        localStorage.setItem('game_authenticated', 'true');
+      }
     };
 
     initializePasscode();
@@ -71,6 +81,8 @@ export const PasscodeProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     if (code === passcode) {
       setIsAuthenticated(true);
       localStorage.setItem('game_authenticated', 'true');
+      // Also store the passcode in localStorage to preserve authentication during new game
+      localStorage.setItem('jeopardy-passcode', code);
       return true;
     }
     return false;

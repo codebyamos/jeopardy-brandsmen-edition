@@ -37,6 +37,19 @@ export const useGameSaving = (currentGameId: string | null, setCurrentGameId: (i
     try {
       const gameId = await createOrFindGame(today, currentGameId);
       setCurrentGameId(gameId);
+      
+      // Store game ID in localStorage and URL for cross-device sharing
+      localStorage.setItem('currentGameId', gameId);
+      
+      // Update URL with game ID for easy sharing between devices
+      try {
+        const url = new URL(window.location.href);
+        url.searchParams.set('gameId', gameId);
+        window.history.replaceState({}, '', url.toString());
+        console.log('✅ Updated URL with game ID for cross-device sharing:', gameId);
+      } catch (error) {
+        console.error('Failed to update URL with game ID:', error);
+      }
 
       // Clean up unused media files when starting a new game
       if (questions && questions.length > 0 && !currentGameId) {

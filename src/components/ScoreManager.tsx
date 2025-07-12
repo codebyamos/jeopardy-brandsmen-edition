@@ -20,14 +20,34 @@ const ScoreManager: React.FC<ScoreManagerProps> = ({
   const [customPoints, setCustomPoints] = useState<{ [key: number]: number }>({});
 
   const updateScore = (playerId: number, points: number) => {
-    onPlayersUpdate(players.map(p => 
-      p.id === playerId ? { ...p, score: p.score + points } : p
-    ));
+    console.log('ScoreManager updating score:', { playerId, points, pointsType: typeof points });
+    
+    // Ensure both values are numbers
+    const numericPoints = Number(points) || 0;
+    
+    onPlayersUpdate(players.map(p => {
+      if (p.id === playerId) {
+        const currentScore = Number(p.score) || 0;
+        const newScore = currentScore + numericPoints;
+        console.log('ScoreManager score calculation:', { 
+          currentScore, 
+          numericPoints, 
+          newScore 
+        });
+        return { ...p, score: newScore };
+      }
+      return p;
+    }));
   };
 
   const setScore = (playerId: number, score: number) => {
+    console.log('ScoreManager setting score:', { playerId, score, scoreType: typeof score });
+    
+    // Ensure we're setting a number
+    const numericScore = Number(score) || 0;
+    
     onPlayersUpdate(players.map(p => 
-      p.id === playerId ? { ...p, score } : p
+      p.id === playerId ? { ...p, score: numericScore } : p
     ));
   };
 
@@ -36,12 +56,15 @@ const ScoreManager: React.FC<ScoreManagerProps> = ({
   };
 
   const handleCustomPointsChange = (playerId: number, value: string) => {
-    const points = parseInt(value) || 0;
+    // Use Number instead of parseInt to handle decimal values if needed
+    const points = Number(value) || 0;
+    console.log('Custom points changed:', { playerId, rawValue: value, parsedPoints: points });
     setCustomPoints(prev => ({ ...prev, [playerId]: points }));
   };
 
   const applyCustomPoints = (playerId: number) => {
     const points = customPoints[playerId] || 0;
+    console.log('Applying custom points:', { playerId, points, pointsType: typeof points });
     updateScore(playerId, points);
     setCustomPoints(prev => ({ ...prev, [playerId]: 0 }));
   };
@@ -75,86 +98,32 @@ const ScoreManager: React.FC<ScoreManagerProps> = ({
             </div>
           </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
             {players.map((player) => (
-              <div key={player.id} className="border-2 rounded-lg p-4" style={{ backgroundColor: '#f8f9fa', borderColor: '#2c5b69' }}>
-                <div className="text-center mb-4">
-                  <h4 className="font-semibold text-lg sm:text-xl mb-2" style={{color: '#2c5b69'}}>
+              <div key={player.id} className="border-2 rounded-lg p-2" style={{ backgroundColor: '#f8f9fa', borderColor: '#2c5b69', minWidth: '0' }}>
+                <div className="text-center mb-2">
+                  <h4 className="font-semibold text-base sm:text-lg mb-1" style={{color: '#2c5b69'}}>
                     {player.name}
                   </h4>
-                  <div className="text-2xl sm:text-3xl font-bold text-white mb-4 p-2 rounded" style={{ backgroundColor: '#2c5b69' }}>
+                  <div className="text-xl sm:text-2xl font-bold text-white mb-2 p-1 rounded" style={{ backgroundColor: '#2c5b69' }}>
                     {player.score}
                   </div>
                 </div>
 
-                {/* Quick Points */}
-                <div className="grid grid-cols-3 gap-2 mb-4">
-                  <div className="text-center">
-                    <div className="text-xs mb-1" style={{ color: '#2c5b69' }}>Add</div>
-                    <div className="space-y-1">
-                      {[100, 200, 500].map(points => (
-                        <Button
-                          key={points}
-                          onClick={() => updateScore(player.id, points)}
-                          size="sm"
-                          className="bg-green-600 hover:bg-green-700 text-white w-full text-xs"
-                        >
-                          +{points}
-                        </Button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="text-center">
-                    <div className="text-xs mb-1" style={{ color: '#2c5b69' }}>Subtract</div>
-                    <div className="space-y-1">
-                      {[100, 200, 500].map(points => (
-                        <Button
-                          key={points}
-                          onClick={() => updateScore(player.id, -points)}
-                          size="sm"
-                          className="bg-red-600 hover:bg-red-700 text-white w-full text-xs"
-                        >
-                          -{points}
-                        </Button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="text-center">
-                    <div className="text-xs mb-1" style={{ color: '#2c5b69' }}>Set to</div>
-                    <div className="space-y-1">
-                      {[0, 1000, 2000].map(score => (
-                        <Button
-                          key={score}
-                          onClick={() => setScore(player.id, score)}
-                          size="sm"
-                          className="text-white w-full text-xs hover:opacity-90"
-                          style={{ backgroundColor: '#2c5b69' }}
-                        >
-                          {score}
-                        </Button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Custom Points */}
                 <div className="border-t pt-3" style={{ borderColor: '#2c5b69' }}>
-                  <div className="text-xs mb-2" style={{ color: '#2c5b69' }}>Custom Points</div>
-                  <div className="flex gap-2">
+                  <div className="flex flex-col gap-2 items-center">
                     <input
                       type="number"
                       value={customPoints[player.id] || ''}
                       onChange={(e) => handleCustomPointsChange(player.id, e.target.value)}
                       placeholder="Enter points"
-                      className="flex-1 bg-white px-2 py-1 rounded text-sm border-2"
+                      className="w-full bg-white px-2 py-1 rounded text-sm border-2"
                       style={{ borderColor: '#2c5b69', color: '#2c5b69' }}
                     />
                     <Button
                       onClick={() => applyCustomPoints(player.id)}
                       size="sm"
-                      className="text-white hover:opacity-90"
+                      className="text-white hover:opacity-90 w-full"
                       style={{ backgroundColor: '#2c5b69' }}
                     >
                       Apply

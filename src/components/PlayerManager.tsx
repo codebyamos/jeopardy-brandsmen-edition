@@ -222,7 +222,7 @@ const PlayerManager: React.FC<PlayerManagerProps> = ({
             </div>
           )}
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
             {players.map((player) => (
               <div key={player.id} className="bg-gray-50 border-2 rounded-lg p-4" style={{ borderColor: '#2c5b69' }}>
                 {/* Avatar Section */}

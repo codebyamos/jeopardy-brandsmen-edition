@@ -36,8 +36,22 @@ const ScoringModal: React.FC<ScoringModalProps> = ({
   const bonusPoints = getLastQuestionBonusPoints();
 
   const handleScoreClick = (playerId: number, scorePoints: number) => {
-    console.log('🔥 ScoringModal handleScoreClick called:', { playerId, scorePoints });
-    onScorePlayer(playerId, scorePoints);
+    console.log('🔥 ScoringModal handleScoreClick called:', { 
+      playerId, 
+      scorePoints,
+      scorePointsType: typeof scorePoints 
+    });
+    
+    // Ensure we're passing a number
+    const numericPoints = Number(scorePoints);
+    
+    console.log('🔥 Converted score points:', {
+      originalValue: scorePoints,
+      convertedValue: numericPoints,
+      convertedType: typeof numericPoints
+    });
+    
+    onScorePlayer(playerId, numericPoints);
     // Don't close the modal automatically - let users continue scoring
   };
 
@@ -51,7 +65,13 @@ const ScoringModal: React.FC<ScoringModalProps> = ({
   const handleCustomPointsSubmit = (playerId: number) => {
     const pointsValue = customPoints[playerId];
     if (pointsValue && pointsValue !== '') {
-      const numPoints = parseInt(pointsValue, 10);
+      const numPoints = Number(pointsValue);
+      console.log('🔥 Custom points submitted:', {
+        rawValue: pointsValue,
+        parsedValue: numPoints,
+        type: typeof numPoints
+      });
+      
       if (!isNaN(numPoints)) {
         handleScoreClick(playerId, numPoints);
         setCustomPoints(prev => ({ ...prev, [playerId]: '' }));

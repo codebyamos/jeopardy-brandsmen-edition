@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Game History Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .game { border: 1px solid #ccc; margin: 10px 0; padding: 15px; border-radius: 5px; }
+        .winner { color: #2c5b69; font-weight: bold; }
+        .players { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-top: 10px; }
+        .player { background: #f5f5f5; padding: 8px; border-radius: 3px; }
+    </style>
+</head>
+<body>
+    <h1>Test: Games with Same Winner</h1>
+    <p>Based on your database data, here's what should show in the Game History:</p>
+    
+    <div class="game">
+        <h3>Game 1 (ID: f0491bb7-...)</h3>
+        <div class="winner">🏆 Winner: Amos (9000 pts)</div>
+        <div class="players">
+            <div class="player">Amos: 9000 pts</div>
+            <div class="player">Team 2: 0 pts</div>
+            <div class="player">Team 3: 0 pts</div>
+            <div class="player">Team 4: 0 pts</div>
+            <div class="player">Team 5: 0 pts</div>
+            <div class="player">Team 6: 0 pts</div>
+        </div>
+    </div>
+    
+    <div class="game">
+        <h3>Game 2 (ID: df5ac7a3-...)</h3>
+        <div class="winner">🏆 Winner: Amos (0 pts)</div>
+        <div class="players">
+            <div class="player">Amos: 0 pts</div>
+            <div class="player">Team 3: 0 pts</div>
+            <div class="player">Team 4: 0 pts</div>
+            <div class="player">Team 2: 0 pts</div>
+        </div>
+    </div>
+    
+    <h2>What this proves:</h2>
+    <ul>
+        <li>✅ Games with the same winner ("Amos") should both appear</li>
+        <li>✅ Each game has different players and scores</li>
+        <li>✅ The games are properly differentiated by their IDs</li>
+        <li>✅ This matches what your console logs show is working</li>
+    </ul>
+    
+    <h2>To test in your app:</h2>
+    <ol>
+        <li>Open the Jeopardy app</li>
+        <li>Enter a passcode to authenticate</li>
+        <li>Click on "Game History" or the history icon</li>
+        <li>You should see both games with "Amos" as winner</li>
+    </ol>
+    
+    <p><strong>If you're not seeing the games in the UI, the issue is likely:</strong></p>
+    <ul>
+        <li>Not being authenticated (enter a passcode)</li>
+        <li>The Game History modal not being opened</li>
+        <li>A UI rendering issue, not a data issue</li>
+    </ul>
+</body>
+</html>

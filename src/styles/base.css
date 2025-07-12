@@ -137,7 +137,14 @@
 
   /* Switch component styling */
   [data-radix-dialog-content] [data-state="checked"] {
-    background-color: #2c5b69 !important;
+    background-color: #16a34a !important; /* Tailwind green-600 */
+    transition: background-color 0.2s, box-shadow 0.2s;
+    box-shadow: 0 0 0 2px #16a34a33;
+  }
+  [data-radix-dialog-content] [data-state="unchecked"] {
+    background-color: #e5e7eb !important; /* Tailwind gray-200 */
+    transition: background-color 0.2s, box-shadow 0.2s;
+    box-shadow: 0 0 0 2px #e5e7eb33;
   }
 
   /* Button styling */
