@@ -101,7 +101,8 @@ const GameEditor: React.FC<GameEditorProps> = ({
       answer: '',
       bonusPoints: 0,
       imageUrl: '',
-      videoUrl: ''
+      videoUrl: '',
+      mediaAssignment: 'both'
     };
     
     console.log('➕ Adding new question for category:', category, 'points:', points);

@@ -8,6 +8,7 @@ export interface Question {
   bonusPoints?: number;
   imageUrl?: string;
   videoUrl?: string;
+  mediaAssignment?: 'question' | 'answer' | 'both'; // New field to specify where media appears
 }
 
 export interface Player {

@@ -20,19 +20,23 @@ const AnswerContent: React.FC<AnswerContentProps> = ({
 }) => {
   return (
     <div className="text-center">
-      <VoiceControl
-        text={question.answer}
-        type="answer"
-        isSpeaking={isSpeaking}
-        currentSpeech={currentSpeech}
-        onSpeak={onSpeak}
-        onStop={onStop}
-      />
-      <div className="modal-text-container">
-        <p className="modal-answer-text font-bold px-2" style={{ color: '#2c5b69' }}>
-          {question.answer}
-        </p>
-      </div>
+      {question.answer && (
+        <>
+          <VoiceControl
+            text={question.answer}
+            type="answer"
+            isSpeaking={isSpeaking}
+            currentSpeech={currentSpeech}
+            onSpeak={onSpeak}
+            onStop={onStop}
+          />
+          <div className="modal-text-container">
+            <p className="modal-answer-text font-bold px-2" style={{ color: '#2c5b69' }}>
+              {question.answer}
+            </p>
+          </div>
+        </>
+      )}
     </div>
   );
 };

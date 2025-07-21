@@ -97,59 +97,79 @@ const QuestionEditForm: React.FC<QuestionEditFormProps> = ({
         </div>
         
         <div>
-          <label className="block text-sm font-medium mb-2" style={{ color: '#2c5b69' }}>Question</label>
+          <label className="block text-sm font-medium mb-2" style={{ color: '#2c5b69' }}>Question (optional if media added)</label>
           <textarea
             value={tempQuestion.question || ''}
             onChange={(e) => setTempQuestion({...tempQuestion, question: e.target.value})}
             className="w-full px-3 py-2 rounded text-sm sm:text-base h-20 border-2"
             style={{ borderColor: '#2c5b69', color: '#2c5b69' }}
-            placeholder="Enter the question"
+            placeholder="Enter the question text (optional if image/video is added)"
           />
         </div>
         
         <div>
-          <label className="block text-sm font-medium mb-2" style={{ color: '#2c5b69' }}>Answer</label>
+          <label className="block text-sm font-medium mb-2" style={{ color: '#2c5b69' }}>Answer (optional if media added)</label>
           <textarea
             value={tempQuestion.answer || ''}
             onChange={(e) => setTempQuestion({...tempQuestion, answer: e.target.value})}
             className="w-full px-3 py-2 rounded text-sm sm:text-base h-20 border-2"
             style={{ borderColor: '#2c5b69', color: '#2c5b69' }}
-            placeholder="Enter the answer (e.g., What is...?)"
+            placeholder="Enter the answer text (optional if image/video is added)"
           />
         </div>
         
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4">
+          {/* Media Assignment */}
           <div>
             <label className="block text-sm font-medium mb-2" style={{ color: '#2c5b69' }}>
-              Image
+              Media appears in:
             </label>
-            <ImageUpload
-              onImageSelect={handleImageSelect}
-              currentImageUrl={tempQuestion.imageUrl}
-            />
-            <div className="mt-2">
-              <input
-                type="url"
-                value={tempQuestion.imageUrl || ''}
-                onChange={(e) => setTempQuestion({...tempQuestion, imageUrl: e.target.value})}
-                className="w-full px-3 py-2 rounded text-sm border-2"
-                style={{ borderColor: '#2c5b69', color: '#2c5b69' }}
-                placeholder="Or enter image URL"
-              />
-            </div>
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-2" style={{ color: '#2c5b69' }}>
-              YouTube URL (optional)
-            </label>
-            <input
-              type="url"
-              value={tempQuestion.videoUrl || ''}
-              onChange={(e) => setTempQuestion({...tempQuestion, videoUrl: e.target.value})}
+            <select
+              value={tempQuestion.mediaAssignment || 'both'}
+              onChange={(e) => setTempQuestion({...tempQuestion, mediaAssignment: e.target.value as 'question' | 'answer' | 'both'})}
               className="w-full px-3 py-2 rounded text-sm sm:text-base border-2"
               style={{ borderColor: '#2c5b69', color: '#2c5b69' }}
-              placeholder="https://youtube.com/watch?v=..."
-            />
+            >
+              <option value="both">Both Question & Answer</option>
+              <option value="question">Question Only</option>
+              <option value="answer">Answer Only</option>
+            </select>
+          </div>
+          
+          {/* Media Section */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium mb-2" style={{ color: '#2c5b69' }}>
+                Image
+              </label>
+              <ImageUpload
+                onImageSelect={handleImageSelect}
+                currentImageUrl={tempQuestion.imageUrl}
+              />
+              <div className="mt-2">
+                <input
+                  type="url"
+                  value={tempQuestion.imageUrl || ''}
+                  onChange={(e) => setTempQuestion({...tempQuestion, imageUrl: e.target.value})}
+                  className="w-full px-3 py-2 rounded text-sm border-2"
+                  style={{ borderColor: '#2c5b69', color: '#2c5b69' }}
+                  placeholder="Or enter image URL"
+                />
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2" style={{ color: '#2c5b69' }}>
+                YouTube URL
+              </label>
+              <input
+                type="url"
+                value={tempQuestion.videoUrl || ''}
+                onChange={(e) => setTempQuestion({...tempQuestion, videoUrl: e.target.value})}
+                className="w-full px-3 py-2 rounded text-sm sm:text-base border-2"
+                style={{ borderColor: '#2c5b69', color: '#2c5b69' }}
+                placeholder="https://youtube.com/watch?v=..."
+              />
+            </div>
           </div>
         </div>
         
@@ -158,7 +178,11 @@ const QuestionEditForm: React.FC<QuestionEditFormProps> = ({
             onClick={handleSave} 
             className="text-white"
             style={{ backgroundColor: '#0f766e' }}
-            disabled={!tempQuestion.category || !tempQuestion.question || !tempQuestion.answer}
+            disabled={
+              !tempQuestion.category || 
+              (!tempQuestion.question && !tempQuestion.imageUrl && !tempQuestion.videoUrl) ||
+              (!tempQuestion.answer && !tempQuestion.imageUrl && !tempQuestion.videoUrl)
+            }
           >
             <Save className="w-4 h-4 mr-1" />
             Save Changes

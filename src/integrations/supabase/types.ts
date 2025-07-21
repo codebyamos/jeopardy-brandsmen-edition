@@ -171,6 +171,7 @@ export type Database = {
           id: string
           image_url: string | null
           is_answered: boolean
+          media_assignment: string | null
           points: number
           question: string
           question_id: number
@@ -185,6 +186,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           is_answered?: boolean
+          media_assignment?: string | null
           points: number
           question: string
           question_id: number
@@ -199,6 +201,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           is_answered?: boolean
+          media_assignment?: string | null
           points?: number
           question?: string
           question_id?: number

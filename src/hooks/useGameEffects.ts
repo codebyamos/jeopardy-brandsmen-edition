@@ -332,7 +332,8 @@ export const useGameEffects = ({
             answer: q.answer,
             bonusPoints: q.bonus_points || 0,
             imageUrl: q.image_url || '',
-            videoUrl: q.video_url || ''
+            videoUrl: q.video_url || '',
+            mediaAssignment: (q.media_assignment as 'question' | 'answer' | 'both') || 'both'
           }));
           
           console.log('✅ STARTUP: Loaded unique questions from database:', loadedQuestions.length);

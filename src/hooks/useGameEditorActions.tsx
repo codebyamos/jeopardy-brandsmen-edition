@@ -39,7 +39,20 @@ export const useGameEditorActions = ({
   const saveQuestionEdit = (questionData: Partial<Question>, editingQuestion: Question) => {
     console.log('🔧 saveQuestionEdit called with:', { questionData, editingQuestion });
     
-    if (editingQuestion && questionData.category && questionData.question && questionData.answer && questionData.points) {
+    // Validation logic that matches the form's validation
+    const hasQuestionContent = questionData.question || questionData.imageUrl || questionData.videoUrl;
+    const hasAnswerContent = questionData.answer || questionData.imageUrl || questionData.videoUrl;
+    const isValid = questionData.category && hasQuestionContent && hasAnswerContent && questionData.points;
+    
+    console.log('🔍 Validation check:', {
+      category: !!questionData.category,
+      hasQuestionContent,
+      hasAnswerContent,
+      points: !!questionData.points,
+      isValid
+    });
+    
+    if (isValid) {
       const existingQuestionIndex = questions.findIndex(q => q.id === editingQuestion.id);
       let updatedQuestions: Question[];
       
@@ -225,7 +238,8 @@ export const useGameEditorActions = ({
         points: 100,
         question: 'New Question - Click edit to modify',
         answer: 'What is the answer?',
-        bonusPoints: 0
+        bonusPoints: 0,
+        mediaAssignment: 'both'
       };
       
       const updatedQuestions = [...questions, newQuestion];

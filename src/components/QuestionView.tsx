@@ -49,41 +49,45 @@ const QuestionView: React.FC<QuestionViewProps> = ({
         </Button>
       </div>
       {/* Desktop layout: side by side for video, stacked for mobile */}
-      {question.videoUrl ? (
+      {(question.videoUrl && (question.mediaAssignment === 'question' || question.mediaAssignment === 'both' || !question.mediaAssignment)) ? (
         <div className="flex flex-col lg:flex-row gap-6 mb-6">
-          <div className="flex-1 order-1 lg:order-1">
-            <QuestionContent
-              question={question}
-              isSpeaking={isSpeaking}
-              currentSpeech={currentSpeech}
-              onSpeak={onSpeak}
-              onStop={onStop}
-            />
-          </div>
-          <div className="flex-1 order-2 lg:order-2">
+          {question.question && (
+            <div className="flex-1 order-1 lg:order-1">
+              <QuestionContent
+                question={question}
+                isSpeaking={isSpeaking}
+                currentSpeech={currentSpeech}
+                onSpeak={onSpeak}
+                onStop={onStop}
+              />
+            </div>
+          )}
+          <div className={`flex-1 order-2 lg:order-2 ${!question.question ? 'w-full' : ''}`}>
             <MediaSection 
               videoUrl={question.videoUrl}
             />
           </div>
         </div>
-      ) : question.imageUrl ? (
+      ) : (question.imageUrl && (question.mediaAssignment === 'question' || question.mediaAssignment === 'both' || !question.mediaAssignment)) ? (
         <div className="flex flex-col lg:flex-row gap-6 mb-6 items-stretch">
-          <div className="flex-1 order-1 lg:order-1 flex items-center">
-            <QuestionContent
-              question={question}
-              isSpeaking={isSpeaking}
-              currentSpeech={currentSpeech}
-              onSpeak={onSpeak}
-              onStop={onStop}
-            />
-          </div>
-          <div className="flex-1 order-2 lg:order-2">
+          {question.question && (
+            <div className="flex-1 order-1 lg:order-1 flex items-center">
+              <QuestionContent
+                question={question}
+                isSpeaking={isSpeaking}
+                currentSpeech={currentSpeech}
+                onSpeak={onSpeak}
+                onStop={onStop}
+              />
+            </div>
+          )}
+          <div className={`flex-1 order-2 lg:order-2 ${!question.question ? 'w-full' : ''}`}>
             <MediaSection 
               imageUrl={question.imageUrl}
             />
           </div>
         </div>
-      ) : (
+      ) : question.question ? (
         <>
           <QuestionContent
             question={question}
@@ -93,7 +97,7 @@ const QuestionView: React.FC<QuestionViewProps> = ({
             onStop={onStop}
           />
         </>
-      )}
+      ) : null}
     </>
   );
 };

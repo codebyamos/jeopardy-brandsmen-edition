@@ -134,7 +134,8 @@ export const saveGameQuestions = async (gameId: string, questions: Question[], a
         bonus_points: question.bonusPoints || 0,
         image_url: question.imageUrl || null,
         video_url: question.videoUrl || null,
-        is_answered: answeredQuestions?.includes(question.id) || false
+        is_answered: answeredQuestions?.includes(question.id) || false,
+        media_assignment: question.mediaAssignment || 'both'
       }));
 
       console.log(`💾 Inserting ${uniqueQuestions.length} unique questions to database`);
