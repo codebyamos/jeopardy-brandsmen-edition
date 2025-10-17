@@ -41,7 +41,7 @@ const PasscodeScreen: React.FC = () => {
     <div 
       className="min-h-screen flex items-center justify-center p-4"
       style={{ 
-        backgroundImage: `linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('/lovable-uploads/08283c09-ba05-4fe0-87f1-64e2ce9da242.png')`,
+        backgroundImage: `linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('/uploads/08283c09-ba05-4fe0-87f1-64e2ce9da242.png')`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat'
