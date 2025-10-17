@@ -122,7 +122,8 @@ const Index = () => {
   }
 
   return (
-    <GameContainer
+    <div>
+      <GameContainer
       questions={questions}
       setQuestions={setQuestions}
       categoryDescriptions={categoryDescriptions}
@@ -150,6 +151,7 @@ const Index = () => {
       onCategoryDescriptionUpdate={handleCategoryDescriptionUpdate}
       isLoading={isLoading}
     />
+    </div>
   );
 };
 

@@ -69,7 +69,6 @@ export const useGameState = () => {
           score: Number(player.score) || 0
         }));
         
-        console.log('📋 STEP 1.5: SAVING TO HISTORY BEFORE RESET');
         const { saveGameToHistory } = await import('@/services/database/historyOperations');
         const historyId = await saveGameToHistory(playersWithNumberScores);
         
@@ -99,12 +98,6 @@ export const useGameState = () => {
     // CRITICAL - Set flags in sessionStorage to control the reset process
     sessionStorage.setItem('hard-reset-new-game', 'true');
     sessionStorage.setItem('reset-in-progress', 'true');
-    
-    // For debugging - save start time
-    sessionStorage.setItem('reset-start-time', new Date().toISOString());
-    
-    // Add clear console marker for easier debugging
-    console.log('%c==== STARTING COMPLETE GAME RESET ====', 'background: red; color: white; font-size: 16px;');
     
     // Clear the application state immediately
     setAnsweredQuestions(new Set());
@@ -164,46 +157,32 @@ export const useGameState = () => {
     };
     localStorage.setItem('jeopardy-game-state', JSON.stringify(newState));
     
-    console.log('📋 STEP 1: Local state reset complete');
-    
-    // CRITICAL: Now handle database operations in sequential order
+    // Now handle database operations in sequential order
     try {
-      console.log('📋 STEP 2: Starting database operations');
       
-      // Step 1: Delete existing game data if we have a game ID
+      // Delete existing game data if we have a game ID
       if (currentGameId) {
-        console.log(`📋 STEP 2.1: Deleting game ${currentGameId} from database`);
         try {
           const { deleteGameData } = await import('@/services/gameService');
           await deleteGameData(currentGameId);
-          console.log('✅ Successfully deleted previous game data from database');
           
           // Force a small delay to ensure deletion completes
           await new Promise(resolve => setTimeout(resolve, 500));
         } catch (error) {
           console.error('❌ Failed to delete previous game data:', error);
         }
-      } else {
-        console.log('📋 STEP 2.1: No previous game ID found, skipping deletion');
       }
       
-      // Step 2: Create a new game
-      console.log('📋 STEP 2.2: Creating new game in database');
+      // Create a new game
       const { createOrFindGame } = await import('@/services/gameService');
       const today = new Date().toISOString().split('T')[0];
       const newGameId = await createOrFindGame(today, null);
       
       // Save the new game ID to localStorage
       localStorage.setItem('currentGameId', newGameId);
-      console.log('✅ Created brand new game in database with ID:', newGameId);
       
       // Store this ID in sessionStorage as well to ensure it persists
       sessionStorage.setItem('new-game-id', newGameId);
-      
-      console.log('📋 STEP 2: Database operations complete');
-      
-      // Step 3: Soft reset without page refresh to preserve console and save operation
-      console.log('📋 STEP 3: Performing soft reset (no page refresh)');
       
       // Signal that reset was successful
       sessionStorage.setItem('reset-success', 'true');
@@ -214,8 +193,6 @@ export const useGameState = () => {
       // Clear the reset flags
       sessionStorage.removeItem('reset-in-progress');
       sessionStorage.removeItem('hard-reset-new-game');
-      
-      console.log('✅ SOFT RESET COMPLETE - Game history should be saved, new game ready');
       
     } catch (error) {
       console.error('❌ Failed during game reset process:', error);
