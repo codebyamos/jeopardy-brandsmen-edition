@@ -95,7 +95,7 @@ const GameContainer: React.FC<GameContainerProps> = ({
         <PlayerScores 
           players={players} 
           onScoreChange={onScorePlayer}
-          setPlayers={setPlayers} 
+          setPlayers={setPlayers}
         />
 
         <GameControls

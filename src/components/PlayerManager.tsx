@@ -97,29 +97,75 @@ const PlayerManager: React.FC<PlayerManagerProps> = ({
     setEditScore('');
   };
 
+  // Supported file types and size limits (same as ImageUpload)
+  const SUPPORTED_TYPES = [
+    'image/jpeg',
+    'image/jpg', 
+    'image/png',
+    'image/gif',
+    'image/webp',
+    'image/svg+xml',
+    'image/bmp',
+    'image/tiff',
+    'image/avif'
+  ];
+
+  const SUPPORTED_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg', '.bmp', '.tiff', '.avif'];
+  const MAX_FILE_SIZE = 25 * 1024 * 1024; // 25MB
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
+
+  const validateAvatarFile = (file: File) => {
+    // Check file extension
+    const fileExtension = '.' + file.name.split('.').pop()?.toLowerCase();
+    if (!SUPPORTED_EXTENSIONS.includes(fileExtension)) {
+      toast({
+        title: "Unsupported file type",
+        description: `Please select one of these image formats: ${SUPPORTED_EXTENSIONS.join(', ')}`,
+        variant: "destructive",
+      });
+      return false;
+    }
+
+    // Check MIME type
+    if (!SUPPORTED_TYPES.includes(file.type)) {
+      toast({
+        title: "Invalid file type",
+        description: `File type ${file.type} is not supported. Please select a valid image file.`,
+        variant: "destructive",
+      });
+      return false;
+    }
+
+    // Check file size
+    if (file.size > MAX_FILE_SIZE) {
+      toast({
+        title: "File too large",
+        description: `File size is ${formatFileSize(file.size)}. Please select an image smaller than ${formatFileSize(MAX_FILE_SIZE)}.`,
+        variant: "destructive",
+      });
+      return false;
+    }
+
+    return true;
+  };
+
   const handleAvatarUpload = async (playerId: number, event: React.ChangeEvent<HTMLInputElement>) => {
     if (isAnyPlayerBeingEdited) return; // Prevent avatar upload while editing
     
     const file = event.target.files?.[0];
     if (!file) return;
 
-    // Check file size (limit to 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      toast({
-        title: "File too large",
-        description: "Please select an image smaller than 5MB.",
-        variant: "destructive",
-      });
-      return;
-    }
+    // Reset the input value so the same file can be selected again
+    event.target.value = '';
 
-    // Check file type
-    if (!file.type.startsWith('image/')) {
-      toast({
-        title: "Invalid file type",
-        description: "Please select an image file.",
-        variant: "destructive",
-      });
+    if (!validateAvatarFile(file)) {
       return;
     }
 
@@ -269,7 +315,7 @@ const PlayerManager: React.FC<PlayerManagerProps> = ({
                       )}
                       <input
                         type="file"
-                        accept="image/*"
+                        accept=".jpg,.jpeg,.png,.gif,.webp,.svg,.bmp,.tiff,.avif,image/jpeg,image/jpg,image/png,image/gif,image/webp,image/svg+xml,image/bmp,image/tiff,image/avif"
                         onChange={(e) => handleAvatarUpload(player.id, e)}
                         className="hidden"
                         disabled={isAnyPlayerBeingEdited || uploadingAvatars.has(player.id)}

@@ -121,11 +121,13 @@ const QuestionModal: React.FC<QuestionModalProps> = ({
             )}
           </div>
           <div className="w-full flex justify-center" style={{ position: 'sticky', bottom: 0, marginBottom: '12px', zIndex: 2 }}>
-            <PlayerScores 
-              players={players} 
-              onScoreChange={onScorePlayer}
-              setPlayers={setPlayers}
-            />
+            <div className="w-full max-w-full overflow-x-auto">
+              <PlayerScores 
+                players={players} 
+                onScoreChange={onScorePlayer}
+                setPlayers={setPlayers}
+              />
+            </div>
           </div>
         </div>
       </div>
